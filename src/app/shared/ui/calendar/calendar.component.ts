@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   forwardRef,
   input,
   model,
@@ -37,6 +38,8 @@ export type CalendarDateSelectEvent = {
   date: Date;
   selectedDates: Date[];
 };
+
+let calendarComponentIdCounter = 0;
 
 // ============================================================================
 // Utility Functions
@@ -113,20 +116,45 @@ function getSelectedDatesArray(
           </button>
         </div>
 
-        <div class="flex items-center gap-1">
-          <button
-            type="button"
-            class="hover:bg-accent hover:text-accent-foreground h-7 min-w-[64px] px-2 select-none rounded-md text-sm font-medium transition-colors"
-            (click)="toggleMonthPicker()">
-            {{ monthLabel() }}
-          </button>
-          <button
-            type="button"
-            class="hover:bg-accent hover:text-accent-foreground h-7 min-w-[48px] px-2 select-none rounded-md text-sm font-medium transition-colors"
-            (click)="toggleYearPicker()">
-            {{ yearLabel() }}
-          </button>
-        </div>
+        @if (showMonthYearSelectors()) {
+          <div class="flex items-center gap-1">
+            <label class="sr-only" [for]="monthSelectId">Select month</label>
+            <select
+              [id]="monthSelectId"
+              class="h-7 min-w-[120px] rounded-md border border-input bg-background px-2 text-xs font-medium text-foreground outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+              (change)="onMonthSelect($event)">
+              @for (month of monthOptions; track month; let monthIndex = $index) {
+                <option
+                  [value]="monthIndex"
+                  [selected]="monthIndex === currentMonthValue"
+                  [disabled]="isMonthOptionDisabled(monthIndex)">
+                  {{ month }}
+                </option>
+              }
+            </select>
+
+            <label class="sr-only" [for]="yearSelectId">Select year</label>
+            <select
+              [id]="yearSelectId"
+              class="h-7 min-w-[86px] rounded-md border border-input bg-background px-2 text-xs font-medium text-foreground outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+              (change)="onYearSelect($event)">
+              @for (year of yearOptions(); track year) {
+                <option [value]="year" [selected]="year === currentYearValue">
+                  {{ year }}
+                </option>
+              }
+            </select>
+          </div>
+        } @else {
+          <div class="flex items-center gap-1 px-1">
+            <span class="h-7 min-w-[64px] px-2 select-none rounded-md text-sm font-medium text-foreground">
+              {{ monthLabel() }}
+            </span>
+            <span class="h-7 min-w-[48px] px-2 select-none rounded-md text-sm font-medium text-foreground">
+              {{ yearLabel() }}
+            </span>
+          </div>
+        }
       </div>
 
       <!-- Weekdays Header -->
@@ -187,6 +215,7 @@ export class CalendarComponent implements ControlValueAccessor {
   readonly mode = input<CalendarMode>('single');
   readonly minDate = input<Date | null>(null);
   readonly maxDate = input<Date | null>(null);
+  readonly showMonthYearSelectors = input<boolean>(false);
 
   // Model for two-way binding (supports single date, array of dates, or null)
   readonly model = model<Date | Date[] | null>(null);
@@ -218,6 +247,31 @@ export class CalendarComponent implements ControlValueAccessor {
 
   // Constants
   protected readonly weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  protected readonly monthOptions = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ] as const;
+  protected readonly monthSelectId = `calendar-month-select-${calendarComponentIdCounter}`;
+  protected readonly yearSelectId = `calendar-year-select-${calendarComponentIdCounter}`;
+
+  constructor() {
+    calendarComponentIdCounter += 1;
+    effect(() => {
+      this.minDate();
+      this.maxDate();
+      this.clampViewToBounds();
+    });
+  }
 
   // ============================================================================
   // Computed Properties
@@ -230,6 +284,20 @@ export class CalendarComponent implements ControlValueAccessor {
 
   protected readonly yearLabel = computed(() => {
     return this._currentYear().toString();
+  });
+
+  protected readonly yearOptions = computed(() => {
+    const currentYear = this._currentYear();
+    const minYear = this.minDate()?.getFullYear() ?? currentYear - 100;
+    const maxYear = this.maxDate()?.getFullYear() ?? currentYear + 50;
+    const startYear = Math.min(minYear, maxYear);
+    const endYear = Math.max(minYear, maxYear);
+
+    const years: number[] = [];
+    for (let year = startYear; year <= endYear; year++) {
+      years.push(year);
+    }
+    return years;
   });
 
   protected readonly containerClass = computed(() =>
@@ -357,13 +425,13 @@ export class CalendarComponent implements ControlValueAccessor {
 
     return cn(
       // Base styles
-      'relative w-full rounded-md h-full p-0 text-center text-sm transition-colors select-none aspect-square',
+      'relative w-full rounded-md h-full p-0 text-center text-sm transition-colors select-none aspect-square border border-transparent',
       // In current month
       day.isCurrentMonth ? 'text-foreground' : 'text-muted-foreground',
       // Disabled
       day.isDisabled && 'opacity-50 cursor-not-allowed',
       // Today
-      day.isToday && !day.isSelected && 'bg-accent text-foreground',
+      day.isToday && !day.isSelected && 'border-dashed border-muted-foreground/60 text-foreground',
       // Selected (non-range)
       day.isSelected && !isRangeMode && 'bg-primary text-primary-foreground rounded-md',
       // Range styles
@@ -403,8 +471,16 @@ export class CalendarComponent implements ControlValueAccessor {
     let selectedDates: Date[] = [];
 
     if (mode === 'single') {
-      newValue = day.date;
-      selectedDates = [day.date];
+      const existing = getSelectedDatesArray(currentValue, mode);
+      const isSameAsCurrent = existing.length > 0 && isSameDay(existing[0], day.date);
+
+      if (isSameAsCurrent) {
+        newValue = null;
+        selectedDates = [];
+      } else {
+        newValue = day.date;
+        selectedDates = [day.date];
+      }
     } else if (mode === 'multiple') {
       const existing = getSelectedDatesArray(currentValue, mode);
       const existsIndex = existing.findIndex(d => isSameDay(d, day.date));
@@ -483,22 +559,24 @@ export class CalendarComponent implements ControlValueAccessor {
     this.resetFocus();
   }
 
-  /**
-   * Toggles the month picker dropdown.
-   * @todo Implement month picker for direct month selection
-   */
-  toggleMonthPicker(): void {
-    // Placeholder for future month picker implementation
-    // Will show a dropdown/list to select month directly
+  onMonthSelect(event: Event): void {
+    const month = Number((event.target as HTMLSelectElement).value);
+    if (Number.isNaN(month) || this.isMonthOptionDisabled(month)) {
+      return;
+    }
+    this._currentMonth.set(month);
+    this.clampViewToBounds();
+    this.resetFocus();
   }
 
-  /**
-   * Toggles the year picker dropdown.
-   * @todo Implement year picker for direct year selection with decade navigation
-   */
-  toggleYearPicker(): void {
-    // Placeholder for future year picker implementation
-    // Will show a dropdown/list to select year with decade navigation
+  onYearSelect(event: Event): void {
+    const year = Number((event.target as HTMLSelectElement).value);
+    if (Number.isNaN(year)) {
+      return;
+    }
+    this._currentYear.set(year);
+    this.clampViewToBounds();
+    this.resetFocus();
   }
 
   // ============================================================================
@@ -659,6 +737,46 @@ export class CalendarComponent implements ControlValueAccessor {
     const year = this._currentYear();
     const month = this._currentMonth();
     return maxDate.getFullYear() <= year && maxDate.getMonth() <= month;
+  }
+
+  protected isMonthOptionDisabled(month: number): boolean {
+    const currentYear = this._currentYear();
+    const minDate = this.minDate();
+    const maxDate = this.maxDate();
+
+    if (minDate && currentYear === minDate.getFullYear() && month < minDate.getMonth()) {
+      return true;
+    }
+
+    if (maxDate && currentYear === maxDate.getFullYear() && month > maxDate.getMonth()) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private clampViewToBounds(): void {
+    const minDate = this.minDate();
+    const maxDate = this.maxDate();
+    let year = this._currentYear();
+    let month = this._currentMonth();
+
+    if (minDate && (year < minDate.getFullYear() || (year === minDate.getFullYear() && month < minDate.getMonth()))) {
+      year = minDate.getFullYear();
+      month = minDate.getMonth();
+    }
+
+    if (maxDate && (year > maxDate.getFullYear() || (year === maxDate.getFullYear() && month > maxDate.getMonth()))) {
+      year = maxDate.getFullYear();
+      month = maxDate.getMonth();
+    }
+
+    if (year !== this._currentYear()) {
+      this._currentYear.set(year);
+    }
+    if (month !== this._currentMonth()) {
+      this._currentMonth.set(month);
+    }
   }
 
   // ============================================================================
