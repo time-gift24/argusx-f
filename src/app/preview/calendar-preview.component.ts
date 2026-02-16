@@ -3,13 +3,12 @@ import {
   Component,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { CalendarComponent } from '../shared/ui/calendar/calendar.component';
 
 @Component({
   selector: 'app-calendar-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CalendarComponent, FormsModule],
+  imports: [CalendarComponent],
   template: `
     <div class="mx-auto max-w-3xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Calendar</h1>
@@ -21,8 +20,7 @@ import { CalendarComponent } from '../shared/ui/calendar/calendar.component';
         <h2 class="mb-4 text-lg font-medium">Single Date</h2>
         <div class="flex flex-wrap gap-4">
           <app-calendar
-            [model]="singleDate()"
-            (dateSelect)="onSingleDateSelect($event)"
+            [(model)]="singleDate"
           />
         </div>
         <p class="mt-2 text-sm text-muted-foreground">
@@ -31,13 +29,25 @@ import { CalendarComponent } from '../shared/ui/calendar/calendar.component';
       </section>
 
       <section class="mb-8">
+        <h2 class="mb-4 text-lg font-medium">Range Selection</h2>
+        <div class="flex flex-wrap gap-4">
+          <app-calendar
+            mode="range"
+            [(model)]="rangeDate"
+          />
+        </div>
+        <p class="mt-2 text-sm text-muted-foreground">
+          Selected: {{ rangeDate() ? rangeDate()!.join(' → ') : 'None' }}
+        </p>
+      </section>
+
+      <section class="mb-8">
         <h2 class="mb-4 text-lg font-medium">With Min/Max Constraints</h2>
         <div class="flex flex-wrap gap-4">
           <app-calendar
-            [model]="constrainedDate()"
+            [(model)]="constrainedDate"
             [minDate]="minDate()"
             [maxDate]="maxDate()"
-            (dateSelect)="onConstrainedDateSelect($event)"
           />
         </div>
         <p class="mt-2 text-sm text-muted-foreground">
@@ -65,6 +75,8 @@ export class CalendarPreviewComponent {
 
   readonly constrainedDate = signal<Date | null>(new Date());
 
+  readonly rangeDate = signal<Date[] | null>(null);
+
   private getMinDate(): Date {
     const date = new Date();
     date.setDate(date.getDate() - 7);
@@ -80,12 +92,4 @@ export class CalendarPreviewComponent {
   readonly minDate = signal<Date>(this.getMinDate());
 
   readonly maxDate = signal<Date>(this.getMaxDate());
-
-  onSingleDateSelect(event: { date: Date; selectedDates: Date[] }): void {
-    this.singleDate.set(event.date);
-  }
-
-  onConstrainedDateSelect(event: { date: Date; selectedDates: Date[] }): void {
-    this.constrainedDate.set(event.date);
-  }
 }
