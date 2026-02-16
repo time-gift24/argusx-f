@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, computed, Component, ElementRef, input, model, forwardRef, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { InputDirective, inputVariants, type InputStatus, type InputSize } from './input.directive';
-import { cn } from '../../utils/cn';
+import { InputDirective, type InputStatus, type InputSize } from './input.directive';
 
 /**
  * Component that provides a styled input with full form integration.
@@ -57,11 +56,8 @@ export class InputComponent implements ControlValueAccessor {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(inputVariants({
-      status: this.status(),
-      size: this.size(),
-      borderless: this.borderless(),
-    }), this.class())
+    // 只传递 class，不传递 border 样式（由内部 input 指令处理）
+    this.class()
   );
 
   @ViewChild('inputElement') inputElement?: ElementRef<HTMLInputElement>;
