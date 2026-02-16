@@ -2,14 +2,15 @@ import { computed, Directive, input } from '@angular/core';
 import { cn } from '../../utils/cn';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-// Aligned with official shadcn preset (.vendor/aim/components/ui/card.tsx)
+// Aligned with shadcn/ui card component
+// Reference: https://ui.shadcn.com/docs/components/card
 const cardVariants = cva(
-  'ring-foreground/10 bg-card text-card-foreground gap-4 overflow-hidden rounded-lg py-4 text-xs/relaxed ring-1 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 *:[img:first-child]:rounded-t-lg *:[img:last-child]:rounded-b-lg group/card flex flex-col',
+  'bg-card text-card-foreground group/card flex flex-col rounded-lg border border-border',
   {
     variants: {
       size: {
-        default: '',
-        sm: '',
+        default: 'p-6 gap-4',
+        sm: 'p-4 gap-3',
       },
     },
     defaultVariants: {
@@ -44,11 +45,15 @@ export type CardSize = NonNullable<CardVariants['size']>;
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"card"',
     '[attr.data-size]': 'size()',
+    '[attr.aria-labelledby]': 'ariaLabelledBy()',
+    '[attr.aria-describedby]': 'ariaDescribedBy()',
   },
 })
 export class CardDirective {
   readonly size = input<CardSize>('default');
   readonly class = input<string>('');
+  readonly ariaLabelledBy = input<string | null>(null);
+  readonly ariaDescribedBy = input<string | null>(null);
 
   protected readonly computedClass = computed(() =>
     cn(cardVariants({ size: this.size() }), this.class())
@@ -70,7 +75,7 @@ export class CardHeaderDirective {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'gap-1 rounded-t-lg px-4 group-data-[size=sm]/card:px-3 [.border-b]:pb-4 group-data-[size=sm]/card:[.border-b]:pb-3 group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]',
+      'flex flex-col gap-1.5 group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]',
       this.class()
     )
   );
@@ -147,7 +152,7 @@ export class CardContentDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('px-4 group-data-[size=sm]/card:px-3', this.class())
+    cn('flex-1', this.class())
   );
 }
 
@@ -165,10 +170,7 @@ export class CardFooterDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'rounded-b-lg px-4 group-data-[size=sm]/card:px-3 [.border-t]:pt-4 group-data-[size=sm]/card:[.border-t]:pt-3 flex items-center',
-      this.class()
-    )
+    cn('flex items-center', this.class())
   );
 }
 
