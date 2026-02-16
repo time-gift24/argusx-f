@@ -119,9 +119,9 @@ Choose components to compare based on:
 ### Step 2: Gather Implementation Details
 
 For each component:
-1. Read local implementation source
-2. Fetch zardui implementation from GitHub
-3. Document API differences
+1. **Read local implementation** - 使用 Serena/Read 工具直接读取 `src/app/shared/ui/{component}/`
+2. **Fetch zardui 实现** - 首选: 访问 `https://www.zardui.com/docs/components/{component}` 获取完整源码 (包含 inline 代码块)
+3. **Document API differences**
 
 ### Step 3: Analyze Each Dimension
 
@@ -136,29 +136,41 @@ Create comparison summary with:
 
 ## Data Sources
 
-### Zardui (GitHub)
+### Zardui - 首选文档站 ⚡️
+
+**文档站是获取源码最快的方式** - zardui.com/docs/components/{component} 页面直接包含了完整的组件源码 (button.component.ts, button.variants.ts 等)，无需猜测 GitHub 路径结构。
+
 ```
-Base URL: https://github.com/zard-ui/zardui
-Components: libs/zard/src/lib/shared/components/
-Raw: https://raw.githubusercontent.com/zard-ui/zardui/master/libs/zard/src/lib/shared/components/{component}/
+URL 格式: https://www.zardui.com/docs/components/{component}
+示例: https://www.zardui.com/docs/components/button
+```
+
+### Zardui - GitHub (备选)
+
+如果文档站不可用，尝试 GitHub。但注意：repo 目录结构可能与文档中描述的不同，需要探索确认。
+
+```
+Base: https://github.com/zard-ui/zardui
+搜索: https://github.com/zard-ui/zardui/search?q=button+path%3Alibs
 ```
 
 ### Local Components
 ```
 Base: src/app/shared/ui/{component}/
+使用: 直接读取本地文件
 ```
 
 ## Quick Reference
 
 ### Zardui Naming Conventions
-- Component selector: `z-{component}`
-- Input properties: `z{PropertyName}`
-- Example: `<z-button zType="default" zSize="lg">`
+- 组件选择器: `z-button` 或 `button[z-button]`
+- 输入属性: `zType`, `zSize`, `zShape`, `zFull`, `zLoading`, `zDisabled`
+- 示例: `<button z-button zType="outline" zSize="sm">`
 
 ### Local (ArgusX) Naming Conventions
-- Directive selector: `[app{Component}]`
-- Input properties: `{property}()`
-- Example: `<button argus-button [variant]="'default'" [size]="'lg'">`
+- 指令选择器: `argus-button`
+- 输入属性: `variant()`, `size()`, `disabled()`, `invalid()`
+- 示例: `<button argus-button variant="outline" size="sm">`
 
 ## Common Findings Patterns
 
