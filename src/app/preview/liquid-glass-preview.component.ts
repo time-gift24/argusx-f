@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -14,8 +14,8 @@ import {
   template: `
     <div class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 p-8">
       <!-- Background Elements -->
-      <div class="fixed top-20 left-20 w-64 h-64 bg-purple-500/30 rounded-full blur-3xl" />
-      <div class="fixed bottom-20 right-20 w-96 h-96 bg-pink-500/30 rounded-full blur-3xl" />
+      <div class="fixed top-20 left-20 w-64 h-64 bg-purple-500/30 rounded-full blur-3xl"></div>
+      <div class="fixed bottom-20 right-20 w-96 h-96 bg-pink-500/30 rounded-full blur-3xl"></div>
 
       <div class="mx-auto max-w-6xl">
         <h1 class="mb-2 text-2xl font-semibold text-white">Liquid Glass</h1>
@@ -143,14 +143,14 @@ import {
             <div class="flex gap-4">
               <app-liquid-glass
                 appLiquidMouse
-                [config]="{...config(), cornerRadius: 100}"
+                [config]="buttonConfig()"
                 class="inline-block"
               >
                 <button class="px-6 py-2 text-white">Click Me</button>
               </app-liquid-glass>
               <app-liquid-glass
                 appLiquidMouse
-                [config]="{...config(), cornerRadius: 100, overLight: true}"
+                [config]="lightButtonConfig()"
                 class="inline-block"
               >
                 <button class="px-6 py-2 text-gray-900">Light Mode</button>
@@ -168,7 +168,7 @@ import {
             <div class="grid grid-cols-2 gap-6">
               <app-liquid-glass
                 appLiquidMouse
-                [config]="{...config(), cornerRadius: 16}"
+                [config]="cardConfig()"
                 class="block"
               >
                 <div class="p-4 text-white">
@@ -178,7 +178,7 @@ import {
               </app-liquid-glass>
               <app-liquid-glass
                 appLiquidMouse
-                [config]="{...config(), cornerRadius: 16}"
+                [config]="cardConfig()"
                 class="block"
               >
                 <div class="p-4 text-white">
@@ -204,4 +204,20 @@ export class LiquidGlassPreviewComponent {
     overLight: false,
     mode: 'standard',
   });
+
+  buttonConfig = computed(() => ({
+    ...this.config(),
+    cornerRadius: 100,
+  }));
+
+  lightButtonConfig = computed(() => ({
+    ...this.config(),
+    cornerRadius: 100,
+    overLight: true,
+  }));
+
+  cardConfig = computed(() => ({
+    ...this.config(),
+    cornerRadius: 16,
+  }));
 }
