@@ -6,14 +6,15 @@ import { InputDirective } from '../shared/ui/input';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [InputDirective],
   template: `
-    <div class="mx-auto max-w-3xl p-8">
+    <div class="mx-auto max-w-6xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Input</h1>
       <p class="mb-8 text-muted-foreground">
         Displays a form input field that allows users to enter text.
       </p>
 
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
       <!-- Types -->
-      <section class="mb-8">
+      <section>
         <div class="mb-4">
           <h2 class="text-sm font-medium text-muted-foreground">Types</h2>
         </div>
@@ -46,7 +47,7 @@ import { InputDirective } from '../shared/ui/input';
       </section>
 
       <!-- States -->
-      <section class="mb-8">
+      <section>
         <div class="mb-4">
           <h2 class="text-sm font-medium text-muted-foreground">States</h2>
         </div>
@@ -85,7 +86,7 @@ import { InputDirective } from '../shared/ui/input';
       </section>
 
       <!-- With Labels -->
-      <section class="mb-8">
+      <section>
         <div class="mb-4">
           <h2 class="text-sm font-medium text-muted-foreground">With Labels</h2>
         </div>
@@ -123,6 +124,7 @@ import { InputDirective } from '../shared/ui/input';
           <input appInput type="file" id="input-file" />
         </div>
       </section>
+      </div>
     </div>
   `,
 })

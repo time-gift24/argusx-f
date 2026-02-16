@@ -6,14 +6,15 @@ import { ButtonComponent } from '../shared/ui/button';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ButtonComponent],
   template: `
-    <div class="mx-auto max-w-3xl p-8">
+    <div class="mx-auto max-w-6xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Button</h1>
       <p class="mb-8 text-muted-foreground">
         Displays a button or a component that appears like a button.
       </p>
 
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
       <!-- Variants -->
-      <section class="mb-8">
+      <section>
         <div class="mb-4">
           <h2 class="text-sm font-medium text-muted-foreground">Variants</h2>
         </div>
@@ -30,7 +31,7 @@ import { ButtonComponent } from '../shared/ui/button';
       </section>
 
       <!-- Sizes -->
-      <section class="mb-8">
+      <section>
         <div class="mb-4">
           <h2 class="text-sm font-medium text-muted-foreground">Sizes</h2>
         </div>
@@ -57,7 +58,7 @@ import { ButtonComponent } from '../shared/ui/button';
       </section>
 
       <!-- States -->
-      <section class="mb-8">
+      <section>
         <div class="mb-4">
           <h2 class="text-sm font-medium text-muted-foreground">States</h2>
         </div>
@@ -71,7 +72,7 @@ import { ButtonComponent } from '../shared/ui/button';
       </section>
 
       <!-- Shape -->
-      <section class="mb-8">
+      <section>
         <div class="mb-4">
           <h2 class="text-sm font-medium text-muted-foreground">Shape</h2>
         </div>
@@ -87,7 +88,7 @@ import { ButtonComponent } from '../shared/ui/button';
       </section>
 
       <!-- With Icons -->
-      <section class="mb-8">
+      <section>
         <div class="mb-4">
           <h2 class="text-sm font-medium text-muted-foreground">With Icons</h2>
         </div>
@@ -110,7 +111,7 @@ import { ButtonComponent } from '../shared/ui/button';
       </section>
 
       <!-- All Sizes with Icons -->
-      <section class="mb-8">
+      <section>
         <div class="mb-4">
           <h2 class="text-sm font-medium text-muted-foreground">Icon Sizes</h2>
         </div>
@@ -131,6 +132,7 @@ import { ButtonComponent } from '../shared/ui/button';
           </div>
         </div>
       </section>
+      </div>
     </div>
   `,
 })
