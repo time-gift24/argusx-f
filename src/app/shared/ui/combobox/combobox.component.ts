@@ -10,7 +10,9 @@ import {
   signal,
   viewChild,
   effect,
+  Provider,
 } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import {
   CdkOverlayOrigin,
@@ -847,10 +849,17 @@ let comboboxIdCounter = 0;
       provide: ComboboxRootToken,
       useExisting: forwardRef(() => ComboboxComponent),
     },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => ComboboxComponent),
+      multi: true,
+    },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxComponent<T = unknown> implements ComboboxRootToken<T> {
+export class ComboboxComponent<T = unknown>
+  implements ComboboxRootToken<T>, ControlValueAccessor
+{
   readonly value = model<T | T[] | undefined>(undefined);
   readonly multiple = input<boolean>(false);
   readonly disabled = input<boolean>(false);
@@ -1023,6 +1032,33 @@ export class ComboboxComponent<T = unknown> implements ComboboxRootToken<T> {
     if (event.key === 'Escape') {
       this.closeCombobox();
     }
+  }
+
+  // ControlValueAccessor implementation
+  private onChange: (value: T | T[] | undefined) => void = () => {};
+  private onTouched: () => void = () => {};
+
+  writeValue(value: T | T[] | undefined): void {
+    this.value.set(value);
+  }
+
+  registerOnChange(fn: (value: T | T[] | undefined) => void): void {
+    this.onChange = fn;
+    // Subscribe to value changes
+    effect(() => {
+      fn(this.value());
+    });
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  // For form integration - use a signal to track disabled state
+  private _disabled = signal<boolean>(false);
+
+  setDisabledState(isDisabled: boolean): void {
+    this._disabled.set(isDisabled);
   }
 
   protected onOutsideClick(event: MouseEvent): void {

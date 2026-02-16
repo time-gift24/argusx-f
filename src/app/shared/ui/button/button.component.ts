@@ -16,7 +16,7 @@ import { cn } from '@app/shared/utils';
  */
 const buttonVariants = cva(
   // Base styles - mira style with proper focus/invalid semantics
-  'focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border border-transparent bg-clip-padding text-xs/relaxed font-medium focus-visible:ring-2 aria-invalid:ring-2 [&_svg:not([class*="size-"])]:size-4 inline-flex items-center justify-center whitespace-nowrap transition-colors transition-opacity disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none shrink-0 [&_svg]:shrink-0 outline-none group/button select-none',
+  'focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 border border-transparent bg-clip-padding text-xs/relaxed font-medium focus-visible:ring-2 aria-invalid:ring-2 [&_svg:not([class*="size-"])]:size-4 inline-flex items-center justify-center whitespace-nowrap transition-colors transition-opacity disabled:pointer-events-none [&_svg]:pointer-events-none shrink-0 [&_svg]:shrink-0 outline-none group/button select-none',
   {
     variants: {
       variant: {
@@ -37,10 +37,21 @@ const buttonVariants = cva(
         'icon-sm': 'size-6 [&_svg:not([class*="size-"])]:size-3',
         'icon-lg': 'size-8 [&_svg:not([class*="size-"])]:size-4',
       },
+      shape: {
+        default: 'rounded-md',
+        circle: 'rounded-full',
+        square: 'rounded-none',
+      },
+      loading: {
+        false: '',
+        true: 'pointer-events-none opacity-50',
+      },
     },
     defaultVariants: {
       variant: 'default',
       size: 'default',
+      shape: 'default',
+      loading: false,
     },
   },
 );
@@ -50,6 +61,7 @@ const buttonVariants = cva(
  */
 export type ButtonVariant = VariantProps<typeof buttonVariants>['variant'];
 export type ButtonSize = VariantProps<typeof buttonVariants>['size'];
+export type ButtonShape = VariantProps<typeof buttonVariants>['shape'];
 
 @Component({
   selector: 'button[argus-button], a[argus-button]',
@@ -58,10 +70,13 @@ export type ButtonSize = VariantProps<typeof buttonVariants>['size'];
     '[class]': 'computedClass()',
     '[attr.data-variant]': 'variant()',
     '[attr.data-size]': 'size()',
+    '[attr.data-shape]': 'shape()',
     '[attr.data-slot]': '"button"',
-    '[attr.disabled]': 'disabled() ? "" : null',
-    '[attr.aria-disabled]': 'disabled()',
+    '[attr.data-loading]': 'loading()',
+    '[attr.disabled]': 'disabled() || loading() ? "" : null',
+    '[attr.aria-disabled]': 'disabled() || loading()',
     '[attr.aria-invalid]': 'invalid()',
+    '[attr.aria-busy]': 'loading()',
   },
   template: ` <ng-content /> `,
 })
@@ -70,6 +85,8 @@ export class ButtonComponent {
 
   readonly variant = input<ButtonVariant>('default');
   readonly size = input<ButtonSize>('default');
+  readonly shape = input<ButtonShape>('default');
+  readonly loading = input<boolean>(false);
   readonly class = input<string>('');
   readonly disabled = input<boolean, string | boolean>(false, {
     transform: (value: string | boolean) => {
@@ -97,6 +114,14 @@ export class ButtonComponent {
    * Centralizes variant and size logic in buttonVariants definition
    */
   protected computedClass = computed(() => {
-    return cn(buttonVariants({ variant: this.variant(), size: this.size() }), this.class());
+    return cn(
+      buttonVariants({
+        variant: this.variant(),
+        size: this.size(),
+        shape: this.shape(),
+        loading: this.loading(),
+      }),
+      this.class()
+    );
   });
 }
