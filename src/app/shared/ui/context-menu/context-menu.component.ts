@@ -1,0 +1,1029 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  Directive,
+  ElementRef,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  viewChild,
+  TemplateRef,
+  ViewContainerRef,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  CdkOverlayOrigin,
+  OverlayModule,
+  ConnectedPosition,
+  FlexibleConnectedPositionStrategy,
+  Overlay,
+  OverlayRef,
+} from '@angular/cdk/overlay';
+import { TemplatePortal, PortalModule } from '@angular/cdk/portal';
+import { cn } from '../../utils/cn';
+import { cva, type VariantProps } from 'class-variance-authority';
+import {
+  LucideAngularModule,
+  CheckIcon,
+  ChevronRightIcon,
+} from 'lucide-angular';
+
+// ============================================================================
+// Types
+// ============================================================================
+
+export type ContextMenuItemVariant = 'default' | 'destructive';
+
+// ============================================================================
+// Context Menu Root with integrated Overlay
+// ============================================================================
+
+let contextMenuIdCounter = 0;
+
+// ============================================================================
+// Context Menu Trigger
+// ============================================================================
+
+/**
+ * Context Menu Trigger Directive
+ * Opens the context menu on right-click
+ */
+@Directive({
+  selector: '[appContextMenuTrigger]',
+  host: {
+    '[attr.data-slot]': '"context-menu-trigger"',
+    '[attr.aria-haspopup]': '"menu"',
+    '(contextmenu)': 'onContextMenu($event)',
+  },
+})
+export class ContextMenuTriggerDirective {
+  readonly contextMenu = inject(ContextMenuComponent);
+  readonly elementRef = inject(ElementRef<HTMLElement>);
+
+  onContextMenu(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.contextMenu.openAt(
+      event.clientX,
+      event.clientY,
+      this.elementRef.nativeElement
+    );
+  }
+}
+
+// ============================================================================
+// Context Menu Group
+// ============================================================================
+
+/**
+ * Context Menu Group Component
+ * Groups related items together
+ */
+@Component({
+  selector: 'app-context-menu-group',
+  imports: [CommonModule],
+  template: `<ng-content />`,
+  host: {
+    '[attr.data-slot]': '"context-menu-group"',
+    role: 'group',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuGroupComponent {
+  readonly class = input<string>('');
+}
+
+// ============================================================================
+// Context Menu Label
+// ============================================================================
+
+/**
+ * Context Menu Label Component
+ * Labels a group of items
+ */
+@Component({
+  selector: 'app-context-menu-label',
+  imports: [CommonModule],
+  template: `<ng-content />`,
+  host: {
+    '[class]': 'computedClass()',
+    '[attr.data-slot]': '"context-menu-label"',
+    '[attr.data-inset]': 'inset() ? "" : null',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuLabelComponent {
+  readonly inset = input<boolean>(false);
+  readonly class = input<string>('');
+
+  protected readonly computedClass = computed(() =>
+    cn(
+      'text-muted-foreground px-2 py-1.5 text-xs',
+      this.inset() ? 'pl-7.5' : '',
+      this.class()
+    )
+  );
+}
+
+// ============================================================================
+// Context Menu Item
+// ============================================================================
+
+const contextMenuItemVariants = cva(
+  "focus-visible:bg-accent focus-visible:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus-visible:bg-destructive/10 dark:data-[variant=destructive]:focus-visible:bg-destructive/20 data-[variant=destructive]:focus-visible:text-destructive data-[variant=destructive]:*:[svg]:text-destructive not-data-[variant=destructive]:focus-visible:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5 group/context-menu-item relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  {
+    variants: {
+      variant: {
+        default: '',
+        destructive: '',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  }
+);
+
+/**
+ * Context Menu Item Component
+ * Individual menu item
+ */
+@Component({
+  selector: 'app-context-menu-item',
+  imports: [CommonModule],
+  template: `
+    <ng-content />
+  `,
+  host: {
+    '[class]': 'computedClass()',
+    '[attr.data-slot]': '"context-menu-item"',
+    '[attr.data-inset]': 'inset() ? "" : null',
+    '[attr.data-variant]': 'variant()',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.role]': '"menuitem"',
+    '[attr.tabindex]': 'disabled() ? -1 : 0',
+    '(click)': 'onClick()',
+    '(keydown)': 'onKeydown($event)',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuItemComponent {
+  readonly contextMenu = inject(ContextMenuComponent);
+
+  readonly inset = input<boolean>(false);
+  readonly variant = input<ContextMenuItemVariant>('default');
+  readonly disabled = input<boolean>(false);
+  readonly class = input<string>('');
+
+  readonly select = output<void>();
+
+  protected readonly computedClass = computed(() =>
+    cn(
+      contextMenuItemVariants({ variant: this.variant() }),
+      'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
+      this.class()
+    )
+  );
+
+  onClick(): void {
+    if (this.disabled()) return;
+    this.select.emit();
+    // Close menu after selection
+    this.contextMenu.closeMenu();
+  }
+
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.onClick();
+    }
+  }
+}
+
+// ============================================================================
+// Context Menu Checkbox Item
+// ============================================================================
+
+/**
+ * Context Menu Checkbox Item Component
+ * A checkbox menu item that can be toggled
+ */
+@Component({
+  selector: 'app-context-menu-checkbox-item',
+  imports: [CommonModule, LucideAngularModule],
+  template: `
+    <span class="absolute right-2 flex items-center justify-center pointer-events-none">
+      @if (checked()) {
+        <lucide-icon [img]="checkIcon" class="size-3.5" />
+      }
+    </span>
+    <ng-content />
+  `,
+  host: {
+    '[class]': 'computedClass()',
+    '[attr.data-slot]': '"context-menu-checkbox-item"',
+    '[attr.data-inset]': 'inset() ? "" : null',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.role]': '"menuitemcheckbox"',
+    '[attr.aria-checked]': 'checked()',
+    '[attr.tabindex]': 'disabled() ? -1 : 0',
+    '(click)': 'onClick()',
+    '(keydown)': 'onKeydown($event)',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuCheckboxItemComponent {
+  readonly checked = input<boolean>(false);
+  readonly inset = input<boolean>(false);
+  readonly disabled = input<boolean>(false);
+  readonly class = input<string>('');
+
+  readonly checkedChange = output<boolean>();
+
+  protected readonly checkIcon = CheckIcon;
+
+  protected readonly computedClass = computed(() =>
+    cn(
+      'focus-visible:bg-accent focus-visible:text-accent-foreground focus-visible:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+      'pr-8',
+      'py-1',
+      'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
+      this.class()
+    )
+  );
+
+  onClick(): void {
+    if (this.disabled()) return;
+    this.checkedChange.emit(!this.checked());
+    // Don't close menu for checkbox items (allows multiple selections)
+  }
+
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.onClick();
+    }
+  }
+}
+
+// ============================================================================
+// Context Menu Radio Group
+// ============================================================================
+
+/**
+ * Context Menu Radio Group Component
+ * Groups radio items together
+ */
+@Component({
+  selector: 'app-context-menu-radio-group',
+  imports: [CommonModule],
+  template: `<ng-content />`,
+  host: {
+    '[attr.data-slot]': '"context-menu-radio-group"',
+    role: 'group',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuRadioGroupComponent {
+  readonly value = model<string | undefined>(undefined);
+  readonly class = input<string>('');
+}
+
+// ============================================================================
+// Context Menu Radio Item
+// ============================================================================
+
+/**
+ * Context Menu Radio Item Component
+ * A radio menu item for single selection
+ */
+@Component({
+  selector: 'app-context-menu-radio-item',
+  imports: [CommonModule, LucideAngularModule],
+  template: `
+    <span class="absolute right-2 flex items-center justify-center pointer-events-none">
+      @if (isSelected()) {
+        <lucide-icon [img]="checkIcon" class="size-3.5" />
+      }
+    </span>
+    <ng-content />
+  `,
+  host: {
+    '[class]': 'computedClass()',
+    '[attr.data-slot]': '"context-menu-radio-item"',
+    '[attr.data-inset]': 'inset() ? "" : null',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.role]': '"menuitemradio"',
+    '[attr.aria-checked]': 'isSelected()',
+    '[attr.tabindex]': 'disabled() ? -1 : 0',
+    '(click)': 'onClick()',
+    '(keydown)': 'onKeydown($event)',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuRadioItemComponent {
+  readonly contextMenu = inject(ContextMenuComponent);
+  readonly radioGroup = inject(ContextMenuRadioGroupComponent, { optional: true });
+
+  readonly value = input.required<string>();
+  readonly inset = input<boolean>(false);
+  readonly disabled = input<boolean>(false);
+  readonly class = input<string>('');
+
+  protected readonly checkIcon = CheckIcon;
+
+  protected readonly isSelected = computed(
+    () => this.radioGroup?.value() === this.value()
+  );
+
+  protected readonly computedClass = computed(() =>
+    cn(
+      'focus-visible:bg-accent focus-visible:text-accent-foreground focus-visible:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+      'pr-8',
+      'py-1',
+      'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
+      this.class()
+    )
+  );
+
+  onClick(): void {
+    if (this.disabled()) return;
+    if (this.radioGroup) {
+      this.radioGroup.value.set(this.value());
+    }
+    // Close menu after selection
+    this.contextMenu.closeMenu();
+  }
+
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.onClick();
+    }
+  }
+}
+
+// ============================================================================
+// Context Menu Separator
+// ============================================================================
+
+/**
+ * Context Menu Separator Component
+ * Visual divider between items
+ */
+@Component({
+  selector: 'app-context-menu-separator',
+  imports: [CommonModule],
+  template: '',
+  host: {
+    '[class]': 'computedClass()',
+    '[attr.data-slot]': '"context-menu-separator"',
+    role: 'separator',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuSeparatorComponent {
+  readonly class = input<string>('');
+
+  protected readonly computedClass = computed(() =>
+    cn('bg-border/50 -mx-1 my-1 h-px', this.class())
+  );
+}
+
+// ============================================================================
+// Context Menu Shortcut
+// ============================================================================
+
+/**
+ * Context Menu Shortcut Component
+ * Displays keyboard shortcuts for items
+ */
+@Component({
+  selector: 'app-context-menu-shortcut',
+  imports: [CommonModule],
+  template: `<ng-content />`,
+  host: {
+    '[class]': 'computedClass()',
+    '[attr.data-slot]': '"context-menu-shortcut"',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuShortcutComponent {
+  readonly class = input<string>('');
+
+  protected readonly computedClass = computed(() =>
+    cn(
+      'text-muted-foreground group-focus/context-menu-item:text-accent-foreground ml-auto text-[0.625rem] tracking-widest',
+      this.class()
+    )
+  );
+}
+
+// ============================================================================
+// Context Menu Sub
+// ============================================================================
+
+/**
+ * Context Menu Sub Component
+ * Container for submenu - provides position info for fixed positioning
+ */
+@Component({
+  selector: 'app-context-menu-sub',
+  imports: [CommonModule],
+  template: `<ng-content />`,
+  host: {
+    '[attr.data-slot]': '"context-menu-sub"',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuSubComponent {
+  readonly open = model<boolean>(false);
+  private readonly triggerRect = signal<DOMRect | null>(null);
+  private closeTimeoutId: number | null = null;
+  private readonly closeDelayMs = 120;
+
+  readonly triggerPosition = this.triggerRect.asReadonly();
+
+  openSubmenu(): void {
+    this.clearCloseTimeout();
+    this.open.set(true);
+  }
+
+  closeSubmenu(): void {
+    this.clearCloseTimeout();
+    this.open.set(false);
+  }
+
+  toggleSubmenu(): void {
+    this.open.update((v) => !v);
+  }
+
+  updateTriggerRect(rect: DOMRect): void {
+    this.triggerRect.set(rect);
+  }
+
+  onTriggerEnter(): void {
+    this.openSubmenu();
+  }
+
+  onTriggerLeave(): void {
+    this.scheduleCloseSubmenu();
+  }
+
+  onContentEnter(): void {
+    this.clearCloseTimeout();
+  }
+
+  onContentLeave(): void {
+    this.scheduleCloseSubmenu();
+  }
+
+  private scheduleCloseSubmenu(): void {
+    this.clearCloseTimeout();
+    this.closeTimeoutId = window.setTimeout(() => {
+      this.open.set(false);
+      this.closeTimeoutId = null;
+    }, this.closeDelayMs);
+  }
+
+  private clearCloseTimeout(): void {
+    if (this.closeTimeoutId === null) return;
+    window.clearTimeout(this.closeTimeoutId);
+    this.closeTimeoutId = null;
+  }
+}
+
+// ============================================================================
+// Context Menu Sub Trigger
+// ============================================================================
+
+/**
+ * Context Menu Sub Trigger Component
+ * Opens a submenu
+ */
+@Component({
+  selector: 'app-context-menu-sub-trigger',
+  imports: [CommonModule, LucideAngularModule],
+  template: `
+    <ng-content />
+    <lucide-icon [img]="chevronRightIcon" class="ml-auto size-3.5" />
+  `,
+  host: {
+    '[class]': 'computedClass()',
+    '[attr.data-slot]': '"context-menu-sub-trigger"',
+    '[attr.data-inset]': 'inset() ? "" : null',
+    '[attr.data-state]': 'subMenu?.open() ? "open" : "closed"',
+    '[attr.role]': '"menuitem"',
+    '[attr.tabindex]': '0',
+    '(click)': 'onClick()',
+    '(mouseenter)': 'onMouseEnter()',
+    '(mouseleave)': 'onMouseLeave()',
+    '(keydown)': 'onKeydown($event)',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuSubTriggerComponent {
+  readonly subMenu = inject(ContextMenuSubComponent, { optional: true });
+  readonly elementRef = inject(ElementRef<HTMLElement>);
+
+  readonly inset = input<boolean>(false);
+  readonly class = input<string>('');
+
+  protected readonly chevronRightIcon = ChevronRightIcon;
+
+  protected readonly computedClass = computed(() =>
+    cn(
+      'focus-visible:bg-accent focus-visible:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground not-data-[variant=destructive]:focus-visible:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 flex cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
+      'hover:bg-accent hover:text-accent-foreground not-data-[variant=destructive]:hover:**:text-accent-foreground',
+      this.class()
+    )
+  );
+
+  onClick(): void {
+    this.updateTriggerPosition();
+    this.subMenu?.onTriggerEnter();
+  }
+
+  onMouseEnter(): void {
+    this.updateTriggerPosition();
+    this.subMenu?.onTriggerEnter();
+  }
+
+  onMouseLeave(): void {
+    this.subMenu?.onTriggerLeave();
+  }
+
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      this.updateTriggerPosition();
+      this.subMenu?.openSubmenu();
+    }
+  }
+
+  private updateTriggerPosition(): void {
+    const rect = this.elementRef.nativeElement.getBoundingClientRect();
+    this.subMenu?.updateTriggerRect(rect);
+  }
+}
+
+// ============================================================================
+// Context Menu Sub Content
+// ============================================================================
+
+/**
+ * Context Menu Sub Content Component
+ * The submenu panel - uses fixed positioning to escape overflow constraints
+ */
+@Component({
+  selector: 'app-context-menu-sub-content',
+  imports: [CommonModule],
+  template: `
+    @if (subMenu?.open() && subMenu?.triggerPosition()) {
+      <div
+        [class]="contentClass()"
+        [style.position]="'fixed'"
+        [style.left.px]="positionLeft()"
+        [style.top.px]="positionTop()"
+        role="menu"
+        data-state="open"
+        (keydown)="onKeydown($event)"
+        (mouseenter)="onMouseEnter()"
+        (mouseleave)="onMouseLeave()">
+        <ng-content />
+      </div>
+    }
+  `,
+  host: {
+    '[attr.data-slot]': '"context-menu-sub-content"',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuSubContentComponent {
+  readonly subMenu = inject(ContextMenuSubComponent, { optional: true });
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
+
+  readonly class = input<string>('');
+
+  protected readonly positionLeft = computed(() => {
+    const rect = this.subMenu?.triggerPosition();
+    if (!rect) return 0;
+
+    // Check if submenu would overflow viewport on right side
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1920;
+    const submenuWidth = 192;
+    const viewportLeft =
+      rect.right + 4 + submenuWidth > viewportWidth
+        ? rect.left - submenuWidth - 4
+        : rect.right + 4;
+
+    return viewportLeft;
+  });
+
+  protected readonly positionTop = computed(() => {
+    const rect = this.subMenu?.triggerPosition();
+    if (!rect) return 0;
+
+    return rect.top - 4;
+  });
+
+  protected readonly contentClass = computed(() =>
+    cn(
+      'bg-popover text-popover-foreground ring-foreground/10 min-w-32 rounded-lg p-1 shadow-md ring-1 duration-100',
+      'animate-in fade-in-0 zoom-in-95',
+      'data-[side=right]:slide-in-from-left-2',
+      'origin-top-left',
+      'overflow-hidden',
+      'z-[60]',
+      this.class()
+    )
+  );
+
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' || event.key === 'ArrowLeft') {
+      event.preventDefault();
+      this.subMenu?.closeSubmenu();
+    }
+  }
+
+  onMouseLeave(): void {
+    this.subMenu?.onContentLeave();
+  }
+
+  onMouseEnter(): void {
+    this.subMenu?.onContentEnter();
+  }
+}
+
+// ============================================================================
+// Context Menu Root Component (with CDK Overlay)
+// ============================================================================
+
+/**
+ * Context Menu Root Component
+ * Uses Angular CDK Overlay for positioning at mouse coordinates
+ */
+@Component({
+  selector: 'app-context-menu',
+  imports: [
+    CommonModule,
+    OverlayModule,
+    PortalModule,
+  ],
+  template: `
+    <!-- Trigger element (projected content) -->
+    <ng-content select="[appContextMenuTrigger]" />
+
+    <!-- Menu content via CDK Overlay -->
+    <ng-template #menuPortal>
+      <div
+        #menuContent
+        [class]="contentClass()"
+        role="menu"
+        tabindex="-1"
+        [attr.data-state]="open() ? 'open' : 'closed'"
+        (keydown)="onContentKeydown($event)"
+        (click)="$event.stopPropagation()">
+        <ng-content />
+      </div>
+    </ng-template>
+  `,
+  host: {
+    '[attr.data-slot]': '"context-menu"',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuComponent {
+  private static activeMenu: ContextMenuComponent | null = null;
+  readonly open = model<boolean>(false);
+
+  readonly minWidth = input<number>(128);
+  readonly class = input<string>('');
+
+  // Unique ID for this context menu instance
+  readonly id = `context-menu-${contextMenuIdCounter++}`;
+
+  // Position for the context menu (set on right-click)
+  private readonly positionX = signal(0);
+  private readonly positionY = signal(0);
+
+  private readonly overlay = inject(Overlay);
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
+  private overlayRef: OverlayRef | null = null;
+  private activeTriggerElement: HTMLElement | null = null;
+
+  protected readonly contentClass = computed(() =>
+    cn(
+      'bg-popover text-popover-foreground ring-foreground/10 min-w-32 rounded-lg p-1 shadow-md ring-1 duration-100 z-50',
+      'data-[state=open]:animate-in data-[state=closed]:animate-out',
+      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+      'max-h-[var(--radix-context-menu-content-available-height)]',
+      'origin-[var(--radix-context-menu-content-transform-origin)]',
+      'overflow-x-hidden overflow-y-auto',
+      'data-[state=closed]:overflow-hidden',
+      this.class()
+    )
+  );
+
+  protected readonly menuPortal = viewChild<TemplateRef<unknown>>('menuPortal');
+  protected readonly menuContent = viewChild<ElementRef<HTMLElement>>('menuContent');
+  private readonly viewContainerRef = inject(ViewContainerRef);
+
+  openAt(x: number, y: number, triggerElement?: HTMLElement): void {
+    this.activateCurrentMenu();
+    this.positionX.set(x);
+    this.positionY.set(y);
+    this.activeTriggerElement = triggerElement ?? null;
+    if (this.open()) {
+      // Reposition while already open (Radix behavior on repeated right-click)
+      this.showOverlay();
+      this.focusMenuContainer();
+      return;
+    }
+    this.open.set(true);
+    this.focusMenuContainer();
+  }
+
+  openMenu(): void {
+    this.activateCurrentMenu();
+    this.activeTriggerElement = null;
+    this.open.set(true);
+    this.focusMenuContainer();
+  }
+
+  closeMenu(): void {
+    if (ContextMenuComponent.activeMenu === this) {
+      ContextMenuComponent.activeMenu = null;
+    }
+    this.activeTriggerElement = null;
+    this.open.set(false);
+  }
+
+  constructor() {
+    effect(() => {
+      if (this.open()) {
+        this.showOverlay();
+      } else {
+        this.hideOverlay();
+      }
+    });
+  }
+
+  private showOverlay(): void {
+    if (this.overlayRef) {
+      this.hideOverlay();
+    }
+
+    const positionStrategy = this.overlay.position()
+      .flexibleConnectedTo({
+        x: this.positionX(),
+        y: this.positionY(),
+      } as unknown as HTMLElement)
+      .withPositions([
+        {
+          originX: 'start',
+          originY: 'top',
+          overlayX: 'start',
+          overlayY: 'top',
+        },
+        {
+          originX: 'start',
+          originY: 'top',
+          overlayX: 'end',
+          overlayY: 'top',
+        },
+        {
+          originX: 'start',
+          originY: 'bottom',
+          overlayX: 'start',
+          overlayY: 'bottom',
+        },
+        {
+          originX: 'start',
+          originY: 'bottom',
+          overlayX: 'end',
+          overlayY: 'bottom',
+        },
+      ])
+      .withPush(true);
+
+    this.overlayRef = this.overlay.create({
+      positionStrategy,
+      hasBackdrop: false,
+      scrollStrategy: this.overlay.scrollStrategies.close(),
+      minWidth: this.minWidth(),
+    });
+
+    // Create and attach portal
+    const portal = new TemplatePortal(
+      this.menuPortal()!,
+      this.viewContainerRef,
+      undefined
+    );
+    this.overlayRef.attach(portal);
+
+    // Handle outside pointer events
+    this.overlayRef.outsidePointerEvents().subscribe((event) => {
+      if (!this.shouldHandleOutsideClose(event)) {
+        return;
+      }
+      this.closeMenu();
+    });
+  }
+
+  private hideOverlay(): void {
+    if (this.overlayRef) {
+      this.overlayRef.detach();
+      this.overlayRef.dispose();
+      this.overlayRef = null;
+    }
+  }
+
+  protected onContentKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.closeMenu();
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.focusAdjacentItem(1);
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.focusAdjacentItem(-1);
+      return;
+    }
+
+    if (event.key === 'Home') {
+      event.preventDefault();
+      this.focusMenuItemByIndex(0);
+      return;
+    }
+
+    if (event.key === 'End') {
+      event.preventDefault();
+      this.focusMenuItemByIndex(-1);
+    }
+  }
+
+  private focusMenuItemByIndex(index: number): void {
+    this.runAfterOverlayRender(() => {
+      const items = this.getMenuItems();
+      if (!items.length) return;
+      const target =
+        index < 0 ? items[items.length - 1] : items[Math.min(index, items.length - 1)];
+      target?.focus();
+    });
+  }
+
+  private focusMenuContainer(): void {
+    this.runAfterOverlayRender(() => {
+      this.menuContent()?.nativeElement.focus({ preventScroll: true });
+    });
+  }
+
+  private focusAdjacentItem(direction: 1 | -1): void {
+    const items = this.getMenuItems();
+    if (!items.length) return;
+
+    const activeElement =
+      typeof document !== 'undefined' ? (document.activeElement as HTMLElement | null) : null;
+    const currentIndex = activeElement ? items.indexOf(activeElement) : -1;
+    const nextIndex =
+      currentIndex < 0
+        ? direction === 1
+          ? 0
+          : items.length - 1
+        : (currentIndex + direction + items.length) % items.length;
+
+    items[nextIndex]?.focus();
+  }
+
+  private getMenuItems(): HTMLElement[] {
+    const container = this.menuContent()?.nativeElement;
+    if (!container) return [];
+
+    return Array.from(
+      container.querySelectorAll<HTMLElement>(
+        '[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"]'
+      )
+    ).filter((item) => item.tabIndex >= 0);
+  }
+
+  private runAfterOverlayRender(callback: () => void): void {
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => callback());
+      return;
+    }
+    setTimeout(() => callback(), 0);
+  }
+
+  private activateCurrentMenu(): void {
+    if (
+      ContextMenuComponent.activeMenu &&
+      ContextMenuComponent.activeMenu !== this
+    ) {
+      ContextMenuComponent.activeMenu.closeMenuFromAnotherContext();
+    }
+    ContextMenuComponent.activeMenu = this;
+  }
+
+  private closeMenuFromAnotherContext(): void {
+    this.activeTriggerElement = null;
+    this.open.set(false);
+  }
+
+  private shouldHandleOutsideClose(event: MouseEvent): boolean {
+    if (
+      event.type !== 'pointerdown' &&
+      event.type !== 'pointerup' &&
+      event.type !== 'mousedown' &&
+      event.type !== 'mouseup' &&
+      event.type !== 'click' &&
+      event.type !== 'touchstart' &&
+      event.type !== 'touchend'
+    ) {
+      return false;
+    }
+
+    if (event.type === 'touchstart' || event.type === 'touchend') {
+      return true;
+    }
+
+    // Ignore right/middle button events to prevent context-menu flash close.
+    return event.button === 0;
+  }
+}
+
+// ============================================================================
+// Context Menu Content (for API compatibility)
+// ============================================================================
+
+/**
+ * Context Menu Content Component
+ * Wrapper component that projects content into the root context menu
+ * This is for API compatibility with the shadcn pattern
+ */
+@Component({
+  selector: 'app-context-menu-content',
+  imports: [CommonModule],
+  template: `<ng-content />`,
+  host: {
+    '[attr.data-slot]': '"context-menu-content"',
+    style: 'display: contents;',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuContentComponent {
+  readonly class = input<string>('');
+}
+
+// ============================================================================
+// Context Menu Portal (placeholder for API compatibility)
+// ============================================================================
+
+/**
+ * Context Menu Portal Component
+ * In Angular CDK, portals are handled by the Overlay system
+ * This component exists for API compatibility
+ */
+@Directive({
+  selector: 'app-context-menu-portal',
+  host: {
+    '[attr.data-slot]': '"context-menu-portal"',
+  },
+})
+export class ContextMenuPortalComponent {
+  // Portal functionality is handled by CDK Overlay in the root component
+}
+
+// ============================================================================
+// Exports
+// ============================================================================
+
+export const ContextMenuComponents = [
+  ContextMenuComponent,
+  ContextMenuTriggerDirective,
+  ContextMenuContentComponent,
+  ContextMenuGroupComponent,
+  ContextMenuLabelComponent,
+  ContextMenuItemComponent,
+  ContextMenuCheckboxItemComponent,
+  ContextMenuRadioGroupComponent,
+  ContextMenuRadioItemComponent,
+  ContextMenuSeparatorComponent,
+  ContextMenuShortcutComponent,
+  ContextMenuSubComponent,
+  ContextMenuSubTriggerComponent,
+  ContextMenuSubContentComponent,
+  ContextMenuPortalComponent,
+];

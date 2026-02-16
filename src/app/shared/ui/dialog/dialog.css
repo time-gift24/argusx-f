@@ -1,0 +1,96 @@
+/* Dialog Component Styles - 矿物与时光主题 */
+
+/* Dialog Root */
+:host([data-state='closed']) {
+  display: none;
+}
+
+:host([data-state='open']) {
+  display: flex;
+}
+
+/* Dialog Overlay */
+div[argus-dialog-overlay] {
+  position: fixed;
+  inset: 0;
+  background-color: oklch(0 0 0 / 50%);
+  z-index: var(--sheet-z-overlay);
+  transition: opacity var(--duration-spring-normal) var(--ease-spring-smooth);
+}
+
+/* Dialog Content */
+.dialog-content {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: var(--sheet-z-content);
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: var(--sheet-max-width);
+  background-color: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-popover);
+  padding: var(--sheet-padding);
+}
+
+/* Close Button */
+.dialog-close-button {
+  position: absolute;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-height-md);
+  height: var(--button-height-md);
+  border-radius: var(--radius-sm);
+  color: var(--muted-foreground);
+  transition: background-color var(--duration-fast) var(--ease-spring-snappy), opacity var(--duration-fast) var(--ease-spring-snappy);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: var(--opacity-disabled);
+}
+
+.dialog-close-button:hover {
+  opacity: 1;
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.dialog-close-button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.dialog-close-button svg {
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+}
+
+.dialog-close-button .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .dialog-content {
+    max-width: calc(100% - 2rem);
+    padding: var(--spacing-lg);
+  }
+
+  .dialog-close-button {
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+  }
+}
