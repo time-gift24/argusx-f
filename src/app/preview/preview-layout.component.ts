@@ -1,6 +1,17 @@
 import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
+interface PreviewItem {
+  id: 'button' | 'input' | 'card';
+  label: string;
+}
+
+const PREVIEW_ITEMS: PreviewItem[] = [
+  { id: 'button', label: 'Button' },
+  { id: 'input', label: 'Input' },
+  { id: 'card', label: 'Card' },
+];
+
 @Component({
   selector: 'app-preview-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,66 +28,20 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
           </p>
         </div>
         <ul class="space-y-0.5">
-          <li>
-            <button
-              (click)="setPreview('button')"
-              class="w-full text-left block rounded-md px-2.5 py-1.5 text-xs transition-colors {{
-                currentPreview() === 'button'
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-              }}"
-            >
-              Button
-            </button>
-          </li>
-          <li>
-            <button
-              (click)="setPreview('input')"
-              class="w-full text-left block rounded-md px-2.5 py-1.5 text-xs transition-colors {{
-                currentPreview() === 'input'
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-              }}"
-            >
-              Input
-            </button>
-          </li>
-          <li>
-            <button
-              (click)="setPreview('card')"
-              class="w-full text-left block rounded-md px-2.5 py-1.5 text-xs transition-colors {{
-                currentPreview() === 'card'
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-              }}"
-            >
-              Card
-            </button>
-          </li>
-          <li>
-            <button
-              (click)="setPreview('textarea')"
-              class="w-full text-left block rounded-md px-2.5 py-1.5 text-xs transition-colors {{
-                currentPreview() === 'textarea'
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-              }}"
-            >
-              Textarea
-            </button>
-          </li>
-          <li>
-            <button
-              (click)="setPreview('badge')"
-              class="w-full text-left block rounded-md px-2.5 py-1.5 text-xs transition-colors {{
-                currentPreview() === 'badge'
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-              }}"
-            >
-              Badge
-            </button>
-          </li>
+          @for (item of previewItems; track item.id) {
+            <li>
+              <button
+                (click)="setPreview(item.id)"
+                class="w-full text-left block rounded-md px-2.5 py-1.5 text-xs transition-colors {{
+                  currentPreview() === item.id
+                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                }}"
+              >
+                {{ item.label }}
+              </button>
+            </li>
+          }
         </ul>
       </nav>
 
@@ -93,14 +58,15 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 export class PreviewLayoutComponent {
   private readonly sanitizer = inject(DomSanitizer);
 
-  readonly currentPreview = signal<'button' | 'input' | 'card' | 'textarea' | 'badge'>('button');
+  readonly previewItems = PREVIEW_ITEMS;
+  readonly currentPreview = signal<PreviewItem['id']>('button');
 
   readonly safeUrl = (): SafeResourceUrl => {
     const url = `/preview/${this.currentPreview()}`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   };
 
-  setPreview(component: 'button' | 'input' | 'card' | 'textarea' | 'badge'): void {
+  setPreview(component: PreviewItem['id']): void {
     this.currentPreview.set(component);
   }
 }
