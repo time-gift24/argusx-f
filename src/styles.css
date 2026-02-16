@@ -166,3 +166,8 @@
 @utility animate-accordion-up {
   animation: accordion-up 0.2s ease-out;
 }
+
+/* Dialog body scroll lock */
+body.argus-dialog-scroll-locked {
+  overflow: hidden;
+}
