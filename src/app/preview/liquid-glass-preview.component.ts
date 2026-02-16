@@ -34,38 +34,66 @@ import {
           </div>
 
           <div class="fixed left-[40%] top-[25%] z-20 -translate-x-1/2 -translate-y-1/2">
-            <app-liquid-glass
-              appLiquidMouse
-              [config]="config()"
-              class="block w-[352px]"
-            >
-              <div class="p-6 text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">
-                <h3 class="mb-4 text-3xl font-semibold">User Info</h3>
-                <div class="space-y-3">
-                  <div class="flex items-center gap-3">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-black/15 text-xl font-semibold">JD</div>
-                    <div>
-                      <p class="font-medium">John Doe</p>
-                      <p class="text-sm text-white/85">Software Engineer</p>
+            <div class="flex w-[352px] flex-col gap-4">
+              <app-liquid-glass
+                appLiquidMouse
+                [config]="config()"
+                class="block w-full"
+              >
+                <div class="p-6 text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">
+                  <h3 class="mb-4 text-3xl font-semibold">User Info</h3>
+                  <div class="space-y-3">
+                    <div class="flex items-center gap-3">
+                      <div class="flex h-12 w-12 items-center justify-center rounded-full bg-black/15 text-xl font-semibold">JD</div>
+                      <div>
+                        <p class="font-medium">John Doe</p>
+                        <p class="text-sm text-white/85">Software Engineer</p>
+                      </div>
                     </div>
-                  </div>
-                  <div class="space-y-2 pt-2 text-sm">
-                    <div class="flex justify-between">
-                      <span class="text-white/80">Email:</span>
-                      <span>john.doe@example.com</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span class="text-white/80">Location:</span>
-                      <span>San Francisco, CA</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span class="text-white/80">Joined:</span>
-                      <span>March 2023</span>
+                    <div class="space-y-2 pt-2 text-sm">
+                      <div class="flex justify-between">
+                        <span class="text-white/80">Email:</span>
+                        <span>john.doe@example.com</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-white/80">Location:</span>
+                        <span>San Francisco, CA</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-white/80">Joined:</span>
+                        <span>March 2023</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </app-liquid-glass>
+              </app-liquid-glass>
+
+              <app-liquid-glass
+                appLiquidMouse
+                [config]="config()"
+                [solidBorder]="true"
+                [solidBorderWidth]="2"
+                solidBorderColor="rgba(96, 165, 250, 0.85)"
+                solidBorderHighlightColor="rgba(147, 197, 253, 1)"
+                solidBorderGlowColor="rgba(59, 130, 246, 0.55)"
+                class="block w-full"
+              >
+                <div class="p-4 text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">
+                  <label
+                    for="user-info-note-input"
+                    class="mb-2 block text-sm font-medium text-white/85"
+                  >
+                    Quick Note
+                  </label>
+                  <input
+                    id="user-info-note-input"
+                    type="text"
+                    placeholder="Type something here..."
+                    class="w-full rounded-xl border border-sky-300/45 bg-sky-500/10 px-3 py-2 text-sm text-white placeholder:text-sky-100/65 outline-none transition focus:border-sky-200 focus:bg-sky-500/20"
+                  />
+                </div>
+              </app-liquid-glass>
+            </div>
           </div>
         </div>
 

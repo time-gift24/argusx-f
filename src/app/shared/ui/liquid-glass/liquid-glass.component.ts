@@ -159,6 +159,9 @@ import { DEFAULT_LIQUID_CONFIG } from './liquid-glass.config';
     class="liquid-glass-container"
     [style.border-radius.px]="config().cornerRadius"
     [style.transform]="elasticContainerTransform()"
+    [style.border-width.px]="effectiveBorderWidth()"
+    [style.border-color]="effectiveBorderColor()"
+    [style.box-shadow]="effectiveBorderGlow()"
   >
     <span
       class="liquid-warp"
@@ -197,7 +200,10 @@ import { DEFAULT_LIQUID_CONFIG } from './liquid-glass.config';
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.2);
     transform-origin: center;
-    transition: transform 0.2s ease-out;
+    transition:
+      transform 0.2s ease-out,
+      border-color 0.2s ease-out,
+      box-shadow 0.2s ease-out;
   }
 
   .liquid-warp {
@@ -240,8 +246,15 @@ export class LiquidGlassComponent {
   private readonly instanceId = LiquidGlassComponent.instanceCounter++;
   private readonly globalMousePos = signal<{ x: number; y: number }>({ x: 0, y: 0 });
   private readonly hasGlobalMouse = signal(false);
+  private readonly isHovered = signal(false);
+  private readonly hasFocusWithin = signal(false);
 
   readonly config = input<LiquidGlassConfig>(DEFAULT_LIQUID_CONFIG);
+  readonly solidBorder = input(false);
+  readonly solidBorderWidth = input(2);
+  readonly solidBorderColor = input('rgba(255, 255, 255, 0.75)');
+  readonly solidBorderHighlightColor = input('rgba(255, 255, 255, 1)');
+  readonly solidBorderGlowColor = input('rgba(255, 255, 255, 0.45)');
 
   readonly hoverStart = output<void>();
   readonly hoverEnd = output<void>();
@@ -251,6 +264,37 @@ export class LiquidGlassComponent {
   );
 
   readonly displacementFilter = computed(() => `url(#${this.filterId()})`);
+  readonly isSolidBorderHighlighted = computed(
+    () => this.isHovered() || this.hasFocusWithin()
+  );
+
+  readonly effectiveBorderWidth = computed(() => {
+    if (!this.solidBorder()) {
+      return 1;
+    }
+
+    return Math.max(1, this.solidBorderWidth());
+  });
+
+  readonly effectiveBorderColor = computed(() => {
+    if (!this.solidBorder()) {
+      return 'rgba(255, 255, 255, 0.2)';
+    }
+
+    if (this.isSolidBorderHighlighted()) {
+      return this.solidBorderHighlightColor();
+    }
+
+    return this.solidBorderColor();
+  });
+
+  readonly effectiveBorderGlow = computed(() => {
+    if (!this.solidBorder() || !this.isSolidBorderHighlighted()) {
+      return 'none';
+    }
+
+    return `0 0 0 1px ${this.solidBorderHighlightColor()}, 0 0 16px ${this.solidBorderGlowColor()}`;
+  });
 
   readonly elasticContainerTransform = computed(() => {
     const elasticity = this.config().elasticity;
@@ -355,6 +399,7 @@ export class LiquidGlassComponent {
 
   @HostListener('mouseenter')
   onMouseEnter(): void {
+    this.isHovered.set(true);
     this.hoverStart.emit();
   }
 
@@ -366,7 +411,20 @@ export class LiquidGlassComponent {
 
   @HostListener('mouseleave')
   onMouseLeave(): void {
+    this.isHovered.set(false);
     this.hasGlobalMouse.set(false);
     this.hoverEnd.emit();
+  }
+
+  @HostListener('focusin')
+  onFocusIn(): void {
+    this.hasFocusWithin.set(true);
+  }
+
+  @HostListener('focusout')
+  onFocusOut(): void {
+    queueMicrotask(() => {
+      this.hasFocusWithin.set(this.elementRef.nativeElement.matches(':focus-within'));
+    });
   }
 }

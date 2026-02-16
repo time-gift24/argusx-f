@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LiquidGlassComponent } from './liquid-glass.component';
 import { DEFAULT_LIQUID_CONFIG } from './liquid-glass.config';
@@ -32,5 +32,47 @@ describe('LiquidGlassComponent', () => {
     const filter = component.backdropFilter();
     expect(filter).toContain('blur');
     expect(filter).toContain('saturate');
+  });
+
+  it('should not render solid border by default', () => {
+    fixture.detectChanges();
+    const container: HTMLDivElement = fixture.nativeElement.querySelector(
+      '.liquid-glass-container'
+    );
+
+    expect(container.style.borderWidth).toBe('1px');
+    expect(container.style.borderColor).toContain('0.2');
+    expect(container.style.boxShadow).toBe('none');
+  });
+
+  it('should render solid border when enabled', () => {
+    fixture.componentRef.setInput('solidBorder', true);
+    fixture.componentRef.setInput('solidBorderWidth', 3);
+    fixture.componentRef.setInput('solidBorderColor', 'rgba(255, 255, 255, 0.9)');
+    fixture.detectChanges();
+
+    const container: HTMLDivElement = fixture.nativeElement.querySelector(
+      '.liquid-glass-container'
+    );
+
+    expect(container.style.borderWidth).toBe('3px');
+    expect(container.style.borderColor).toContain('0.9');
+  });
+
+  it('should highlight solid border on hover', () => {
+    fixture.componentRef.setInput('solidBorder', true);
+    fixture.componentRef.setInput('solidBorderHighlightColor', 'rgba(255, 255, 255, 1)');
+    fixture.componentRef.setInput('solidBorderGlowColor', 'rgba(255, 255, 255, 0.45)');
+    fixture.detectChanges();
+
+    component.onMouseEnter();
+    fixture.detectChanges();
+
+    const container: HTMLDivElement = fixture.nativeElement.querySelector(
+      '.liquid-glass-container'
+    );
+
+    expect(container.style.borderColor).toContain('1)');
+    expect(container.style.boxShadow).toContain('16px');
   });
 });
