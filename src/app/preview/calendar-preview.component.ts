@@ -59,11 +59,11 @@ import { CalendarComponent } from '../shared/ui/calendar/calendar.component';
         <h2 class="mb-4 text-lg font-medium">Implementation Notes</h2>
         <div class="rounded-lg border border-border bg-card p-4">
           <ul class="list-disc pl-4 text-sm text-muted-foreground space-y-1">
-            <li>Current local implementation lacks range selection support</li>
-            <li>Missing month/year dropdown selectors</li>
-            <li>No keyboard navigation (zardui has full keyboard support)</li>
-            <li>No ControlValueAccessor for form integration</li>
-            <li>Based on comparison, zardui implementation is recommended for production</li>
+            <li>Supports single, range, and multiple selection modes</li>
+            <li>Range mode renders in-between days with connected muted styling</li>
+            <li>Supports keyboard navigation and ControlValueAccessor integration</li>
+            <li>Month/year picker dropdowns are still placeholders</li>
+            <li>zardui provides a more feature-complete calendar for production-scale use cases</li>
           </ul>
         </div>
       </section>

@@ -241,6 +241,18 @@ describe('CalendarComponent', () => {
     });
   });
 
+  describe('Range visual connection', () => {
+    it('should remove day gaps in range mode so in-range dates render as a connected bar', () => {
+      component.mode.set('range');
+      fixture.detectChanges();
+
+      const grid = fixture.nativeElement.querySelector('div[role="grid"]') as HTMLDivElement;
+
+      expect(grid.className).toContain('gap-0');
+      expect(grid.className).not.toContain('gap-0.5');
+    });
+  });
+
   describe('Navigation', () => {
     it('should navigate to previous month', () => {
       component.currentMonth.set(5);

@@ -142,7 +142,7 @@ function getSelectedDatesArray(
 
       <!-- Calendar Days Grid -->
       <div
-        class="grid grid-cols-7 gap-0.5"
+        [class]="dayGridClass()"
         role="grid"
         (keydown)="onKeyDown($event)">
         @for (day of calendarDays(); track day.date.getTime(); let i = $index) {
@@ -234,6 +234,10 @@ export class CalendarComponent implements ControlValueAccessor {
 
   protected readonly containerClass = computed(() =>
     cn('p-3 w-fit bg-background relative', this.class())
+  );
+
+  protected readonly dayGridClass = computed(() =>
+    cn('grid grid-cols-7', this.mode() === 'range' ? 'gap-0' : 'gap-0.5')
   );
 
   protected readonly selectedDates = computed(() =>
