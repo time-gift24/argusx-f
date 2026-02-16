@@ -116,30 +116,33 @@ src/
     features/                    # 业务功能域（按业务拆分）
     shared/
       ui/                        # 可复用 UI（含基础组件与跨域复合组件）
+                                # 示例: button/, input/, dialog/, liquid-glass/
       services/                  # 跨域服务、基础设施服务
       models/                    # 跨域共享类型
       utils/                     # 无状态纯工具函数
       lib/                       # 框架适配、组合工具、第三方封装
       layout/                    # 全局布局组件
       mock-data/                 # 演示和开发数据
-    demo/                        # 组件演示，不承载核心业务逻辑
+    preview/                     # 组件预览页面（navbar + iframe 布局）
+                                # 用于开发调试、参数调节、视觉对照实验
+                                # 使用 angular-component-preview skill 构建
   styles.css                     # 全局主题变量与设计 token 唯一来源
 ```
 
 `shared/ui` 与 `shared/components` 的边界：
 
 - `shared/ui`：放“可复用 UI 单元”，包括基础组件（button/input）和跨业务复合组件（如聊天壳、markdown 渲染器）。
-- `shared/components`：历史兼容目录，不再新增。已有内容逐步迁移到 `shared/ui` 或 `features/*`。
 - 判断规则 1：如果组件依赖业务语义（订单、用户权限、支付流程），放 `features/*`。
 - 判断规则 2：如果组件不依赖具体业务，可被多个功能复用，放 `shared/ui`。
 - 判断规则 3：如果只是某个功能的局部子组件，不对外复用，放该功能目录内部（`features/<domain>/components`）。
 
-`ai-chat` 与 `streaming-markdown` 的放置建议：
+`liquid-glass` 组件放置建议：
 
-- 建议放在同一层级的 `shared/ui` 下，不建议一个放 `shared/ui`、一个放 `shared/components`。
-- 推荐目标结构：`shared/ui/ai-chat` 与 `shared/ui/streaming-markdown` 作为兄弟目录。
-- 不建议把 `streaming-markdown` 下沉到 `ai-chat` 内部，因为它已被独立 demo 和其他场景复用。
-- 若未来 `ai-chat` 强绑定单一业务（而非通用组件），则迁移到 `features/chat`，并继续依赖 `shared/ui/streaming-markdown`。
+- 视觉/交互组件属于"可复用 UI 单元"，放 `shared/ui/liquid-glass/`。
+- 配套指令（`liquidMouseDirective`、`liquidDraggableDirective`）可放同目录或 `shared/lib/`。
+- 服务层（`LiquidOverlayService`、`LiquidPerformanceService`）放 `services/` 或同目录。
+- Demo 页面放 `demo/liquid-glass/`。
+- 预览/调试页面放 `preview/liquid-glass/`，使用 `angular-component-preview` skill 构建。
 
 ## 14. 代码评审检查清单（PR Checklist）
 

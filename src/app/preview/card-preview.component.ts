@@ -6,7 +6,7 @@ import {
   CardDescriptionDirective,
   CardContentDirective,
   CardFooterDirective,
-} from '../../shared/ui/card';
+} from '../shared/ui/card';
 
 @Component({
   selector: 'app-card-preview',

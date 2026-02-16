@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { InputDirective } from '../../shared/ui/input';
+import { InputDirective } from '../shared/ui/input';
 
 @Component({
   selector: 'app-input-preview',

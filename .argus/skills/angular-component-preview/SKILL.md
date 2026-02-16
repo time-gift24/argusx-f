@@ -1,6 +1,6 @@
 ---
 name: angular-component-preview
-description: Use when adding new component previews to the angular-shadcn preview system at /preview with navbar + iframe layout
+description: Use when adding new component previews to any angular component preview system at /preview with navbar + iframe layout
 ---
 
 # Angular Component Preview
@@ -12,7 +12,7 @@ Add component previews to the angular-shadcn preview system. The system uses a m
 ## Directory Structure
 
 ```
-src/app/features/preview/
+src/app/preview/
 ├── preview-layout.component.ts    # Main layout (navbar + iframe)
 ├── button-preview.component.ts    # Button component example
 └── input-preview.component.ts     # Input component example
@@ -52,7 +52,7 @@ setPreview(component: 'button' | 'input' | 'new-component'): void {
 {
   path: 'new-component',
   loadComponent: () =>
-    import('./features/preview/new-component-preview.component').then(
+    import('./preview/new-component-preview.component').then(
       (m) => m.NewComponentPreviewComponent
     ),
 },
