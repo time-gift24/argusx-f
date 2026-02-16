@@ -8,17 +8,20 @@ import {
 import { cn } from '../../utils/cn';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-// Aligned with official shadcn preset (.vendor/aim/components/ui/alert.tsx)
+// Aligned with official shadcn preset
 const alertVariants = cva(
-  "grid gap-0.5 rounded-lg border px-2 py-1.5 text-left text-xs/relaxed has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-1.5 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-3.5 w-full relative group/alert",
+  "relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>lucide-icon]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 has-[>lucide-icon]:gap-x-3 gap-y-0.5 items-start group/alert [&>svg]:size-3.5 [&>lucide-icon]:size-3.5 [&>lucide-icon>svg]:size-full [&>svg]:translate-y-0.5 [&>lucide-icon]:translate-y-0.5 [&>svg]:text-current [&>lucide-icon]:text-current [&>lucide-icon>svg]:text-current",
   {
     variants: {
       variant: {
         default: "bg-card text-card-foreground",
-        destructive: "text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
-        warning: "text-warning-foreground bg-warning/10 *:data-[slot=alert-description]:text-warning/90 border-warning/20 *:[svg]:text-current",
-        info: "text-info-foreground bg-info/10 *:data-[slot=alert-description]:text-info/90 border-info/20 *:[svg]:text-current",
-        success: "text-success-foreground bg-success/10 *:data-[slot=alert-description]:text-success/90 border-success/20 *:[svg]:text-current",
+        destructive:
+          "text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90",
+        warning:
+          "text-warning-foreground bg-warning/10 border-warning/20 *:data-[slot=alert-description]:text-warning/90",
+        info: "text-info-foreground bg-info/10 border-info/20 *:data-[slot=alert-description]:text-info/90",
+        success:
+          "text-success-foreground bg-success/10 border-success/20 *:data-[slot=alert-description]:text-success/90",
       },
     },
     defaultVariants: {

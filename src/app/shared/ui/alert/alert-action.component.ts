@@ -37,6 +37,6 @@ export class AlertActionComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn("absolute top-1.5 right-2", this.class())
+    cn("col-span-2 mt-2 flex items-center justify-end gap-2", this.class())
   );
 }

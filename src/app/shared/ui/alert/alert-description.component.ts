@@ -32,7 +32,7 @@ export class AlertDescriptionComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      "text-muted-foreground text-xs/relaxed text-balance md:text-pretty [&_p:not(:last-child)]:mb-4 [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3",
+      "col-start-2 text-sm text-muted-foreground grid justify-items-start gap-1 [&_p]:leading-relaxed [&_p:not(:last-child)]:mb-2 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
       this.class()
     )
   );
