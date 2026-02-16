@@ -51,7 +51,7 @@ export type ButtonSize = NonNullable<ButtonVariants['size']>;
 @Directive({
   selector: 'button[argusButton], a[argusButton]',
   host: {
-    '[class]': 'computedClass()',
+    '[class]': 'asChild() ? null : computedClass()',
     '[attr.data-slot]': '"button"',
     '[attr.data-variant]': 'variant()',
     '[attr.data-size]': 'size()',
@@ -61,10 +61,27 @@ export class ButtonDirective {
   readonly variant = input<ButtonVariant>('default');
   readonly size = input<ButtonSize>('default');
   readonly class = input<string>('');
+  readonly asChild = input<boolean>(false);
 
+  /**
+   * When asChild is true, the directive doesn't apply host classes.
+   * Consumer can use getClasses() to get the button classes for manual application.
+   * This enables composition patterns like:
+   * ```html
+   * <some-component [class]="buttonDirective.getClasses()">
+   * ```
+   */
   protected readonly computedClass = computed(() =>
     cn(buttonVariants({ variant: this.variant(), size: this.size() }), this.class())
   );
+
+  /**
+   * Get button classes for manual application (used with asChild mode).
+   * Consumer is responsible for applying these classes to their element.
+   */
+  getClasses(): string {
+    return this.computedClass();
+  }
 }
 
 // Export buttonVariants for external use

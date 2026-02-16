@@ -132,6 +132,28 @@ import { ButtonComponent } from '../shared/ui/button';
           </div>
         </div>
       </section>
+
+      <!-- asChild Mode -->
+      <section>
+        <div class="mb-4">
+          <h2 class="text-sm font-medium text-muted-foreground">asChild Mode</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6">
+          <p class="text-sm text-muted-foreground mb-4">
+            Use asChild to get button classes for manual application to other elements.
+            Useful for composing with other components.
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <!-- Example: Using asChild to apply styles to a div -->
+            <div class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs/relaxed font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/80 h-7 px-2 gap-1">
+              asChild via getClasses()
+            </div>
+            <a href="#" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs/relaxed font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-border bg-background hover:bg-accent hover:text-accent-foreground h-7 px-2 gap-1">
+              Link with button styles
+            </a>
+          </div>
+        </div>
+      </section>
       </div>
     </div>
   `,
