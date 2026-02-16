@@ -68,11 +68,15 @@ export class CardDirective {
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"card-header"',
+    '[attr.aria-labelledby]': 'ariaLabelledBy()',
+    '[attr.aria-describedby]': 'ariaDescribedBy()',
   },
 })
 export class CardHeaderDirective {
   readonly class = input<string>('');
   readonly appCardHeaderBorder = input<boolean>(false);
+  readonly ariaLabelledBy = input<string>('');
+  readonly ariaDescribedBy = input<string>('');
 
   protected readonly computedClass = computed(() =>
     cn(

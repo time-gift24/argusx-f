@@ -48,7 +48,7 @@ import { InputDirective, type InputStatus, type InputSize } from './input.direct
 export class InputComponent implements ControlValueAccessor {
   readonly type = input<string>('text');
   readonly status = input<InputStatus>('default');
-  readonly size = input<InputSize>('default');
+  readonly size = input<InputSize>('md');
   readonly borderless = input<boolean>(false);
   readonly disabled = model<boolean>(false);
   readonly readonly = input<boolean>(false);

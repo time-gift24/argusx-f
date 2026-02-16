@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 export type InputStatus = 'default' | 'error' | 'warning' | 'success';
 
-export type InputSize = 'sm' | 'default' | 'lg';
+export type InputSize = 'sm' | 'md' | 'lg';
 
 // Aligned with official shadcn preset (.vendor/aim/components/ui/input.tsx)
 const inputVariants = cva(
@@ -18,9 +18,9 @@ const inputVariants = cva(
         success: 'border-green-500 focus-visible:border-green-500 focus-visible:ring-green-500/30',
       },
       size: {
-        sm: 'h-6 text-xs px-1.5 py-0.5',
-        default: 'h-7 text-sm px-2 py-0.5',
-        lg: 'h-10 text-base px-3 py-1.5',
+        sm: 'h-8 text-xs px-2',
+        md: 'h-10 text-sm px-3',
+        lg: 'h-12 text-base px-4',
       },
       borderless: {
         false: '',
@@ -29,7 +29,7 @@ const inputVariants = cva(
     },
     defaultVariants: {
       status: 'default',
-      size: 'default',
+      size: 'md',
       borderless: false,
     },
   }
@@ -64,7 +64,7 @@ export class InputDirective {
   readonly type = input<string>('text');
   readonly class = input<string>('');
   readonly status = input<InputStatus>('default');
-  readonly size = input<InputSize>('default');
+  readonly size = input<InputSize>('md');
   readonly borderless = input<boolean>(false);
 
   // Bidirectional binding with model()

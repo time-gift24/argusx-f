@@ -6,6 +6,7 @@ import {
   effect,
   inject,
   input,
+  output,
   signal,
 } from '@angular/core';
 import { cn } from '../../utils/cn';
@@ -27,10 +28,21 @@ export class AccordionRootDirective {
   readonly disabled = input<boolean>(false);
   readonly defaultValue = input<string | string[] | null>(null);
 
+  // Controlled mode inputs and outputs
+  readonly value = input<string | string[] | null>(null);
+  readonly valueChange = output<string | string[]>();
+  readonly onValueChange = output<{ value: string | string[] }>();
+
   // Track expanded items using a signal
   private readonly _expandedItems = signal<Set<string>>(new Set());
 
   private readonly initializeDefaultValueEffect = effect(() => {
+    // Skip if controlled mode is active
+    const controlledValue = this.value();
+    if (controlledValue !== undefined && controlledValue !== null) {
+      return;
+    }
+
     const defaultValue = this.defaultValue();
     const type = this.type();
     if (!defaultValue) {
@@ -43,11 +55,24 @@ export class AccordionRootDirective {
     this._expandedItems.set(new Set(normalizedValues));
   });
 
+  // Effect for controlled mode - listen to value changes
+  private readonly controlledValueEffect = effect(() => {
+    const controlledValue = this.value();
+    if (controlledValue !== undefined && controlledValue !== null) {
+      const values = Array.isArray(controlledValue)
+        ? controlledValue
+        : [controlledValue];
+      this._expandedItems.set(new Set(values));
+    }
+  });
+
   isExpanded(itemId: string): boolean {
     return this._expandedItems().has(itemId);
   }
 
   toggle(itemId: string): void {
+    let newValue: string | string[] | undefined;
+
     this._expandedItems.update((current) => {
       const newSet = new Set(current);
 
@@ -62,8 +87,20 @@ export class AccordionRootDirective {
         newSet.add(itemId);
       }
 
+      // Prepare the new value for output
+      const values = Array.from(newSet);
+      newValue = this.type() === 'single'
+        ? (values[0] ?? '')
+        : values;
+
       return newSet;
     });
+
+    // Emit change events for controlled mode
+    if (newValue !== undefined) {
+      this.valueChange.emit(newValue);
+      this.onValueChange.emit({ value: newValue });
+    }
   }
 }
 
@@ -86,7 +123,8 @@ export class AccordionRootDirective {
   hostDirectives: [
     {
       directive: AccordionRootDirective,
-      inputs: ['type', 'collapsible', 'disabled', 'defaultValue'],
+      inputs: ['type', 'collapsible', 'disabled', 'defaultValue', 'value'],
+      outputs: ['valueChange', 'onValueChange'],
     },
   ],
   host: {
