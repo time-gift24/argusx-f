@@ -414,6 +414,7 @@ export class DialogFooterComponent {
 export class DialogComponent {
   private static nextId = 0;
   private readonly dialogId = `argus-dialog-${DialogComponent.nextId++}`;
+  private readonly bodyScrollLocked = signal(false);
 
   readonly open = model<boolean>(false);
   readonly showCloseButton = input<boolean>(true);
@@ -422,6 +423,20 @@ export class DialogComponent {
 
   protected readonly titleId = signal<string>(`${this.dialogId}-title`);
   protected readonly descriptionId = signal<string>(`${this.dialogId}-description`);
+
+  constructor() {
+    // Add effect for body scroll locking
+    effect(() => {
+      const isOpen = this.open();
+      if (isOpen) {
+        document.body.classList.add('argus-dialog-scroll-locked');
+        this.bodyScrollLocked.set(true);
+      } else if (this.bodyScrollLocked()) {
+        document.body.classList.remove('argus-dialog-scroll-locked');
+        this.bodyScrollLocked.set(false);
+      }
+    });
+  }
 
   protected computedClass = computed(() => {
     return cn('dialog-root', this.open() ? 'flex' : 'hidden');

@@ -1,5 +1,10 @@
 /* Dialog Component Styles - 矿物与时光主题 */
 
+/* Body scroll lock - applied when dialog is open */
+body.argus-dialog-scroll-locked {
+  overflow: hidden;
+}
+
 /* Dialog Root */
 :host([data-state='closed']) {
   display: none;
