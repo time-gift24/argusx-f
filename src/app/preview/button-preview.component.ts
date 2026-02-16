@@ -57,7 +57,7 @@ import { ButtonComponent } from '../shared/ui/button';
       </section>
 
       <!-- States -->
-      <section>
+      <section class="mb-8">
         <div class="mb-4">
           <h2 class="text-sm font-medium text-muted-foreground">States</h2>
         </div>
@@ -65,6 +65,69 @@ import { ButtonComponent } from '../shared/ui/button';
           <div class="flex flex-wrap gap-2">
             <button argus-button>Enabled</button>
             <button argus-button disabled>Disabled</button>
+            <button argus-button [loading]="true">Loading</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Shape -->
+      <section class="mb-8">
+        <div class="mb-4">
+          <h2 class="text-sm font-medium text-muted-foreground">Shape</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6">
+          <div class="flex flex-wrap gap-2">
+            <button argus-button shape="default">Default</button>
+            <button argus-button shape="circle">
+              <span class="i-lucide-circle"></span>
+            </button>
+            <button argus-button shape="square">Square</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- With Icons -->
+      <section class="mb-8">
+        <div class="mb-4">
+          <h2 class="text-sm font-medium text-muted-foreground">With Icons</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6">
+          <div class="flex flex-wrap gap-2">
+            <button argus-button>
+              <span class="i-lucide-square-and-arrow-up mr-1"></span>
+              Submit
+            </button>
+            <button argus-button variant="outline">
+              <span class="i-lucide-plus mr-1"></span>
+              Add Item
+            </button>
+            <button argus-button variant="secondary">
+              <span class="i-lucide-download mr-1"></span>
+              Download
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- All Sizes with Icons -->
+      <section class="mb-8">
+        <div class="mb-4">
+          <h2 class="text-sm font-medium text-muted-foreground">Icon Sizes</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6">
+          <div class="flex flex-wrap items-center gap-2">
+            <button argus-button size="icon-xs">
+              <span class="i-lucide-bell"></span>
+            </button>
+            <button argus-button size="icon-sm">
+              <span class="i-lucide-bell"></span>
+            </button>
+            <button argus-button size="icon">
+              <span class="i-lucide-bell"></span>
+            </button>
+            <button argus-button size="icon-lg">
+              <span class="i-lucide-bell"></span>
+            </button>
           </div>
         </div>
       </section>

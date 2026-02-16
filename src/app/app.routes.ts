@@ -32,6 +32,27 @@ export const routes: Routes = [
             (m) => m.CardPreviewComponent
           ),
       },
+      {
+        path: 'textarea',
+        loadComponent: () =>
+          import('./features/preview/textarea-preview.component').then(
+            (m) => m.TextareaPreviewComponent
+          ),
+      },
+      {
+        path: 'comparison',
+        loadComponent: () =>
+          import('./features/preview/comparison-preview.component').then(
+            (m) => m.ComparisonPreviewComponent
+          ),
+      },
+      {
+        path: 'badge',
+        loadComponent: () =>
+          import('./features/preview/badge-preview.component').then(
+            (m) => m.BadgePreviewComponent
+          ),
+      },
     ],
   },
   {

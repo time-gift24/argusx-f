@@ -53,6 +53,30 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
               Card
             </button>
           </li>
+          <li>
+            <button
+              (click)="setPreview('textarea')"
+              class="w-full text-left block rounded-md px-2.5 py-1.5 text-xs transition-colors {{
+                currentPreview() === 'textarea'
+                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+              }}"
+            >
+              Textarea
+            </button>
+          </li>
+          <li>
+            <button
+              (click)="setPreview('badge')"
+              class="w-full text-left block rounded-md px-2.5 py-1.5 text-xs transition-colors {{
+                currentPreview() === 'badge'
+                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+              }}"
+            >
+              Badge
+            </button>
+          </li>
         </ul>
       </nav>
 
@@ -69,14 +93,14 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 export class PreviewLayoutComponent {
   private readonly sanitizer = inject(DomSanitizer);
 
-  readonly currentPreview = signal<'button' | 'input' | 'card'>('button');
+  readonly currentPreview = signal<'button' | 'input' | 'card' | 'textarea' | 'badge'>('button');
 
   readonly safeUrl = (): SafeResourceUrl => {
     const url = `/preview/${this.currentPreview()}`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   };
 
-  setPreview(component: 'button' | 'input' | 'card'): void {
+  setPreview(component: 'button' | 'input' | 'card' | 'textarea' | 'badge'): void {
     this.currentPreview.set(component);
   }
 }
