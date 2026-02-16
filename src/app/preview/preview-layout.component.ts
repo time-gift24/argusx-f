@@ -12,7 +12,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { distinctUntilChanged, filter, map } from 'rxjs';
 
 interface PreviewItem {
-  id: 'button' | 'input' | 'card' | 'context-menu' | 'calendar' | 'accordion' | 'dialog' | 'aspect-ratio' | 'alert' | 'avatar';
+  id:
+    | 'button'
+    | 'input'
+    | 'card'
+    | 'context-menu'
+    | 'calendar'
+    | 'accordion'
+    | 'dialog'
+    | 'aspect-ratio'
+    | 'alert'
+    | 'avatar'
+    | 'liquid-glass';
   label: string;
 }
 
@@ -27,6 +38,7 @@ const PREVIEW_ITEMS: PreviewItem[] = [
   { id: 'aspect-ratio', label: 'Aspect Ratio' },
   { id: 'alert', label: 'Alert' },
   { id: 'avatar', label: 'Avatar' },
+  { id: 'liquid-glass', label: 'Liquid Glass' },
 ];
 
 const PREVIEW_ITEM_IDS = new Set(PREVIEW_ITEMS.map((item) => item.id));

@@ -81,6 +81,13 @@ export const routes: Routes = [
             (m) => m.AvatarPreviewComponent
           ),
       },
+      {
+        path: 'liquid-glass',
+        loadComponent: () =>
+          import('./preview/liquid-glass-preview.component').then(
+            (m) => m.LiquidGlassPreviewComponent
+          ),
+      },
     ],
   },
   {
