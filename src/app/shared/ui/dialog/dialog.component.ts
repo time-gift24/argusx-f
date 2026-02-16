@@ -177,6 +177,7 @@ export class DialogCloseDirective {
 })
 export class DialogContentComponent implements OnDestroy {
   readonly open = input<boolean>(false);
+  readonly size = input<'sm' | 'default' | 'lg' | 'xl' | 'full'>('default');
   readonly showCloseButton = input<boolean>(true);
   readonly ariaLabelledby = input<string | null>(null);
   readonly ariaDescribedby = input<string | null>(null);
@@ -202,10 +203,17 @@ export class DialogContentComponent implements OnDestroy {
   }
 
   protected computedClass = computed(() => {
+    const sizeClasses: Record<string, string> = {
+      sm: 'max-w-sm',
+      default: 'max-w-lg',
+      lg: 'max-w-2xl',
+      xl: 'max-w-4xl',
+      full: 'max-w-[calc(100%-2rem)]',
+    };
     return cn(
       'dialog-content',
       'fixed left-[50%] top-[50%] z-50',
-      'grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%]',
+      `grid w-full ${sizeClasses[this.size()]} translate-x-[-50%] translate-y-[-50%]`,
       'gap-4 border bg-card p-6 shadow-lg',
       'sm:rounded-lg',
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
