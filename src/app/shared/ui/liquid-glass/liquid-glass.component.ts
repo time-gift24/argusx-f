@@ -54,7 +54,7 @@ import { DEFAULT_LIQUID_CONFIG } from './liquid-glass.config';
     [style.border-radius.px]="config().cornerRadius"
   >
     <!-- Highlight Layer -->
-    <div class="liquid-highlight" />
+    <div class="liquid-highlight"></div>
 
     <!-- Content -->
     <div class="liquid-content">
@@ -100,6 +100,7 @@ import { DEFAULT_LIQUID_CONFIG } from './liquid-glass.config';
     z-index: 1;
   }
 `],
+})
 export class LiquidGlassComponent {
   readonly config = input<LiquidGlassConfig>(DEFAULT_LIQUID_CONFIG);
   readonly mousePosition = input<{ x: number; y: number }>({ x: 0, y: 0 });
