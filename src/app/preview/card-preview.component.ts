@@ -259,6 +259,56 @@ import {
           </div>
         </div>
       </section>
+
+      <!-- ARIA Support -->
+      <section>
+        <div class="mb-4">
+          <h2 class="text-sm font-medium text-muted-foreground">ARIA Support</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6">
+          <div class="max-w-sm">
+            <div appCard [ariaLabelledBy]="'card-title-aria'" [ariaDescribedBy]="'card-desc-aria'">
+              <div appCardHeader>
+                <div appCardTitle id="card-title-aria">Accessible Card</div>
+                <div appCardDescription id="card-desc-aria">This card has ARIA attributes for accessibility</div>
+              </div>
+              <div appCardContent>
+                <p class="text-sm text-muted-foreground">
+                  This card uses aria-labelledby and aria-describedby to provide accessible labeling for screen readers.
+                </p>
+              </div>
+              <div appCardFooter>
+                <span class="text-xs text-muted-foreground">Footer content</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- With Header/Footer Borders (Directive) -->
+      <section>
+        <div class="mb-4">
+          <h2 class="text-sm font-medium text-muted-foreground">With Header/Footer Borders (Directive)</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6">
+          <div class="max-w-sm">
+            <div appCard>
+              <div appCardHeader [appCardHeaderBorder]="true">
+                <div appCardTitle>Bordered Header</div>
+                <div appCardDescription>Header with bottom border</div>
+              </div>
+              <div appCardContent>
+                <p class="text-sm text-muted-foreground">
+                  Card content goes here. The border is applied using the appCardHeaderBorder directive input.
+                </p>
+              </div>
+              <div appCardFooter [appCardFooterBorder]="true">
+                <span class="text-xs text-muted-foreground">Bordered footer</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       </div>
     </div>
   `,
