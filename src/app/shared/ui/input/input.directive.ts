@@ -4,6 +4,8 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 export type InputStatus = 'default' | 'error' | 'warning' | 'success';
 
+export type InputSize = 'sm' | 'default' | 'lg';
+
 // Aligned with official shadcn preset (.vendor/aim/components/ui/input.tsx)
 const inputVariants = cva(
   'bg-input/20 dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-7 rounded-md border px-2 py-0.5 text-sm transition-colors file:h-6 file:text-xs/relaxed file:font-medium focus-visible:ring-2 aria-invalid:ring-2 md:text-xs/relaxed file:text-foreground placeholder:text-muted-foreground w-full min-w-0 outline-none file:inline-flex file:border-0 file:bg-transparent disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50',
@@ -15,6 +17,11 @@ const inputVariants = cva(
         warning: 'border-yellow-500 focus-visible:border-yellow-500 focus-visible:ring-yellow-500/30',
         success: 'border-green-500 focus-visible:border-green-500 focus-visible:ring-green-500/30',
       },
+      size: {
+        sm: 'h-6 text-xs px-1.5 py-0.5',
+        default: 'h-7 text-sm px-2 py-0.5',
+        lg: 'h-10 text-base px-3 py-1.5',
+      },
       borderless: {
         false: '',
         true: 'flex-1 bg-transparent border-0 focus-visible:border-0 focus-visible:ring-0',
@@ -22,6 +29,7 @@ const inputVariants = cva(
     },
     defaultVariants: {
       status: 'default',
+      size: 'default',
       borderless: false,
     },
   }
@@ -56,6 +64,7 @@ export class InputDirective {
   readonly type = input<string>('text');
   readonly class = input<string>('');
   readonly status = input<InputStatus>('default');
+  readonly size = input<InputSize>('default');
   readonly borderless = input<boolean>(false);
 
   // Bidirectional binding with model()
@@ -65,6 +74,7 @@ export class InputDirective {
     cn(
       inputVariants({
         status: this.status(),
+        size: this.size(),
         borderless: this.borderless(),
       }),
       this.class()

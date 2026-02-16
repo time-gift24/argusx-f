@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { InputDirective } from '../shared/ui/input';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { InputDirective, InputComponent } from '../shared/ui/input';
 
 @Component({
   selector: 'app-input-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [InputDirective],
+  imports: [InputDirective, InputComponent, FormsModule],
   template: `
     <div class="mx-auto max-w-6xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Input</h1>
@@ -85,6 +86,27 @@ import { InputDirective } from '../shared/ui/input';
         </div>
       </section>
 
+      <!-- Sizes -->
+      <section>
+        <div class="mb-4">
+          <h2 class="text-sm font-medium text-muted-foreground">Sizes</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6 space-y-4">
+          <div class="grid gap-2">
+            <label class="text-sm font-medium" for="input-size-sm">Small</label>
+            <input appInput type="text" id="input-size-sm" size="sm" value="Small input" />
+          </div>
+          <div class="grid gap-2">
+            <label class="text-sm font-medium" for="input-size-default">Default</label>
+            <input appInput type="text" id="input-size-default" value="Default input" />
+          </div>
+          <div class="grid gap-2">
+            <label class="text-sm font-medium" for="input-size-lg">Large</label>
+            <input appInput type="text" id="input-size-lg" size="lg" value="Large input" />
+          </div>
+        </div>
+      </section>
+
       <!-- With Labels -->
       <section>
         <div class="mb-4">
@@ -124,8 +146,28 @@ import { InputDirective } from '../shared/ui/input';
           <input appInput type="file" id="input-file" />
         </div>
       </section>
+
+      <!-- Component Mode -->
+      <section>
+        <div class="mb-4">
+          <h2 class="text-sm font-medium text-muted-foreground">Component Mode</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6 space-y-4">
+          <div class="grid gap-2">
+            <label class="text-sm font-medium" for="component-input">With ngModel</label>
+            <app-input id="component-input" placeholder="Component input" [(ngModel)]="componentValue" />
+            <p class="text-xs text-muted-foreground">Value: {{ componentValue() }}</p>
+          </div>
+          <div class="grid gap-2">
+            <label class="text-sm font-medium" for="component-input-error">Error State</label>
+            <app-input id="component-input-error" status="error" placeholder="Error input" />
+          </div>
+        </div>
+      </section>
       </div>
     </div>
   `,
 })
-export class InputPreviewComponent {}
+export class InputPreviewComponent {
+  componentValue = signal('');
+}
