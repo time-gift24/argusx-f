@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { LucideAngularModule, SquareArrowUp, Plus, Download, CheckIcon, CircleIcon } from 'lucide-angular';
 import { ButtonComponent } from '../shared/ui/button';
 
 @Component({
   selector: 'app-button-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent],
+  imports: [ButtonComponent, LucideAngularModule],
   template: `
     <div class="mx-auto max-w-6xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Button</h1>
@@ -42,16 +43,16 @@ import { ButtonComponent } from '../shared/ui/button';
             <button argus-button size="default">Default</button>
             <button argus-button size="lg">Large</button>
             <button argus-button size="icon">
-              <span class="i-lucide-square-and-arrow-up"></span>
+              <lucide-icon [img]="squareIcon" class="size-4"></lucide-icon>
             </button>
             <button argus-button size="icon-xs">
-              <span class="i-lucide-square-and-arrow-up"></span>
+              <lucide-icon [img]="squareIcon" class="size-3"></lucide-icon>
             </button>
             <button argus-button size="icon-sm">
-              <span class="i-lucide-square-and-arrow-up"></span>
+              <lucide-icon [img]="squareIcon" class="size-3.5"></lucide-icon>
             </button>
             <button argus-button size="icon-lg">
-              <span class="i-lucide-square-and-arrow-up"></span>
+              <lucide-icon [img]="squareIcon" class="size-5"></lucide-icon>
             </button>
           </div>
         </div>
@@ -80,7 +81,7 @@ import { ButtonComponent } from '../shared/ui/button';
           <div class="flex flex-wrap gap-2">
             <button argus-button shape="default">Default</button>
             <button argus-button shape="circle">
-              <span class="i-lucide-circle"></span>
+              <lucide-icon [img]="circleIcon" class="size-4"></lucide-icon>
             </button>
             <button argus-button shape="square">Square</button>
           </div>
@@ -95,15 +96,15 @@ import { ButtonComponent } from '../shared/ui/button';
         <div class="rounded-lg border border-dashed border-border p-6">
           <div class="flex flex-wrap gap-2">
             <button argus-button>
-              <span class="i-lucide-square-and-arrow-up mr-1"></span>
+              <lucide-icon [img]="squareIcon" class="size-4 mr-1"></lucide-icon>
               Submit
             </button>
             <button argus-button variant="outline">
-              <span class="i-lucide-plus mr-1"></span>
+              <lucide-icon [img]="plusIcon" class="size-4 mr-1"></lucide-icon>
               Add Item
             </button>
             <button argus-button variant="secondary">
-              <span class="i-lucide-download mr-1"></span>
+              <lucide-icon [img]="downloadIcon" class="size-4 mr-1"></lucide-icon>
               Download
             </button>
           </div>
@@ -118,16 +119,16 @@ import { ButtonComponent } from '../shared/ui/button';
         <div class="rounded-lg border border-dashed border-border p-6">
           <div class="flex flex-wrap items-center gap-2">
             <button argus-button size="icon-xs">
-              <span class="i-lucide-bell"></span>
+              <lucide-icon [img]="checkIcon" class="size-3"></lucide-icon>
             </button>
             <button argus-button size="icon-sm">
-              <span class="i-lucide-bell"></span>
+              <lucide-icon [img]="checkIcon" class="size-3.5"></lucide-icon>
             </button>
             <button argus-button size="icon">
-              <span class="i-lucide-bell"></span>
+              <lucide-icon [img]="checkIcon" class="size-4"></lucide-icon>
             </button>
             <button argus-button size="icon-lg">
-              <span class="i-lucide-bell"></span>
+              <lucide-icon [img]="checkIcon" class="size-5"></lucide-icon>
             </button>
           </div>
         </div>
@@ -158,4 +159,10 @@ import { ButtonComponent } from '../shared/ui/button';
     </div>
   `,
 })
-export class ButtonPreviewComponent {}
+export class ButtonPreviewComponent {
+  protected readonly squareIcon = SquareArrowUp;
+  protected readonly plusIcon = Plus;
+  protected readonly downloadIcon = Download;
+  protected readonly checkIcon = CheckIcon;
+  protected readonly circleIcon = CircleIcon;
+}
