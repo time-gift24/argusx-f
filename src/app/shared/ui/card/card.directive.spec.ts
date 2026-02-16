@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { CardDirective, CardHeaderDirective } from './card.directive';
+import { CardDirective, CardHeaderDirective, CardFooterDirective } from './card.directive';
 
 @Component({
   selector: 'test-card',
@@ -72,5 +72,26 @@ describe('CardHeaderDirective', () => {
     fixture.detectChanges();
     const header = fixture.nativeElement.querySelector('[appCardHeader]');
     expect(header.classList.contains('border-b')).toBe(true);
+  });
+});
+
+describe('CardFooterDirective', () => {
+  beforeEach(() =>
+    TestBed.configureTestingModule({
+      imports: [CardFooterDirective],
+    })
+  );
+
+  it('should support footer border control', () => {
+    const fixture = TestBed.configureTestingModule({
+      imports: [CardFooterDirective],
+      template: `
+        <div appCardFooter [appCardFooterBorder]="true">Footer</div>
+      `,
+    }).createComponent(TestComponent);
+
+    fixture.detectChanges();
+    const footer = fixture.nativeElement.querySelector('[appCardFooter]');
+    expect(footer.classList.contains('border-t')).toBe(true);
   });
 });

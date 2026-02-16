@@ -170,9 +170,14 @@ export class CardContentDirective {
 })
 export class CardFooterDirective {
   readonly class = input<string>('');
+  readonly appCardFooterBorder = input<boolean>(false);
 
   protected readonly computedClass = computed(() =>
-    cn('flex items-center', this.class())
+    cn(
+      'flex items-center',
+      this.appCardFooterBorder() ? 'border-t pt-6' : '',
+      this.class()
+    )
   );
 }
 
