@@ -16,16 +16,14 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  CdkOverlayOrigin,
   OverlayModule,
   ConnectedPosition,
-  FlexibleConnectedPositionStrategy,
   Overlay,
   OverlayRef,
 } from '@angular/cdk/overlay';
 import { TemplatePortal, PortalModule } from '@angular/cdk/portal';
 import { cn } from '../../utils/cn';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
 import {
   LucideAngularModule,
   CheckIcon,
@@ -37,6 +35,7 @@ import {
 // ============================================================================
 
 export type ContextMenuItemVariant = 'default' | 'destructive';
+export type ContextMenuSide = 'top' | 'right' | 'bottom' | 'left';
 
 // ============================================================================
 // Context Menu Root with integrated Overlay
@@ -56,8 +55,10 @@ let contextMenuIdCounter = 0;
   selector: '[appContextMenuTrigger]',
   host: {
     '[attr.data-slot]': '"context-menu-trigger"',
+    '[attr.aria-expanded]': 'contextMenu.open()',
     '[attr.aria-haspopup]': '"menu"',
     '(contextmenu)': 'onContextMenu($event)',
+    '(keydown)': 'onKeydown($event)',
   },
 })
 export class ContextMenuTriggerDirective {
@@ -72,6 +73,61 @@ export class ContextMenuTriggerDirective {
       event.clientY,
       this.elementRef.nativeElement
     );
+  }
+
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.contextMenu.openFromTriggerElement(this.elementRef.nativeElement);
+    }
+  }
+}
+
+/**
+ * Context Menu Trigger Component
+ * Wrapper for trigger behavior (compatible with shadcn API)
+ */
+@Component({
+  selector: 'app-context-menu-trigger',
+  imports: [CommonModule],
+  template: `<ng-content />`,
+  host: {
+    '[class]': 'computedClass()',
+    '[attr.data-slot]': '"context-menu-trigger"',
+    '[attr.aria-expanded]': 'contextMenu.open()',
+    '[attr.aria-haspopup]': '"menu"',
+    '(contextmenu)': 'onContextMenu($event)',
+    '(keydown)': 'onKeydown($event)',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ContextMenuTriggerComponent {
+  readonly contextMenu = inject(ContextMenuComponent);
+  readonly elementRef = inject(ElementRef<HTMLElement>);
+
+  readonly class = input<string>('');
+
+  protected readonly computedClass = computed(() =>
+    cn('select-none', this.class())
+  );
+
+  onContextMenu(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.contextMenu.openAt(
+      event.clientX,
+      event.clientY,
+      this.elementRef.nativeElement
+    );
+  }
+
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.contextMenu.openFromTriggerElement(this.elementRef.nativeElement);
+    }
   }
 }
 
@@ -134,7 +190,7 @@ export class ContextMenuLabelComponent {
 // ============================================================================
 
 const contextMenuItemVariants = cva(
-  "focus-visible:bg-accent focus-visible:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus-visible:bg-destructive/10 dark:data-[variant=destructive]:focus-visible:bg-destructive/20 data-[variant=destructive]:focus-visible:text-destructive data-[variant=destructive]:*:[svg]:text-destructive not-data-[variant=destructive]:focus-visible:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5 group/context-menu-item relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:text-destructive not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5 group/context-menu-item relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -248,7 +304,7 @@ export class ContextMenuCheckboxItemComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'focus-visible:bg-accent focus-visible:text-accent-foreground focus-visible:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+      'focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
       'pr-8',
       'py-1',
       'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
@@ -342,7 +398,7 @@ export class ContextMenuRadioItemComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'focus-visible:bg-accent focus-visible:text-accent-foreground focus-visible:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+      'focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
       'pr-8',
       'py-1',
       'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
@@ -418,6 +474,7 @@ export class ContextMenuShortcutComponent {
   protected readonly computedClass = computed(() =>
     cn(
       'text-muted-foreground group-focus/context-menu-item:text-accent-foreground ml-auto text-[0.625rem] tracking-widest',
+      'group-hover/context-menu-item:text-accent-foreground',
       this.class()
     )
   );
@@ -537,7 +594,7 @@ export class ContextMenuSubTriggerComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'focus-visible:bg-accent focus-visible:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground not-data-[variant=destructive]:focus-visible:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 flex cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
+      'focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 flex cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
       'hover:bg-accent hover:text-accent-foreground not-data-[variant=destructive]:hover:**:text-accent-foreground',
       this.class()
     )
@@ -591,6 +648,7 @@ export class ContextMenuSubTriggerComponent {
         [style.top.px]="positionTop()"
         role="menu"
         data-state="open"
+        [attr.data-side]="computedSide()"
         (keydown)="onKeydown($event)"
         (mouseenter)="onMouseEnter()"
         (mouseleave)="onMouseLeave()">
@@ -613,6 +671,7 @@ export class ContextMenuSubContentComponent {
     const rect = this.subMenu?.triggerPosition();
     if (!rect) return 0;
 
+    const containerRect = this.getPositioningContainerRect();
     // Check if submenu would overflow viewport on right side
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1920;
     const submenuWidth = 192;
@@ -621,24 +680,42 @@ export class ContextMenuSubContentComponent {
         ? rect.left - submenuWidth - 4
         : rect.right + 4;
 
-    return viewportLeft;
+    return containerRect ? viewportLeft - containerRect.left : viewportLeft;
   });
 
   protected readonly positionTop = computed(() => {
     const rect = this.subMenu?.triggerPosition();
     if (!rect) return 0;
 
-    return rect.top - 4;
+    const containerRect = this.getPositioningContainerRect();
+    const viewportTop = rect.top - 4;
+
+    return containerRect ? viewportTop - containerRect.top : viewportTop;
+  });
+
+  protected readonly computedSide = computed<ContextMenuSide>(() => {
+    const rect = this.subMenu?.triggerPosition();
+    if (!rect || typeof window === 'undefined') {
+      return 'right';
+    }
+
+    const submenuWidth = 192;
+    return rect.right + 4 + submenuWidth > window.innerWidth ? 'left' : 'right';
   });
 
   protected readonly contentClass = computed(() =>
     cn(
       'bg-popover text-popover-foreground ring-foreground/10 min-w-32 rounded-lg p-1 shadow-md ring-1 duration-100',
-      'animate-in fade-in-0 zoom-in-95',
+      'data-[state=open]:animate-in data-[state=closed]:animate-out',
+      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+      'data-[side=bottom]:slide-in-from-top-2',
+      'data-[side=left]:slide-in-from-right-2',
       'data-[side=right]:slide-in-from-left-2',
-      'origin-top-left',
+      'data-[side=top]:slide-in-from-bottom-2',
+      'origin-[var(--radix-context-menu-content-transform-origin)]',
       'overflow-hidden',
-      'z-[60]',
+      'z-50',
       this.class()
     )
   );
@@ -656,6 +733,11 @@ export class ContextMenuSubContentComponent {
 
   onMouseEnter(): void {
     this.subMenu?.onContentEnter();
+  }
+
+  private getPositioningContainerRect(): DOMRect | null {
+    const overlayPane = this.elementRef.nativeElement.closest('.cdk-overlay-pane');
+    return overlayPane instanceof HTMLElement ? overlayPane.getBoundingClientRect() : null;
   }
 }
 
@@ -676,7 +758,7 @@ export class ContextMenuSubContentComponent {
   ],
   template: `
     <!-- Trigger element (projected content) -->
-    <ng-content select="[appContextMenuTrigger]" />
+    <ng-content select="[appContextMenuTrigger], app-context-menu-trigger" />
 
     <!-- Menu content via CDK Overlay -->
     <ng-template #menuPortal>
@@ -686,6 +768,7 @@ export class ContextMenuSubContentComponent {
         role="menu"
         tabindex="-1"
         [attr.data-state]="open() ? 'open' : 'closed'"
+        [attr.data-side]="renderedSide()"
         (keydown)="onContentKeydown($event)"
         (click)="$event.stopPropagation()">
         <ng-content />
@@ -701,6 +784,8 @@ export class ContextMenuComponent {
   private static activeMenu: ContextMenuComponent | null = null;
   readonly open = model<boolean>(false);
 
+  readonly side = input<ContextMenuSide>('bottom');
+  readonly sideOffset = input<number>(4);
   readonly minWidth = input<number>(128);
   readonly class = input<string>('');
 
@@ -710,9 +795,16 @@ export class ContextMenuComponent {
   // Position for the context menu (set on right-click)
   private readonly positionX = signal(0);
   private readonly positionY = signal(0);
+  private readonly contentSide = signal<ContextMenuSide | null>(null);
+  private readonly contentSideOffset = signal<number | null>(null);
+  private readonly contentClassOverride = signal('');
+  protected readonly renderedSide = signal<ContextMenuSide>('bottom');
+  private readonly resolvedSide = computed(() => this.contentSide() ?? this.side());
+  private readonly resolvedSideOffset = computed(
+    () => this.contentSideOffset() ?? this.sideOffset()
+  );
 
   private readonly overlay = inject(Overlay);
-  private readonly elementRef = inject(ElementRef<HTMLElement>);
   private overlayRef: OverlayRef | null = null;
   private activeTriggerElement: HTMLElement | null = null;
 
@@ -722,11 +814,16 @@ export class ContextMenuComponent {
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+      'data-[side=bottom]:slide-in-from-top-2',
+      'data-[side=left]:slide-in-from-right-2',
+      'data-[side=right]:slide-in-from-left-2',
+      'data-[side=top]:slide-in-from-bottom-2',
       'max-h-[var(--radix-context-menu-content-available-height)]',
       'origin-[var(--radix-context-menu-content-transform-origin)]',
       'overflow-x-hidden overflow-y-auto',
       'data-[state=closed]:overflow-hidden',
-      this.class()
+      this.class(),
+      this.contentClassOverride()
     )
   );
 
@@ -752,8 +849,17 @@ export class ContextMenuComponent {
   openMenu(): void {
     this.activateCurrentMenu();
     this.activeTriggerElement = null;
+    if (this.positionX() === 0 && this.positionY() === 0) {
+      this.positionX.set(8);
+      this.positionY.set(8);
+    }
     this.open.set(true);
     this.focusMenuContainer();
+  }
+
+  openFromTriggerElement(triggerElement: HTMLElement): void {
+    const rect = triggerElement.getBoundingClientRect();
+    this.openAt(rect.left + 2, rect.top + 2, triggerElement);
   }
 
   closeMenu(): void {
@@ -779,37 +885,16 @@ export class ContextMenuComponent {
       this.hideOverlay();
     }
 
+    const resolvedSide = this.resolvedSide();
+    const resolvedSideOffset = this.resolvedSideOffset();
+    this.renderedSide.set(resolvedSide);
+
     const positionStrategy = this.overlay.position()
       .flexibleConnectedTo({
         x: this.positionX(),
         y: this.positionY(),
       } as unknown as HTMLElement)
-      .withPositions([
-        {
-          originX: 'start',
-          originY: 'top',
-          overlayX: 'start',
-          overlayY: 'top',
-        },
-        {
-          originX: 'start',
-          originY: 'top',
-          overlayX: 'end',
-          overlayY: 'top',
-        },
-        {
-          originX: 'start',
-          originY: 'bottom',
-          overlayX: 'start',
-          overlayY: 'bottom',
-        },
-        {
-          originX: 'start',
-          originY: 'bottom',
-          overlayX: 'end',
-          overlayY: 'bottom',
-        },
-      ])
+      .withPositions(this.buildPositionsForSide(resolvedSide, resolvedSideOffset))
       .withPush(true);
 
     this.overlayRef = this.overlay.create({
@@ -962,6 +1047,150 @@ export class ContextMenuComponent {
     // Ignore right/middle button events to prevent context-menu flash close.
     return event.button === 0;
   }
+
+  registerContentConfig(config: {
+    side?: ContextMenuSide;
+    sideOffset?: number;
+    className?: string;
+  }): void {
+    this.contentSide.set(config.side ?? null);
+    this.contentSideOffset.set(config.sideOffset ?? null);
+    this.contentClassOverride.set(config.className ?? '');
+  }
+
+  private buildPositionsForSide(
+    side: ContextMenuSide,
+    sideOffset: number
+  ): ConnectedPosition[] {
+    switch (side) {
+      case 'top':
+        return [
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'start',
+            overlayY: 'bottom',
+            offsetY: -sideOffset,
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'end',
+            overlayY: 'bottom',
+            offsetY: -sideOffset,
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'start',
+            overlayY: 'top',
+            offsetY: sideOffset,
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'end',
+            overlayY: 'top',
+            offsetY: sideOffset,
+          },
+        ];
+      case 'right':
+        return [
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'start',
+            overlayY: 'top',
+            offsetX: sideOffset,
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'end',
+            overlayY: 'top',
+            offsetX: -sideOffset,
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'start',
+            overlayY: 'bottom',
+            offsetX: sideOffset,
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'end',
+            overlayY: 'bottom',
+            offsetX: -sideOffset,
+          },
+        ];
+      case 'left':
+        return [
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'end',
+            overlayY: 'top',
+            offsetX: -sideOffset,
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'start',
+            overlayY: 'top',
+            offsetX: sideOffset,
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'end',
+            overlayY: 'bottom',
+            offsetX: -sideOffset,
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'start',
+            overlayY: 'bottom',
+            offsetX: sideOffset,
+          },
+        ];
+      case 'bottom':
+      default:
+        return [
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'start',
+            overlayY: 'top',
+            offsetY: sideOffset,
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'end',
+            overlayY: 'top',
+            offsetY: sideOffset,
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'start',
+            overlayY: 'bottom',
+            offsetY: -sideOffset,
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'end',
+            overlayY: 'bottom',
+            offsetY: -sideOffset,
+          },
+        ];
+    }
+  }
+
 }
 
 // ============================================================================
@@ -984,7 +1213,21 @@ export class ContextMenuComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContextMenuContentComponent {
+  private readonly contextMenu = inject(ContextMenuComponent);
+
+  readonly side = input<ContextMenuSide>('bottom');
+  readonly sideOffset = input<number>(4);
   readonly class = input<string>('');
+
+  constructor() {
+    effect(() => {
+      this.contextMenu.registerContentConfig({
+        side: this.side(),
+        sideOffset: this.sideOffset(),
+        className: this.class(),
+      });
+    });
+  }
 }
 
 // ============================================================================
@@ -1012,6 +1255,7 @@ export class ContextMenuPortalComponent {
 
 export const ContextMenuComponents = [
   ContextMenuComponent,
+  ContextMenuTriggerComponent,
   ContextMenuTriggerDirective,
   ContextMenuContentComponent,
   ContextMenuGroupComponent,

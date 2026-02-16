@@ -31,6 +31,13 @@ export const routes: Routes = [
           import('./preview/card-preview.component').then(
             (m) => m.CardPreviewComponent
           ),
+      },
+      {
+        path: 'context-menu',
+        loadComponent: () =>
+          import('./preview/context-menu-preview.component').then(
+            (m) => m.ContextMenuPreviewComponent
+          ),
       }
     ],
   },

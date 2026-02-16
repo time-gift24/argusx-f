@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/cor
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 interface PreviewItem {
-  id: 'button' | 'input' | 'card';
+  id: 'button' | 'input' | 'card' | 'context-menu';
   label: string;
 }
 
@@ -10,6 +10,7 @@ const PREVIEW_ITEMS: PreviewItem[] = [
   { id: 'button', label: 'Button' },
   { id: 'input', label: 'Input' },
   { id: 'card', label: 'Card' },
+  { id: 'context-menu', label: 'Context Menu' },
 ];
 
 @Component({
