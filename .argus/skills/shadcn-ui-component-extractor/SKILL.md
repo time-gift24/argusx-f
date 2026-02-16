@@ -7,7 +7,7 @@ description: Use when extracting component information from shadcn/ui website in
 
 ## Overview
 
-This skill guides you to systematically extract component information from shadcn/ui website (https://ui.shadcn.com) using Playwright. It covers static information (styles, HTML structure) and dynamic information (interactions, states).
+This skill guides you to systematically extract component information from shadcn/ui website (https://ui.shadcn.com/create?base=radix&style=mira&baseColor=neutral&theme=cyan&iconLibrary=lucide&font=nunito-sans&menuAccent=bold&menuColor=default&radius=medium&template=vite&rtl=false) using Playwright. It covers static information (styles, HTML structure) and dynamic information (interactions, states).
 
 ## When to Use
 
