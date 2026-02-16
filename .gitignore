@@ -66,3 +66,4 @@ lerna-debug.log*
 /.angular
 docs
 .serena
+.worktrees
