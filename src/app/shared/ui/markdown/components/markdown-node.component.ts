@@ -6,10 +6,12 @@ import {
   input,
 } from '@angular/core';
 import type { RenderNode, RenderElementNode, RenderTextNode, RenderRootNode } from '../models/markdown.models';
+import { CodeBlockComponent } from './code-block.component';
+import { MermaidComponent } from './mermaid.component';
 
 @Component({
   selector: 'sd-markdown-node',
-  imports: [forwardRef(() => MarkdownNodeComponent)],
+  imports: [forwardRef(() => MarkdownNodeComponent), CodeBlockComponent, MermaidComponent],
   template: `
     @switch (node().kind) {
       @case ('text') {
@@ -74,14 +76,24 @@ import type { RenderNode, RenderElementNode, RenderTextNode, RenderRootNode } fr
             <img [src]="attr('src')" [alt]="attr('alt')" [class]="className()" />
           }
           @case ('pre') {
-            <pre [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
-              }
-            </pre>
+            @if (isMermaidBlock()) {
+              <sd-mermaid [chart]="elementTextContent()" />
+            } @else if (isCodeBlock()) {
+              <sd-code-block [code]="elementTextContent()" [language]="codeLanguage()" />
+            } @else {
+              <pre [class]="className()">
+                @for (child of elementChildren(); track $index) {
+                  <sd-markdown-node [node]="child" />
+                }
+              </pre>
+            }
           }
           @case ('code') {
-            <code [class]="className()">{{ elementTextContent() }}</code>
+            @if (isInlineCode()) {
+              <code [class]="className()">{{ elementTextContent() }}</code>
+            } @else {
+              <code [class]="className()">{{ elementTextContent() }}</code>
+            }
           }
           @case ('strong') {
             <strong [class]="className()">
@@ -222,6 +234,26 @@ export class MarkdownNodeComponent {
       .filter((c): c is RenderTextNode => c.kind === 'text')
       .map(c => c.value)
       .join('');
+  });
+
+  readonly codeLanguage = computed(() => {
+    const classStr = this.className() ?? '';
+    const match = classStr.match(/language-(\S+)/);
+    return match ? match[1] : '';
+  });
+
+  readonly isMermaidBlock = computed(() => {
+    return this.codeLanguage() === 'mermaid';
+  });
+
+  readonly isCodeBlock = computed(() => {
+    const classStr = this.className() ?? '';
+    return classStr.includes('language-') && !this.isMermaidBlock();
+  });
+
+  readonly isInlineCode = computed(() => {
+    const classStr = this.className() ?? '';
+    return !classStr.includes('language-');
   });
 
   attr(name: string): string | null {
