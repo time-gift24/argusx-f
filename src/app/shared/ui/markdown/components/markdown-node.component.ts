@@ -133,12 +133,22 @@ import { MermaidComponent } from './mermaid.component';
           }
           @case ('pre') {
             @if (codeChild() && preCodeLanguage() === 'mermaid') {
-              <sd-mermaid [chart]="preCodeText()"></sd-mermaid>
+              @defer (when true) {
+                <sd-mermaid [chart]="preCodeText()"></sd-mermaid>
+              } @placeholder {
+                <div class="my-4 min-h-[100px] text-muted-foreground">
+                  Loading diagram...
+                </div>
+              }
             } @else if (codeChild() && preCodeLanguage()) {
-              <sd-code-block
-                [code]="preCodeText()"
-                [language]="preCodeLanguage()"
-              ></sd-code-block>
+              @defer (when true) {
+                <sd-code-block
+                  [code]="preCodeText()"
+                  [language]="preCodeLanguage()"
+                ></sd-code-block>
+              } @placeholder {
+                <pre class="overflow-x-auto p-4"><code>{{ preCodeText() }}</code></pre>
+              }
             } @else {
               <pre [attr.style]="styleText()" [class]="className()">
                 @for (child of children(); track $index) {
