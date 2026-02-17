@@ -5,6 +5,7 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'sd-mermaid',
@@ -26,11 +27,11 @@ import {
 export class MermaidComponent {
   readonly chart = input.required<string>();
 
-  svg = signal('');
+  svg = signal<SafeHtml>('');
   error = signal<string | null>(null);
-  lastValidSvg = signal('');
+  lastValidSvg = signal<SafeHtml>('');
 
-  constructor() {
+  constructor(private sanitizer: DomSanitizer) {
     effect(() => {
       this.render(this.chart());
     });
@@ -44,8 +45,9 @@ export class MermaidComponent {
       const id = 'mermaid-' + Math.random().toString(36).substr(2, 9);
       const { svg } = await mermaid.default.render(id, chart);
 
-      this.lastValidSvg.set(svg);
-      this.svg.set(svg);
+      const safeSvg = this.sanitizer.bypassSecurityTrustHtml(svg);
+      this.lastValidSvg.set(safeSvg);
+      this.svg.set(safeSvg);
       this.error.set(null);
     } catch (err) {
       this.error.set(err instanceof Error ? err.message : 'Render failed');
