@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { remend } from './remend';
+import remend from 'remend';
 import type { RemendOptions } from 'remend';
 
 @Injectable({ providedIn: 'root' })
