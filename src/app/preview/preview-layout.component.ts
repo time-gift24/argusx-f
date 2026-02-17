@@ -25,6 +25,7 @@ const PREVIEW_ITEMS = [
   { id: 'avatar', label: 'Avatar' },
   { id: 'liquid-glass', label: 'Liquid Glass' },
   { id: 'llm-chat', label: 'LLM Chat' },
+  { id: 'markdown', label: 'Markdown' },
   { id: 'alert-dialog', label: 'Alert Dialog', manuallyReviewed: true },
   { id: 'badge', label: 'Badge' },
   { id: 'breadcrumb', label: 'Breadcrumb' },

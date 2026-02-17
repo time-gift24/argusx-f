@@ -89,6 +89,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'markdown',
+        loadComponent: () =>
+          import('./preview/markdown-preview.component').then(
+            (m) => m.MarkdownPreviewComponent
+          ),
+      },
+      {
         path: 'alert-dialog',
         loadComponent: () =>
           import('./preview/alert-dialog-preview.component').then(
