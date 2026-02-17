@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { Nodes, Root, RootContent } from 'hast';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
@@ -26,10 +26,8 @@ interface NormalizedOptions {
 
 @Injectable({ providedIn: 'root' })
 export class MarkdownEngineService {
-  constructor(
-    private parser: MarkdownParserService,
-    private remend: RemendService
-  ) {}
+  private readonly parser = inject(MarkdownParserService);
+  private readonly remend = inject(RemendService);
 
   renderBlocks(markdown: string, options: RenderOptions): RenderBlock[] {
     if (!markdown) return [];
