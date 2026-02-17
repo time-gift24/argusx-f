@@ -57,10 +57,12 @@ const loadingLanguages = new Map<string, Promise<void>>();
 @Component({
   selector: 'sd-code-block',
   template: `
-    <div class="my-4 overflow-hidden rounded-xl border bg-card">
+    <div class="my-4 w-full overflow-hidden rounded-xl border border-border bg-card">
       @if (showHeader()) {
-        <div class="flex items-center justify-between border-b bg-muted px-4 py-2">
-          <span class="text-sm text-muted-foreground">{{ language() }}</span>
+        <div class="flex items-center justify-between border-b bg-muted/80 p-3 text-xs">
+          <span class="ml-1 font-mono lowercase text-muted-foreground">{{
+            displayLanguage()
+          }}</span>
           <button
             type="button"
             (click)="copy()"
@@ -71,7 +73,7 @@ const loadingLanguages = new Map<string, Promise<void>>();
         </div>
       }
       <pre class="overflow-x-auto p-4">
-        <code #codeElement [class]="languageClass()">{{ code() }}</code>
+        <code #codeElement [class]="languageClass()">{{ displayCode() }}</code>
       </pre>
     </div>
   `,
@@ -93,6 +95,10 @@ export class CodeBlockComponent {
     this.normalizeLanguage(this.language())
   );
 
+  readonly displayLanguage = computed(() => this.normalizedLanguage() || 'text');
+
+  readonly displayCode = computed(() => this.trimTrailingNewlines(this.code()));
+
   readonly languageClass = computed(() =>
     this.normalizedLanguage() ? `language-${this.normalizedLanguage()}` : null
   );
@@ -105,7 +111,7 @@ export class CodeBlockComponent {
     });
 
     effect(() => {
-      const codeValue = this.code();
+      const codeValue = this.displayCode();
       const languageValue = this.normalizedLanguage();
       const codeNode = this.codeElement()?.nativeElement;
       if (!codeNode) {
@@ -125,7 +131,7 @@ export class CodeBlockComponent {
     }
 
     try {
-      await navigator.clipboard.writeText(this.code());
+      await navigator.clipboard.writeText(this.displayCode());
       this.copied.set(true);
 
       if (this.resetTimer !== null) {
@@ -147,6 +153,10 @@ export class CodeBlockComponent {
     }
 
     return LANGUAGE_ALIASES[normalized] ?? normalized;
+  }
+
+  private trimTrailingNewlines(value: string): string {
+    return value.replace(/[\r\n]+$/g, '');
   }
 
   private async highlightCode(

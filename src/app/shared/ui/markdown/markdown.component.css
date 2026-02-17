@@ -145,9 +145,17 @@ sd-markdown {
 }
 
 .sd-root sd-code-block code[class*='language-'] {
+  display: block;
   color: var(--foreground);
   background: transparent;
   text-shadow: none;
+}
+
+.sd-root sd-code-block pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .sd-root sd-code-block .token.comment {
