@@ -1,0 +1,21 @@
+{
+  "component": "accordion",
+  "baseline_url": "https://ui.shadcn.com/preview/radix/accordion-example?item=accordion-example&style=mira&theme=cyan&font=nunito-sans&menuAccent=bold&radius=medium&template=vite",
+  "visual_threshold": 0.1,
+  "max_iterations": 5,
+  "iteration": 5,
+  "worktree_path": ".worktrees/accordion-comparison",
+  "branch": "codex/accordion-quality-compare",
+  "status": "completed",
+  "updated_at": "2026-02-17T14:48:44.959Z",
+  "summary": {
+    "build": "pass",
+    "interaction": "pass",
+    "visual": "pass",
+    "notes": "Rebuilt accordion preview to match live shadcn baseline sections (Basic/Multiple/With Borders/In Card/With Disabled); fixed trigger/content host layout leakage via display: contents; restored dual-icon trigger and keyboard navigation (ArrowUp/ArrowDown/Home/End).",
+    "artifacts": {
+      "visual_diff": "component-comparisons/accordion/visual-diff.json",
+      "interaction_results": "component-comparisons/accordion/interaction-results.json"
+    }
+  }
+}
