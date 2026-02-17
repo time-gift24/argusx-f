@@ -18,7 +18,7 @@ const PREVIEW_ITEMS = [
   { id: 'card', label: 'Card' },
   { id: 'context-menu', label: 'Context Menu' },
   { id: 'calendar', label: 'Calendar', manuallyReviewed: true },
-  { id: 'accordion', label: 'Accordion' },
+  { id: 'accordion', label: 'Accordion', manuallyReviewed: true },
   { id: 'dialog', label: 'Dialog', manuallyReviewed: true },
   { id: 'aspect-ratio', label: 'Aspect Ratio' },
   { id: 'alert', label: 'Alert' },

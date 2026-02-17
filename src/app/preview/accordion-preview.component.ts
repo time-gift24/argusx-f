@@ -34,6 +34,13 @@ import {
   ],
   template: `
     <div class="mx-auto w-full max-w-[800px] min-w-0 flex flex-col gap-6 pt-28 pb-6">
+      <header class="space-y-2 px-1.5">
+        <h1 class="text-2xl font-semibold tracking-tight">Accordion</h1>
+        <p class="text-muted-foreground text-sm">
+          A vertically stacked set of interactive headings that each reveal a section of content.
+        </p>
+      </header>
+
       <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
         <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">Basic</div>
         <div class="bg-background text-foreground w-full border border-dashed p-4 sm:p-6">
