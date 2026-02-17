@@ -1,0 +1,50 @@
+:host {
+  display: block;
+}
+
+.sd-root {
+  @apply space-y-4 whitespace-normal;
+}
+
+/* 标题 */
+h1 { @apply mt-6 mb-2 font-semibold text-3xl; }
+h2 { @apply mt-6 mb-2 font-semibold text-2xl; }
+h3 { @apply mt-6 mb-2 font-semibold text-xl; }
+h4 { @apply mt-6 mb-2 font-semibold text-lg; }
+h5 { @apply mt-6 mb-2 font-semibold text-base; }
+h6 { @apply mt-6 mb-2 font-semibold text-sm; }
+
+/* 列表 */
+ul { @apply list-inside list-disc; }
+ol { @apply list-inside list-decimal; }
+li { @apply py-1; }
+li > p { @apply inline; }
+
+/* 引用 */
+blockquote {
+  @apply my-4 border-l-4 border-muted-foreground/30 pl-4 italic text-muted-foreground;
+}
+
+/* 代码 */
+code:not([class*="language-"]) {
+  @apply rounded bg-muted px-1.5 py-0.5 font-mono text-sm;
+}
+
+/* 表格 */
+table {
+  @apply w-full border-collapse border border-border;
+}
+th { @apply px-4 py-2 text-left font-semibold text-sm bg-muted/80; }
+td { @apply px-4 py-2 text-sm; }
+tr { @apply border-b border-border; }
+
+/* 链接 */
+a { @apply text-primary underline font-medium; }
+
+/* 强调 */
+strong { @apply font-semibold; }
+em { @apply italic; }
+del { @apply line-through; }
+
+/* 分割线 */
+hr { @apply my-6 border-border; }
