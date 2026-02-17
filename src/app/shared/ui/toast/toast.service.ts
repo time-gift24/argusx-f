@@ -1,5 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { LucideAngularModule, CircleCheck, Info, TriangleAlert, OctagonX, Loader2, X } from 'lucide-angular';
+import { Injectable, signal } from '@angular/core';
+import { CircleCheck, Info, TriangleAlert, OctagonX, Loader2, X } from 'lucide-angular';
 
 // ============================================================================
 // Types
@@ -7,12 +7,14 @@ import { LucideAngularModule, CircleCheck, Info, TriangleAlert, OctagonX, Loader
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'loading';
 export type ToastPosition = 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+export type ToastState = 'show' | 'hide';
 
 export interface Toast {
   id: string;
   title?: string;
   description?: string;
   type: ToastType;
+  state?: ToastState;
   duration?: number;
   dismissible?: boolean;
   action?: {
@@ -26,6 +28,7 @@ export interface Toast {
 // ============================================================================
 
 let toastIdCounter = 0;
+const EXIT_ANIMATION_MS = 150;
 
 /**
  * Toast Service
@@ -37,6 +40,7 @@ let toastIdCounter = 0;
 export class ToastService {
   readonly toasts = signal<Toast[]>([]);
   readonly position = signal<ToastPosition>('bottom-right');
+  private readonly removalTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   private readonly icons: Record<ToastType, typeof CircleCheck | typeof Loader2> = {
     success: CircleCheck,
@@ -61,6 +65,7 @@ export class ToastService {
     const newToast: Toast = {
       ...toast,
       id,
+      state: 'show',
       duration: toast.duration ?? 5000,
       dismissible: toast.dismissible ?? true,
     };
@@ -97,11 +102,34 @@ export class ToastService {
   }
 
   dismiss(id: string): void {
-    this.toasts.update((toasts) => toasts.filter((t) => t.id !== id));
+    const target = this.toasts().find((toast) => toast.id === id);
+    if (!target || target.state === 'hide') {
+      return;
+    }
+
+    this.toasts.update((toasts) =>
+      toasts.map((toast) =>
+        toast.id === id ? { ...toast, state: 'hide' as const } : toast
+      )
+    );
+
+    const existingTimer = this.removalTimers.get(id);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+    }
+
+    const timer = setTimeout(() => {
+      this.toasts.update((toasts) => toasts.filter((toast) => toast.id !== id));
+      this.removalTimers.delete(id);
+    }, EXIT_ANIMATION_MS);
+
+    this.removalTimers.set(id, timer);
   }
 
   dismissAll(): void {
-    this.toasts.set([]);
+    for (const toast of this.toasts()) {
+      this.dismiss(toast.id);
+    }
   }
 
   setPosition(position: ToastPosition): void {

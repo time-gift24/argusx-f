@@ -3,11 +3,11 @@ import {
   Component,
   computed,
   Directive,
+  effect,
   inject,
   input,
   model,
   viewChild,
-  Injectable,
   OnDestroy,
 } from '@angular/core';
 import { TooltipService } from './tooltip.service';
@@ -82,7 +82,7 @@ export class TooltipComponent implements OnDestroy {
   readonly open = model<boolean>(false);
 
   readonly side = input<TooltipSide>('top');
-  readonly sideOffset = input<number>(5);
+  readonly sideOffset = input<number>(0);
 
   readonly id = `tooltip-${tooltipIdCounter++}`;
 
@@ -154,6 +154,8 @@ export class TooltipComponent implements OnDestroy {
   selector: '[appTooltipTrigger]',
   host: {
     '[attr.data-slot]': '"tooltip-trigger"',
+    '[attr.data-state]': 'tooltip.open() ? "open" : "closed"',
+    '[attr.aria-describedby]': 'tooltip.open() ? tooltip.id : null',
     '(mouseenter)': 'onMouseEnter()',
     '(mouseleave)': 'onMouseLeave()',
     '(focus)': 'onFocus()',
@@ -201,6 +203,8 @@ export class TooltipTriggerDirective {
     '[attr.data-slot]': '"tooltip-content"',
     '[attr.data-state]': 'tooltip.open() ? "open" : "closed"',
     '[attr.data-side]': 'tooltip.side()',
+    '[attr.role]': '"tooltip"',
+    '[attr.id]': 'tooltip.id',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -252,10 +256,12 @@ export class TooltipContentComponent {
 })
 export class TooltipProviderComponent {
   readonly tooltipService = inject(TooltipService);
-  readonly delayDuration = input<number>(300);
+  readonly delayDuration = input<number>(0);
 
   constructor() {
-    this.tooltipService.setDelayDuration(this.delayDuration());
+    effect(() => {
+      this.tooltipService.setDelayDuration(this.delayDuration());
+    });
   }
 }
 

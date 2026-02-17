@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, computed, input } from '@an
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { cn } from '../../utils/cn';
-import { ToastService, type Toast, type ToastType } from './toast.service';
+import { ToastService, type Toast, type ToastPosition } from './toast.service';
 
 // ============================================================================
 // Toast Item
@@ -18,7 +18,8 @@ import { ToastService, type Toast, type ToastType } from './toast.service';
     <div
       [class]="computedClass()"
       role="alert"
-      [attr.data-state]="'show'"
+      [attr.data-state]="toast().state ?? 'show'"
+      [attr.data-position]="position()"
       [attr.data-type]="toast().type">
       <!-- Icon -->
       @if (toast().type !== 'loading') {
@@ -67,6 +68,7 @@ import { ToastService, type Toast, type ToastType } from './toast.service';
 export class ToastItemComponent {
   readonly toastService = inject(ToastService);
   readonly toast = input.required<Toast>();
+  readonly position = input.required<ToastPosition>();
 
   protected readonly closeIcon = this.toastService.closeIcon;
 
@@ -87,20 +89,14 @@ export class ToastItemComponent {
 
   protected readonly computedClass = computed(() => {
     const type = this.toast().type;
+    const isTop = this.position().startsWith('top');
     return cn(
       'pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden rounded-lg border p-3 shadow-lg transition-opacity transition-transform',
       'data-[state=show]:animate-in data-[state=hide]:animate-out',
       'data-[state=show]:fade-in-0 data-[state=hide]:fade-out-0',
-      'data-[state=show]:slide-in-from-bottom-0 data-[state=hide]:slide-out-to-bottom-0',
-      // Dark variants
-      'dark:data-[state=show]:fade-in-0 dark:data-[state=hide]:fade-out-0',
-      // Position-specific
-      'data-[state=top-left]:slide-in-from-top-left',
-      'data-[state=top-center]:slide-in-from-top',
-      'data-[state=top-right]:slide-in-from-top-right',
-      'data-[state=bottom-left]:slide-in-from-bottom-left',
-      'data-[state=bottom-center]:slide-in-from-bottom',
-      'data-[state=bottom-right]:slide-in-from-bottom-right',
+      isTop
+        ? 'data-[state=show]:slide-in-from-top-2 data-[state=hide]:slide-out-to-top-2'
+        : 'data-[state=show]:slide-in-from-bottom-2 data-[state=hide]:slide-out-to-bottom-2',
       // Type-specific styles - using semantic tokens
       type === 'success' && 'border-success/20 bg-success/10 text-success',
       type === 'error' && 'border-destructive/20 bg-destructive/10 text-destructive',
@@ -136,7 +132,7 @@ export class ToastItemComponent {
       aria-live="polite"
       aria-atomic="true">
       @for (toast of toastService.toasts(); track toast.id) {
-        <app-toast-item [toast]="toast" />
+        <app-toast-item [toast]="toast" [position]="toastService.position()" />
       }
     </div>
   `,
@@ -157,7 +153,9 @@ export class ToastContainerComponent {
     const isBottom = position.startsWith('bottom');
 
     return cn(
-      'fixed z-[100] flex flex-col-reverse gap-2 p-4 w-full max-w-sm pointer-events-none',
+      'fixed z-[100] flex gap-2 p-4 w-full max-w-sm pointer-events-none',
+      isTop && 'flex-col',
+      isBottom && 'flex-col-reverse',
       isTop && 'top-0',
       isBottom && 'bottom-0',
       isLeft && 'left-0 items-start',

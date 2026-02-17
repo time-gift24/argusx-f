@@ -5,8 +5,11 @@ import {
   computed,
   effect,
   ElementRef,
+  forwardRef,
   inject,
+  InjectionToken,
   input,
+  OnDestroy,
   output,
   signal,
 } from '@angular/core';
@@ -39,6 +42,27 @@ export interface PanelConstraints {
  */
 export type ResizableOrientation = 'horizontal' | 'vertical';
 
+interface ResizablePanelApi {
+  getHostElement(): HTMLElement;
+  getSize(): number;
+  getDefaultSize(): number;
+  getMinSize(): number;
+  getMaxSize(): number;
+  setSize(percentage: number): void;
+}
+
+interface ResizableGroupContext {
+  readonly orientation: () => ResizableOrientation;
+  readonly panelSizes: () => ReadonlyArray<number>;
+  updatePanelSizes(sizes: ReadonlyArray<number>): void;
+  registerPanel(panel: ResizablePanelApi): void;
+  unregisterPanel(panel: ResizablePanelApi): void;
+  getPanels(): ReadonlyArray<ResizablePanelApi>;
+}
+
+const RESIZABLE_GROUP = new InjectionToken<ResizableGroupContext>('RESIZABLE_GROUP');
+const DOCUMENT_POSITION_FOLLOWING = 4;
+
 /**
  * ResizablePanelGroupComponent - Container for resizable panels
  *
@@ -62,6 +86,12 @@ export type ResizableOrientation = 'horizontal' | 'vertical';
   selector: 'app-resizable-panel-group',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: '<ng-content></ng-content>',
+  providers: [
+    {
+      provide: RESIZABLE_GROUP,
+      useExisting: forwardRef(() => ResizablePanelGroupComponent),
+    },
+  ],
   host: {
     '[attr.data-slot]': '"resizable-panel-group"',
     '[attr.data-orientation]': 'orientation()',
@@ -70,7 +100,7 @@ export type ResizableOrientation = 'horizontal' | 'vertical';
     role: 'group',
   },
 })
-export class ResizablePanelGroupComponent {
+export class ResizablePanelGroupComponent implements ResizableGroupContext {
   /** Orientation of the panel group */
   readonly orientation = input<ResizableOrientation>('horizontal');
 
@@ -96,6 +126,7 @@ export class ResizablePanelGroupComponent {
 
   /** Panel size percentages */
   readonly panelSizes = signal<ReadonlyArray<number>>([]);
+  private readonly registeredPanels = signal<ReadonlyArray<ResizablePanelApi>>([]);
 
   constructor() {
     this.resizeObserver = new ResizeObserver((entries) => {
@@ -148,6 +179,23 @@ export class ResizablePanelGroupComponent {
     this.sizesChange.emit(sizes);
   }
 
+  registerPanel(panel: ResizablePanelApi): void {
+    this.registeredPanels.update((panels) => {
+      if (panels.includes(panel)) {
+        return panels;
+      }
+      return this.sortPanelsByDom([...panels, panel]);
+    });
+  }
+
+  unregisterPanel(panel: ResizablePanelApi): void {
+    this.registeredPanels.update((panels) => panels.filter((item) => item !== panel));
+  }
+
+  getPanels(): ReadonlyArray<ResizablePanelApi> {
+    return this.registeredPanels();
+  }
+
   /** Get total group size */
   getGroupSize(): number {
     return this.groupSize();
@@ -155,6 +203,19 @@ export class ResizablePanelGroupComponent {
 
   ngOnDestroy(): void {
     this.resizeObserver.disconnect();
+  }
+
+  private sortPanelsByDom(panels: ResizablePanelApi[]): ResizablePanelApi[] {
+    return [...panels].sort((left, right) => {
+      const leftEl = left.getHostElement();
+      const rightEl = right.getHostElement();
+
+      if (leftEl === rightEl) return 0;
+      if (leftEl.compareDocumentPosition(rightEl) & DOCUMENT_POSITION_FOLLOWING) {
+        return -1;
+      }
+      return 1;
+    });
   }
 }
 
@@ -181,7 +242,7 @@ export class ResizablePanelGroupComponent {
     role: 'presentation',
   },
 })
-export class ResizablePanelComponent {
+export class ResizablePanelComponent implements ResizablePanelApi, OnDestroy {
   /** Default size as percentage (0-100) */
   readonly defaultSize = input<number>(50);
 
@@ -201,59 +262,69 @@ export class ResizablePanelComponent {
   readonly sizePercentage = signal<number>(50);
 
   private readonly elementRef = inject(ElementRef);
+  private readonly group = inject(RESIZABLE_GROUP, { optional: true });
 
   constructor() {
     afterNextRender(() => {
+      this.group?.registerPanel(this);
       this.initializeSize();
     });
   }
 
-  /** Find parent panel group element */
-  private getParentGroupElement(): HTMLElement | null {
-    let parent = this.elementRef.nativeElement.parentElement;
-    while (parent) {
-      if (parent.tagName === 'APP-RESIZABLE-PANEL-GROUP') {
-        return parent;
-      }
-      parent = parent.parentElement;
-    }
-    return null;
-  }
-
   private initializeSize(): void {
-    const parentGroupEl = this.getParentGroupElement();
-    const savedSizes = parentGroupEl
-      ? (parentGroupEl as unknown as { panelSizes?: () => number[] }).panelSizes?.()
-      : undefined;
+    const panels = this.group?.getPanels() ?? [];
+    const panelIndex = panels.indexOf(this);
+    const savedSizes = this.group?.panelSizes();
     if (savedSizes && savedSizes.length > 0) {
-      // Use saved size if available
-      const index = this.getPanelIndex();
-      if (index >= 0 && index < savedSizes.length) {
-        this.sizePercentage.set(savedSizes[index]);
+      if (panelIndex >= 0 && panelIndex < savedSizes.length) {
+        this.setSize(savedSizes[panelIndex] ?? this.defaultSize());
+        this.syncGroupSizes();
         return;
       }
     }
-    // Use default size
-    this.sizePercentage.set(this.defaultSize());
-  }
-
-  private getPanelIndex(): number {
-    if (!this.elementRef.nativeElement.parentElement) return -1;
-    const siblings = Array.from(this.elementRef.nativeElement.parentElement.children).filter(
-      (el) => (el as HTMLElement).tagName === 'APP-RESIZABLE-PANEL',
-    );
-    return siblings.indexOf(this.elementRef.nativeElement);
+    this.setSize(this.defaultSize());
+    this.syncGroupSizes();
   }
 
   /** Set the panel size */
   setSize(percentage: number): void {
-    const clampedSize = Math.max(this.minSize(), Math.min(this.maxSize(), percentage));
+    const clampedSize = this.clampSize(percentage);
     this.sizePercentage.set(clampedSize);
   }
 
   /** Get current size */
   getSize(): number {
     return this.sizePercentage();
+  }
+
+  getDefaultSize(): number {
+    return this.defaultSize();
+  }
+
+  getMinSize(): number {
+    return this.minSize();
+  }
+
+  getMaxSize(): number {
+    return this.maxSize();
+  }
+
+  getHostElement(): HTMLElement {
+    return this.elementRef.nativeElement;
+  }
+
+  ngOnDestroy(): void {
+    this.group?.unregisterPanel(this);
+  }
+
+  private clampSize(size: number): number {
+    return Math.max(this.minSize(), Math.min(this.maxSize(), size));
+  }
+
+  private syncGroupSizes(): void {
+    const panels = this.group?.getPanels() ?? [];
+    if (panels.length === 0) return;
+    this.group?.updatePanelSizes(panels.map((panel) => panel.getSize()));
   }
 }
 
@@ -276,7 +347,7 @@ export class ResizablePanelComponent {
   host: {
     '[attr.data-slot]': '"resizable-handle"',
     '[attr.role]': '"separator"',
-    '[attr.aria-orientation]': 'orientation()',
+    '[attr.aria-orientation]': 'separatorOrientation()',
     '[attr.tabindex]': '0',
     '[class]': 'computedClass()',
     '(mousedown)': 'onMouseDown($event)',
@@ -292,7 +363,12 @@ export class ResizableHandleComponent {
   readonly class = input<string>('');
 
   /** Computed orientation from parent group */
-  protected readonly orientation = signal<ResizableOrientation>('horizontal');
+  protected readonly orientation = computed<ResizableOrientation>(
+    () => this.group?.orientation() ?? 'horizontal',
+  );
+  protected readonly separatorOrientation = computed<'horizontal' | 'vertical'>(() =>
+    this.orientation() === 'vertical' ? 'horizontal' : 'vertical',
+  );
 
   /** Computed classes based on orientation */
   protected readonly computedClass = computed(() =>
@@ -309,66 +385,14 @@ export class ResizableHandleComponent {
     ),
   );
 
-  private readonly elementRef = inject(ElementRef);
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
+  private readonly group = inject(RESIZABLE_GROUP, { optional: true });
   private isDragging = false;
   private startPos = 0;
   private startSizes: number[] = [];
 
-  /** Find parent panel group element */
-  private getParentGroupElement(): HTMLElement | null {
-    let parent = this.elementRef.nativeElement.parentElement;
-    while (parent) {
-      if (parent.tagName === 'APP-RESIZABLE-PANEL-GROUP') {
-        return parent;
-      }
-      parent = parent.parentElement;
-    }
-    return null;
-  }
-
-  /** Get panel group component instance */
-  private getParentGroup(): { updatePanelSizes: (sizes: number[]) => void } | null {
-    const parentGroupEl = this.getParentGroupElement();
-    if (!parentGroupEl) return null;
-    return parentGroupEl as unknown as { updatePanelSizes: (sizes: number[]) => void };
-  }
-
-  constructor() {
-    afterNextRender(() => {
-      this.detectOrientation();
-    });
-  }
-
-  private detectOrientation(): void {
-    const parentGroupEl = this.getParentGroupElement();
-    if (parentGroupEl) {
-      const dataOrientation = parentGroupEl.getAttribute('data-orientation');
-      if (dataOrientation === 'vertical' || dataOrientation === 'horizontal') {
-        this.orientation.set(dataOrientation);
-        return;
-      }
-    }
-
-    const parent = this.elementRef.nativeElement.parentElement;
-    if (parent) {
-      const isVertical = parent.classList.contains('flex-col');
-      this.orientation.set(isVertical ? 'vertical' : 'horizontal');
-    }
-  }
-
   private getContainerSize(parent: HTMLElement): number {
     return this.orientation() === 'horizontal' ? parent.offsetWidth : parent.offsetHeight;
-  }
-
-  private getPanels(parent: HTMLElement): HTMLElement[] {
-    return Array.from(parent.children).filter(
-      (child): child is HTMLElement =>
-        child instanceof HTMLElement && child.tagName === 'APP-RESIZABLE-PANEL',
-    );
-  }
-
-  private getPanelSize(panel: HTMLElement): number {
-    return this.orientation() === 'horizontal' ? panel.offsetWidth : panel.offsetHeight;
   }
 
   private getAdjacentPanelIndices(
@@ -379,6 +403,14 @@ export class ResizableHandleComponent {
     if (handleIndex < 0) {
       return null;
     }
+
+    const panels = this.group?.getPanels() ?? [];
+    if (panels.length < 2) {
+      return null;
+    }
+    const indexByElement = new Map(
+      panels.map((panel, index) => [panel.getHostElement(), index] as const),
+    );
 
     let prevPanel: HTMLElement | null = null;
     let nextPanel: HTMLElement | null = null;
@@ -401,9 +433,8 @@ export class ResizableHandleComponent {
       return null;
     }
 
-    const panels = this.getPanels(parent);
-    const prevPanelIndex = panels.indexOf(prevPanel);
-    const nextPanelIndex = panels.indexOf(nextPanel);
+    const prevPanelIndex = indexByElement.get(prevPanel) ?? -1;
+    const nextPanelIndex = indexByElement.get(nextPanel) ?? -1;
 
     if (prevPanelIndex < 0 || nextPanelIndex < 0) {
       return null;
@@ -461,8 +492,9 @@ export class ResizableHandleComponent {
     const groupSize = this.getContainerSize(parent);
     if (groupSize <= 0) return;
 
-    const panels = this.getPanels(parent);
-    this.startSizes = panels.map((panel) => (this.getPanelSize(panel) / groupSize) * 100);
+    const panels = this.group?.getPanels() ?? [];
+    if (panels.length < 2) return;
+    this.startSizes = panels.map((panel) => panel.getSize());
   }
 
   private onDrag(clientX: number, clientY: number): void {
@@ -485,23 +517,24 @@ export class ResizableHandleComponent {
       return;
     }
 
-    const newPrevSize = newSizes[prevPanelIndex] + delta;
-    const newNextSize = newSizes[nextPanelIndex] - delta;
+    const panels = this.group?.getPanels() ?? [];
+    const prevPanel = panels[prevPanelIndex];
+    const nextPanel = panels[nextPanelIndex];
+    if (!prevPanel || !nextPanel) return;
 
-    // Apply constraints (min 5%, max 95%)
-    const minPercent = 5;
-    const maxPercent = 95;
-
-    if (newPrevSize >= minPercent && newNextSize >= minPercent) {
-      newSizes[prevPanelIndex] = Math.min(maxPercent, Math.max(minPercent, newPrevSize));
-      newSizes[nextPanelIndex] = Math.min(maxPercent, Math.max(minPercent, newNextSize));
-
-      const panels = this.getPanels(parent);
-      panels.forEach((panel, index) => {
-        panel.style.flexBasis = `${newSizes[index]}%`;
-      });
-      this.getParentGroup()?.updatePanelSizes(newSizes);
+    const total = this.startSizes[prevPanelIndex] + this.startSizes[nextPanelIndex];
+    let newPrevSize = this.startSizes[prevPanelIndex] + delta;
+    newPrevSize = this.clamp(newPrevSize, prevPanel.getMinSize(), prevPanel.getMaxSize());
+    let newNextSize = total - newPrevSize;
+    if (newNextSize < nextPanel.getMinSize() || newNextSize > nextPanel.getMaxSize()) {
+      newNextSize = this.clamp(newNextSize, nextPanel.getMinSize(), nextPanel.getMaxSize());
+      newPrevSize = total - newNextSize;
     }
+    if (newPrevSize < prevPanel.getMinSize() || newPrevSize > prevPanel.getMaxSize()) return;
+
+    newSizes[prevPanelIndex] = newPrevSize;
+    newSizes[nextPanelIndex] = newNextSize;
+    this.applySizes(panels, newSizes);
   }
 
   private stopDragging(): void {
@@ -513,14 +546,20 @@ export class ResizableHandleComponent {
 
     switch (event.key) {
       case 'ArrowLeft':
+        event.preventDefault();
+        if (this.orientation() === 'horizontal') this.resizeBy(-step);
+        break;
       case 'ArrowUp':
         event.preventDefault();
-        this.resizeBy(-step);
+        if (this.orientation() === 'vertical') this.resizeBy(-step);
         break;
       case 'ArrowRight':
+        event.preventDefault();
+        if (this.orientation() === 'horizontal') this.resizeBy(step);
+        break;
       case 'ArrowDown':
         event.preventDefault();
-        this.resizeBy(step);
+        if (this.orientation() === 'vertical') this.resizeBy(step);
         break;
       case 'Home':
         event.preventDefault();
@@ -539,25 +578,23 @@ export class ResizableHandleComponent {
     if (!panelIndices) return;
     const { prevPanelIndex, nextPanelIndex } = panelIndices;
 
-    const panels = this.getPanels(parent);
+    const panels = this.group?.getPanels() ?? [];
+    if (panels.length === 0) return;
     const prevPanel = panels[prevPanelIndex];
     const nextPanel = panels[nextPanelIndex];
     if (!prevPanel || !nextPanel) return;
 
-    const prevSize = (this.getPanelSize(prevPanel) / groupSize) * 100;
-    const nextSize = (this.getPanelSize(nextPanel) / groupSize) * 100;
+    const prevSize = (this.getPanelPixels(prevPanel) / groupSize) * 100;
+    const nextSize = (this.getPanelPixels(nextPanel) / groupSize) * 100;
 
-    const newPrevSize = Math.max(5, Math.min(95, prevSize + delta));
-    const newNextSize = Math.max(5, Math.min(95, nextSize - delta));
+    const newPrevSize = this.clamp(prevSize + delta, prevPanel.getMinSize(), prevPanel.getMaxSize());
+    const newNextSize = this.clamp(nextSize - delta, nextPanel.getMinSize(), nextPanel.getMaxSize());
 
-    if (newPrevSize >= 5 && newNextSize >= 5) {
-      prevPanel.style.flexBasis = `${newPrevSize}%`;
-      nextPanel.style.flexBasis = `${newNextSize}%`;
-
-      const updatedSizes = panels.map((panel) => (this.getPanelSize(panel) / groupSize) * 100);
+    if (newPrevSize >= prevPanel.getMinSize() && newNextSize >= nextPanel.getMinSize()) {
+      const updatedSizes = panels.map((panel) => panel.getSize());
       updatedSizes[prevPanelIndex] = newPrevSize;
       updatedSizes[nextPanelIndex] = newNextSize;
-      this.getParentGroup()?.updatePanelSizes(updatedSizes);
+      this.applySizes(panels, updatedSizes);
     }
   }
 
@@ -565,14 +602,27 @@ export class ResizableHandleComponent {
     const parent = this.elementRef.nativeElement.parentElement;
     if (!parent) return;
 
-    const panels = this.getPanels(parent);
+    const panels = this.group?.getPanels() ?? [];
     if (panels.length === 0) return;
     const equalSize = 100 / panels.length;
 
-    panels.forEach((panel) => {
-      panel.style.flexBasis = `${equalSize}%`;
+    this.applySizes(panels, panels.map(() => equalSize));
+  }
+
+  private getPanelPixels(panel: ResizablePanelApi): number {
+    const element = panel.getHostElement();
+    return this.orientation() === 'horizontal' ? element.offsetWidth : element.offsetHeight;
+  }
+
+  private applySizes(panels: ReadonlyArray<ResizablePanelApi>, sizes: number[]): void {
+    panels.forEach((panel, index) => {
+      panel.setSize(sizes[index] ?? panel.getSize());
     });
-    this.getParentGroup()?.updatePanelSizes(panels.map(() => equalSize));
+    this.group?.updatePanelSizes(sizes);
+  }
+
+  private clamp(value: number, min: number, max: number): number {
+    return Math.max(min, Math.min(max, value));
   }
 }
 

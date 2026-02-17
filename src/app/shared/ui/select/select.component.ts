@@ -4,6 +4,7 @@ import {
   computed,
   ElementRef,
   effect,
+  inject,
   input,
   model,
   output,
@@ -45,6 +46,12 @@ type SelectTriggerVariants = VariantProps<typeof selectTriggerVariants>;
 
 export type SelectSize = NonNullable<SelectTriggerVariants['size']>;
 
+export abstract class SelectRootToken<T = string> {
+  abstract value: () => T | undefined;
+  abstract disabled: () => boolean;
+  abstract setValue(value: T | undefined): void;
+}
+
 // Select Item Component
 @Component({
   selector: 'app-select-item',
@@ -64,7 +71,8 @@ export type SelectSize = NonNullable<SelectTriggerVariants['size']>;
     '[attr.data-slot]': '"select-item"',
     '[attr.role]': '"option"',
     '[attr.aria-selected]': 'isSelected()',
-    '[attr.data-disabled]': 'disabled()',
+    '[attr.data-state]': 'isSelected() ? "checked" : "unchecked"',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
     '(click)': 'onClick()',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -73,8 +81,13 @@ export class SelectItemComponent<T = string> {
   readonly value = input.required<T>();
   readonly class = input<string>('');
   readonly disabled = input<boolean>(false);
+  // Backward-compatible fallback API (older previews may still pass these)
   readonly selectValue = input<T | undefined>(undefined);
   readonly selectOnChange = output<T>();
+
+  private readonly selectRoot = inject<SelectRootToken<T> | null>(SelectRootToken, {
+    optional: true,
+  });
 
   protected readonly checkIcon = CheckIcon;
 
@@ -86,12 +99,21 @@ export class SelectItemComponent<T = string> {
     )
   );
 
-  protected readonly isSelected = computed(
-    () => this.selectValue() === this.value()
-  );
+  protected readonly isSelected = computed(() => {
+    if (this.selectRoot) {
+      return this.selectRoot.value() === this.value();
+    }
+    return this.selectValue() === this.value();
+  });
 
   onClick(): void {
     if (this.disabled()) return;
+
+    if (this.selectRoot) {
+      this.selectRoot.setValue(this.value());
+      return;
+    }
+
     this.selectOnChange.emit(this.value());
   }
 }
@@ -277,17 +299,25 @@ export class SelectScrollDownComponent {
       </ng-template>
     </div>
   `,
-  styles: [`
-    :host {
-      display: contents;
-    }
-  `],
+  styles: [
+    `
+      :host {
+        display: contents;
+      }
+    `,
+  ],
   host: {
     '[attr.data-slot]': '"select"',
   },
+  providers: [
+    {
+      provide: SelectRootToken,
+      useExisting: SelectComponent,
+    },
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SelectComponent<T = string> {
+export class SelectComponent<T = string> extends SelectRootToken<T> {
   readonly value = model<T | undefined>(undefined);
   readonly disabled = input<boolean>(false);
   readonly placeholder = input<string>('Select an option');
@@ -297,7 +327,6 @@ export class SelectComponent<T = string> {
 
   readonly valueChange = output<T | undefined>();
 
-  // Internal state
   readonly isOpen = signal(false);
   protected readonly trigger = viewChild(CdkOverlayOrigin);
   protected readonly viewport = viewChild<ElementRef<HTMLDivElement>>('viewport');
@@ -330,7 +359,6 @@ export class SelectComponent<T = string> {
   protected readonly contentClass = computed(() =>
     cn(
       'bg-popover text-popover-foreground ring-foreground/10 min-w-32 rounded-lg shadow-md ring-1 duration-100 relative z-50 max-h-96 overflow-x-hidden overflow-y-auto data-[align-trigger=true]:animate-none',
-      // Animation classes for open/close - aligned with vendor
       this.isOpen()
         ? 'animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2'
         : 'animate-out fade-out-0 zoom-out-95 data-[side=bottom]:slide-out-to-top-2 data-[side=left]:slide-out-to-right-2 data-[side=right]:slide-out-to-left-2 data-[side=top]:slide-out-to-bottom-2'
@@ -343,6 +371,7 @@ export class SelectComponent<T = string> {
   });
 
   constructor() {
+    super();
     effect(() => {
       if (!this.isOpen()) {
         this.showScrollUpButton.set(false);
@@ -351,7 +380,7 @@ export class SelectComponent<T = string> {
     });
   }
 
-  setValue(newValue: T | undefined): void {
+  override setValue(newValue: T | undefined): void {
     this.value.set(newValue);
     this.valueChange.emit(newValue);
     this.close();

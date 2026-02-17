@@ -68,6 +68,7 @@ let popoverIdCounter = 0;
         [cdkConnectedOverlayFlexibleDimensions]="true"
         [cdkConnectedOverlayGrowAfterOpen]="true"
         [cdkConnectedOverlayPositions]="positions()"
+        (overlayOutsideClick)="onOutsideClick($event)"
         (detach)="onDetach()">
         <ng-content />
       </ng-template>
@@ -95,24 +96,73 @@ export class PopoverComponent {
     const side = this.side();
     const align = this.align();
     const offset = this.sideOffset();
+    const horizontalAlign = align === 'center' ? 'center' : align;
+    const verticalAlign =
+      align === 'start' ? 'top' : align === 'end' ? 'bottom' : 'center';
 
-    const positionMap: Record<PopoverSide, ConnectedPosition> = {
-      top: { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom', offsetY: -offset },
-      bottom: { originX: 'center', originY: 'bottom', overlayX: 'center', overlayY: 'top', offsetY: offset },
-      left: { originX: 'start', originY: 'center', overlayX: 'end', overlayY: 'center', offsetX: -offset },
-      right: { originX: 'end', originY: 'center', overlayX: 'start', overlayY: 'center', offsetX: offset },
+    const primaryMap: Record<PopoverSide, ConnectedPosition> = {
+      top: {
+        originX: horizontalAlign,
+        originY: 'top',
+        overlayX: horizontalAlign,
+        overlayY: 'bottom',
+        offsetY: -offset,
+      },
+      bottom: {
+        originX: horizontalAlign,
+        originY: 'bottom',
+        overlayX: horizontalAlign,
+        overlayY: 'top',
+        offsetY: offset,
+      },
+      left: {
+        originX: 'start',
+        originY: verticalAlign,
+        overlayX: 'end',
+        overlayY: verticalAlign,
+        offsetX: -offset,
+      },
+      right: {
+        originX: 'end',
+        originY: verticalAlign,
+        overlayX: 'start',
+        overlayY: verticalAlign,
+        offsetX: offset,
+      },
     };
 
-    const primary = positionMap[side];
+    const fallbackMap: Record<PopoverSide, ConnectedPosition> = {
+      top: {
+        originX: horizontalAlign,
+        originY: 'bottom',
+        overlayX: horizontalAlign,
+        overlayY: 'top',
+        offsetY: offset,
+      },
+      bottom: {
+        originX: horizontalAlign,
+        originY: 'top',
+        overlayX: horizontalAlign,
+        overlayY: 'bottom',
+        offsetY: -offset,
+      },
+      left: {
+        originX: 'end',
+        originY: verticalAlign,
+        overlayX: 'start',
+        overlayY: verticalAlign,
+        offsetX: offset,
+      },
+      right: {
+        originX: 'start',
+        originY: verticalAlign,
+        overlayX: 'end',
+        overlayY: verticalAlign,
+        offsetX: -offset,
+      },
+    };
 
-    // Adjust for alignment
-    if (align === 'start') {
-      return [primary];
-    } else if (align === 'end') {
-      return [primary];
-    }
-
-    return [primary];
+    return [primaryMap[side], fallbackMap[side]];
   });
 
   openPopover(): void {
@@ -139,6 +189,13 @@ export class PopoverComponent {
     this.open.set(false);
     this.openChange.emit(false);
   }
+
+  protected onOutsideClick(event: MouseEvent): void {
+    const triggerEl = this.trigger()?.elementRef?.nativeElement;
+    if (triggerEl && !triggerEl.contains(event.target as Node)) {
+      this.closePopover();
+    }
+  }
 }
 
 // ============================================================================
@@ -155,6 +212,7 @@ export class PopoverComponent {
     '[attr.data-slot]': '"popover-trigger"',
     '[attr.aria-expanded]': 'popover.open()',
     '[attr.aria-haspopup]': '"dialog"',
+    '[attr.aria-controls]': 'popover.open() ? popover.id : null',
     '(click)': 'onClick()',
   },
 })
@@ -198,8 +256,11 @@ export class PopoverAnchorDirective {
   template: `<ng-content />`,
   host: {
     '[attr.data-slot]': '"popover-content"',
+    '[attr.id]': 'popover.id',
     '[attr.data-state]': 'popover.open() ? "open" : "closed"',
+    '[attr.data-side]': 'popover.side()',
     '[class]': 'computedClass()',
+    '(keydown.escape)': 'popover.closePopover()',
   },
   styles: [`
     :host {
@@ -228,6 +289,10 @@ export class PopoverContentComponent {
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+      'data-[side=bottom]:slide-in-from-top-2',
+      'data-[side=left]:slide-in-from-right-2',
+      'data-[side=right]:slide-in-from-left-2',
+      'data-[side=top]:slide-in-from-bottom-2',
       'ring-foreground/10 ring-1',
       'duration-100',
       this.class()

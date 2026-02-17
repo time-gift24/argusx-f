@@ -131,8 +131,8 @@ function isPreviewItemId(id: string | null): id is PreviewItem['id'] {
   template: `
     <div class="flex h-screen w-screen overflow-hidden">
       <!-- Navbar -->
-      <nav class="w-56 shrink-0 border-r border-border bg-sidebar px-3 py-3">
-        <div class="mb-3">
+      <nav class="flex h-full min-h-0 w-56 shrink-0 flex-col border-r border-border bg-sidebar">
+        <div class="mb-3 px-3 pt-3">
           <h2 class="text-sm font-semibold text-sidebar-foreground">
             shadcn-angular
           </h2>
@@ -143,26 +143,28 @@ function isPreviewItemId(id: string | null): id is PreviewItem['id'] {
             {{ currentRoute() }}
           </p>
         </div>
-        <ul class="space-y-0.5">
-          @for (item of previewItems; track item.id) {
-            <li>
-              <button
-                (click)="setPreview(item.id)"
-                class="w-full text-left block rounded-md px-2.5 py-1.5 text-xs transition-colors {{
-                  currentPreview() === item.id
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                }}"
-              >
-                {{ item.label }}
-              </button>
-            </li>
-          }
-        </ul>
+        <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-3">
+          <ul class="space-y-0.5">
+            @for (item of previewItems; track item.id) {
+              <li>
+                <button
+                  (click)="setPreview(item.id)"
+                  class="w-full text-left block rounded-md px-2.5 py-1.5 text-xs transition-colors {{
+                    currentPreview() === item.id
+                      ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                      : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                  }}"
+                >
+                  {{ item.label }}
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
       </nav>
 
       <!-- Iframe Container -->
-      <main class="flex-1 overflow-hidden bg-background p-4">
+      <main class="min-w-0 flex-1 overflow-hidden bg-background p-4">
         <iframe
           [src]="safeUrl()"
           class="h-full w-full overflow-auto rounded-lg border border-border bg-card"

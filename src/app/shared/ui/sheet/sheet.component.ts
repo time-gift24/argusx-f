@@ -134,13 +134,16 @@ export class SheetComponent implements OnDestroy {
     const side = this.side();
     const size = this.size();
 
-    const baseClasses = 'fixed z-50 outline-none flex flex-col bg-clip-padding text-xs/relaxed shadow-lg transition duration-200 ease-in-out';
+    const baseClasses =
+      'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 outline-none';
 
     const sideClasses: Record<SheetSide, string> = {
-      top: 'inset-x-0 top-0 border-b data-[side=top]:data-closed:slide-out-to-top-10 data-[side=top]:data-open:slide-in-from-top-10 h-auto',
-      bottom: 'inset-x-0 bottom-0 border-t data-[side=bottom]:data-closed:slide-out-to-bottom-10 data-[side=bottom]:data-open:slide-in-from-bottom-10 h-auto',
-      left: 'inset-y-0 left-0 border-r data-[side=left]:data-closed:slide-out-to-left-10 data-[side=left]:data-open:slide-in-from-left-10 h-full w-3/4 sm:max-w-sm',
-      right: 'inset-y-0 right-0 border-l data-[side=right]:data-closed:slide-out-to-right-10 data-[side=right]:data-open:slide-in-from-right-10 h-full w-3/4 sm:max-w-sm',
+      top: 'inset-x-0 top-0 h-auto border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top',
+      bottom:
+        'inset-x-0 bottom-0 h-auto border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
+      left: 'inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm',
+      right:
+        'inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm',
     };
 
     const sizeClasses: Record<SheetSize, string> = {
@@ -217,6 +220,7 @@ export class SheetComponent implements OnDestroy {
   host: {
     '[attr.data-slot]': '"sheet-trigger"',
     '[attr.aria-haspopup]': '"dialog"',
+    '[attr.aria-expanded]': 'sheet.open()',
     '(click)': 'onClick()',
   },
 })

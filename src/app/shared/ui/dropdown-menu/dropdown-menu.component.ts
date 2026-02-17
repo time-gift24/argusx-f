@@ -15,6 +15,7 @@ import {
 import { CommonModule } from '@angular/common';
 import {
   CdkOverlayOrigin,
+  ConnectedOverlayPositionChange,
   OverlayModule,
   ConnectedPosition,
 } from '@angular/cdk/overlay';
@@ -702,14 +703,17 @@ export class DropdownMenuSubContentComponent {
         [cdkConnectedOverlayMinWidth]="overlayMinWidth()"
         [cdkConnectedOverlayHasBackdrop]="true"
         [cdkConnectedOverlayBackdropClass]="'cdk-overlay-transparent-backdrop'"
+        (positionChange)="onPositionChange($event)"
         (overlayOutsideClick)="onOutsideClick($event)"
-        (detach)="closeMenu()"
-        (backdropClick)="closeMenu()">
+        (detach)="closeMenu(false)"
+        (backdropClick)="closeMenu(false)">
         <div
           #menuContent
           [class]="contentClass()"
           role="menu"
+          aria-orientation="vertical"
           [attr.data-state]="open() ? 'open' : 'closed'"
+          [attr.data-side]="currentSide()"
           (keydown)="onContentKeydown($event)">
           <ng-content />
         </div>
@@ -732,6 +736,7 @@ export class DropdownMenuComponent {
   // Unique ID for this dropdown instance
   readonly id = `dropdown-menu-${dropdownIdCounter++}`;
   private readonly triggerWidth = signal(0);
+  protected readonly currentSide = signal<'top' | 'bottom'>('bottom');
   private readonly contentAlign = signal<DropdownMenuAlign | null>(null);
   private readonly contentSideOffset = signal<number | null>(null);
   private readonly contentClassOverride = signal('');
@@ -794,29 +799,34 @@ export class DropdownMenuComponent {
   }
 
   openMenu(): void {
-    this.open.set(true);
+    this.openMenuInternal('first');
   }
 
   openMenuAndFocusFirstItem(): void {
-    this.openMenu();
-    this.focusMenuItemByIndex(0);
+    this.openMenuInternal('first');
   }
 
   openMenuAndFocusLastItem(): void {
-    this.openMenu();
-    this.focusMenuItemByIndex(-1);
+    this.openMenuInternal('last');
   }
 
-  closeMenu(): void {
+  closeMenu(restoreFocus = true): void {
     this.open.set(false);
+    if (restoreFocus) {
+      this.runAfterOverlayRender(() => {
+        this.trigger()?.elementRef.nativeElement.focus();
+      });
+    }
   }
 
   toggleMenu(): void {
     const willOpen = !this.open();
     if (willOpen) {
       this.syncTriggerWidth();
+      this.openMenuInternal('first');
+      return;
     }
-    this.open.set(willOpen);
+    this.closeMenu();
   }
 
   protected onContentKeydown(event: KeyboardEvent): void {
@@ -847,19 +857,40 @@ export class DropdownMenuComponent {
     if (event.key === 'End') {
       event.preventDefault();
       this.focusMenuItemByIndex(-1);
+      return;
     }
+
+    if (event.key === 'Tab') {
+      this.closeMenu(false);
+    }
+  }
+
+  protected onPositionChange(event: ConnectedOverlayPositionChange): void {
+    this.currentSide.set(event.connectionPair.overlayY === 'top' ? 'bottom' : 'top');
   }
 
   protected onOutsideClick(event: MouseEvent): void {
     const triggerEl = this.trigger()?.elementRef?.nativeElement;
     if (triggerEl && !triggerEl.contains(event.target as Node)) {
-      this.closeMenu();
+      this.closeMenu(false);
     }
   }
 
   private syncTriggerWidth(): void {
     const width = this.trigger()?.elementRef.nativeElement.getBoundingClientRect().width ?? 0;
     this.triggerWidth.set(Math.ceil(width));
+  }
+
+  private openMenuInternal(focus: 'first' | 'last' | 'none'): void {
+    this.syncTriggerWidth();
+    this.open.set(true);
+    if (focus === 'first') {
+      this.focusMenuItemByIndex(0);
+      return;
+    }
+    if (focus === 'last') {
+      this.focusMenuItemByIndex(-1);
+    }
   }
 
   private focusMenuItemByIndex(index: number): void {

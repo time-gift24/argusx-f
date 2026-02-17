@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -16,7 +17,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 // ============================================================================
 
 const tabsListVariants = cva(
-  'rounded-lg p-[3px] group-data-horizontal/tabs:h-8 data-[variant=line]:rounded-none group/tabs-list text-muted-foreground inline-flex w-fit items-center justify-center group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col',
+  'rounded-lg p-[3px] group-data-[orientation=horizontal]/tabs:h-9 data-[variant=line]:rounded-none group/tabs-list text-muted-foreground inline-flex w-fit items-center justify-center group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col',
   {
     variants: {
       variant: {
@@ -121,12 +122,15 @@ export class TabsComponent extends TabsRootToken {
   // ============================================================================
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'gap-2 group/tabs flex',
-      this.orientation() === 'horizontal' ? 'flex-col' : 'flex-row',
-      this.class()
-    )
+    cn('group/tabs flex gap-2 data-[orientation=horizontal]:flex-col', this.class())
   );
+
+  constructor() {
+    super();
+    afterNextRender(() => {
+      this.ensureInitialTab();
+    });
+  }
 
   // ============================================================================
   // Methods
@@ -160,6 +164,18 @@ export class TabsComponent extends TabsRootToken {
     return Array.from(
       this.hostElement.nativeElement.querySelectorAll('[role="tab"]')
     );
+  }
+
+  private ensureInitialTab(): void {
+    if (this.value()) return;
+
+    const firstEnabledTab = this.getTabElements().find(
+      (tab) => !tab.hasAttribute('disabled')
+    );
+    const firstValue = firstEnabledTab?.getAttribute('data-value');
+    if (firstValue) {
+      this.value.set(firstValue);
+    }
   }
 }
 
@@ -232,12 +248,14 @@ export class TabsListComponent {
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"tabs-trigger"',
-    '[attr.data-active]': 'isActive() ? "" : null',
+    '[attr.data-state]': 'isActive() ? "active" : "inactive"',
+    '[attr.data-value]': 'value()',
     '[attr.role]': '"tab"',
     '[attr.tabindex]': 'tabIndex()',
     '[attr.aria-selected]': 'isActive()',
     '[attr.aria-controls]': 'panelId()',
     '[attr.id]': 'tabId()',
+    '[attr.data-disabled]': 'isDisabled() ? "" : null',
     '[attr.disabled]': 'isDisabled() ? "" : null',
     '(click)': 'onClick()',
     '(keydown)': 'onKeydown($event)',
@@ -292,31 +310,11 @@ export class TabsTriggerComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      // Base styles (aligned with .vendor/aim/components/ui/tabs.tsx)
-      'gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-xs font-medium',
-      'group-data-vertical/tabs:py-[calc(var(--spacing)*1.25)]',
-      "[&_svg:not([class*='size-'])]:size-3.5",
+      'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring text-foreground/60 hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-all group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 group-data-[variant=default]/tabs-list:data-[state=active]:shadow-sm group-data-[variant=line]/tabs-list:data-[state=active]:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=\'size-\'])]:size-4',
+      'group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:border-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent',
+      'data-[state=active]:bg-background dark:data-[state=active]:text-foreground dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 data-[state=active]:text-foreground',
+      'after:bg-foreground after:absolute after:opacity-0 after:transition-opacity group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px] group-data-[orientation=horizontal]/tabs:after:h-0.5 group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-[state=active]:after:opacity-100',
       'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring',
-      'text-foreground/60 hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground',
-      'relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center whitespace-nowrap transition-all',
-      'group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start',
-      'focus-visible:ring-[3px] focus-visible:outline-1',
-      'disabled:pointer-events-none disabled:opacity-50',
-      '[&_svg]:pointer-events-none [&_svg]:shrink-0',
-      // Line variant overrides
-      'group-data-[variant=line]/tabs-list:bg-transparent',
-      'group-data-[variant=line]/tabs-list:data-active:bg-transparent',
-      'dark:group-data-[variant=line]/tabs-list:data-active:border-transparent',
-      'dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent',
-      // Active state
-      'data-active:bg-background dark:data-active:text-foreground',
-      'dark:data-active:border-input dark:data-active:bg-input/30',
-      'data-active:text-foreground',
-      // After indicator (for line variant)
-      'after:bg-foreground after:absolute after:opacity-0 after:transition-opacity',
-      'group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5',
-      'group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-right-1 group-data-vertical/tabs:after:w-0.5',
-      'group-data-[variant=line]/tabs-list:data-active:after:opacity-100',
       this.class()
     )
   );
