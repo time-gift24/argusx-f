@@ -82,6 +82,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'llm-chat',
+        loadComponent: () =>
+          import('./preview/llm-chat-preview.component').then(
+            (m) => m.LlmChatPreviewComponent
+          ),
+      },
+      {
         path: 'alert-dialog',
         loadComponent: () =>
           import('./preview/alert-dialog-preview.component').then(

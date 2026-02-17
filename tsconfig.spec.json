@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec",
+    "types": ["vitest/globals", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@app/shared": ["src/app/shared/index"],
+      "@app/shared/*": ["src/app/shared/*"],
+      "@app/shared/models": ["src/app/shared/models/index"],
+      "@app/features/*": ["src/app/features/*"],
+      "@shared/*": ["src/app/shared/*"]
+    }
+  },
+  "include": ["src/**/*.spec.ts", "src/**/*.d.ts", "src/**/*.ts"]
+}
