@@ -14,10 +14,22 @@ import { CommonModule } from '@angular/common';
 import type { LiquidGlassConfig } from './liquid-glass.types';
 import { DEFAULT_LIQUID_CONFIG } from './liquid-glass.config';
 
+interface ElasticMetrics {
+  translateX: number;
+  translateY: number;
+  scaleX: number;
+  scaleY: number;
+  stretchIntensity: number;
+  isActive: boolean;
+}
+
 @Component({
   selector: 'app-liquid-glass',
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[style.--liquid-corner]': 'liquidCornerCssValue()',
+  },
   template: `
   <svg class="liquid-filters" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -157,39 +169,50 @@ import { DEFAULT_LIQUID_CONFIG } from './liquid-glass.config';
   </svg>
 
   <div
-    class="liquid-shell"
-    [style.border-radius.px]="config().cornerRadius"
+    class="liquid-frame"
     [style.transform]="elasticContainerTransform()"
+    [style.border-radius]="liquidCornerCssValue()"
   >
     <div
-      class="liquid-glass-container"
-      [style.border-radius.px]="config().cornerRadius"
-      [style.border-width.px]="containerBorderWidth()"
-      [style.border-color]="containerBorderColor()"
+      class="liquid-shell"
+      [style.border-radius]="liquidCornerCssValue()"
     >
-      <span
-        class="liquid-warp"
-        [style.filter]="displacementFilter()"
-        [style.backdrop-filter]="backdropFilter()"
-        [style.-webkit-backdrop-filter]="backdropFilter()"
-      ></span>
-
       <div
-        class="liquid-highlight"
-      ></div>
+        class="liquid-glass-container"
+        [style.border-width.px]="containerBorderWidth()"
+        [style.border-color]="containerBorderColor()"
+        [style.border-radius]="liquidCornerCssValue()"
+      >
+        <span
+          class="liquid-warp"
+          [style.filter]="displacementFilter()"
+          [style.backdrop-filter]="backdropFilter()"
+          [style.-webkit-backdrop-filter]="backdropFilter()"
+          [style.border-radius]="liquidCornerCssValue()"
+          [style.clip-path]="liquidCornerClipPath()"
+          [style.-webkit-clip-path]="liquidCornerClipPath()"
+        ></span>
 
-      <div class="liquid-content">
-        <ng-content />
+        <div
+          class="liquid-highlight"
+          [style.border-radius]="liquidCornerCssValue()"
+          [style.clip-path]="liquidCornerClipPath()"
+          [style.-webkit-clip-path]="liquidCornerClipPath()"
+        ></div>
+
+        <div class="liquid-content">
+          <ng-content />
+        </div>
       </div>
     </div>
 
     @if (solidBorder()) {
       <span
         class="liquid-solid-border"
-        [style.border-radius.px]="config().cornerRadius"
         [style.border-width.px]="effectiveSolidBorderWidth()"
         [style.border-color]="effectiveSolidBorderColor()"
         [style.box-shadow]="effectiveSolidBorderGlow()"
+        [style.border-radius]="liquidCornerCssValue()"
       ></span>
     }
   </div>
@@ -209,18 +232,30 @@ import { DEFAULT_LIQUID_CONFIG } from './liquid-glass.config';
     overflow: visible;
   }
 
+  .liquid-frame {
+    position: relative;
+    border-radius: var(--liquid-corner, 0px);
+    transform-origin: center;
+    transition:
+      transform 0.2s ease-out,
+      border-radius 0.2s ease-out;
+  }
+
   .liquid-shell {
     position: relative;
-    transform-origin: center;
-    transition: transform 0.2s ease-out;
+    border-radius: inherit;
+    overflow: hidden;
   }
 
   .liquid-glass-container {
     position: relative;
+    border-radius: inherit;
     overflow: hidden;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: border-color 0.2s ease-out;
+    transition:
+      border-color 0.2s ease-out,
+      border-radius 0.2s ease-out;
   }
 
   .liquid-warp {
@@ -248,12 +283,14 @@ import { DEFAULT_LIQUID_CONFIG } from './liquid-glass.config';
   .liquid-solid-border {
     position: absolute;
     inset: 0;
+    border-radius: inherit;
     border-style: solid;
     box-sizing: border-box;
     pointer-events: none;
-    z-index: 4;
+    z-index: 5;
     transition:
       border-color 0.2s ease-out,
+      border-radius 0.2s ease-out,
       box-shadow 0.2s ease-out;
   }
 
@@ -266,8 +303,17 @@ import { DEFAULT_LIQUID_CONFIG } from './liquid-glass.config';
 export class LiquidGlassComponent {
   private static readonly ACTIVATION_ZONE = 200;
   private static readonly MIN_SCALE = 0.8;
-  private static readonly IDENTITY_TRANSFORM =
-    'translate3d(0px, 0px, 0) scaleX(1) scaleY(1)';
+  private static readonly MIN_CORNER_RATIO = 0.62;
+  private static readonly MAX_CORNER_COMPRESSION = 0.34;
+  private static readonly IDENTITY_TRANSFORM = 'none';
+  private static readonly IDENTITY_METRICS: ElasticMetrics = {
+    translateX: 0,
+    translateY: 0,
+    scaleX: 1,
+    scaleY: 1,
+    stretchIntensity: 0,
+    isActive: false,
+  };
 
   private readonly elementRef = inject(ElementRef<HTMLElement>);
 
@@ -327,15 +373,15 @@ export class LiquidGlassComponent {
     return `0 0 0 1px ${this.solidBorderHighlightColor()}, 0 0 16px ${this.solidBorderGlowColor()}`;
   });
 
-  readonly elasticContainerTransform = computed(() => {
+  readonly elasticMetrics = computed<ElasticMetrics>(() => {
     const elasticity = this.config().elasticity;
     if (elasticity <= 0 || !this.hasGlobalMouse()) {
-      return LiquidGlassComponent.IDENTITY_TRANSFORM;
+      return LiquidGlassComponent.IDENTITY_METRICS;
     }
 
     const hostRect = this.elementRef.nativeElement.getBoundingClientRect();
     if (hostRect.width <= 0 || hostRect.height <= 0) {
-      return LiquidGlassComponent.IDENTITY_TRANSFORM;
+      return LiquidGlassComponent.IDENTITY_METRICS;
     }
 
     const { x, y } = this.globalMousePos();
@@ -349,13 +395,13 @@ export class LiquidGlassComponent {
     const edgeDistance = Math.hypot(edgeDistanceX, edgeDistanceY);
 
     if (edgeDistance > LiquidGlassComponent.ACTIVATION_ZONE) {
-      return LiquidGlassComponent.IDENTITY_TRANSFORM;
+      return LiquidGlassComponent.IDENTITY_METRICS;
     }
 
     const fadeInFactor = 1 - edgeDistance / LiquidGlassComponent.ACTIVATION_ZONE;
     const centerDistance = Math.hypot(deltaX, deltaY);
     if (centerDistance === 0) {
-      return LiquidGlassComponent.IDENTITY_TRANSFORM;
+      return LiquidGlassComponent.IDENTITY_METRICS;
     }
 
     const normalizedX = deltaX / centerDistance;
@@ -375,11 +421,57 @@ export class LiquidGlassComponent {
     const translateX = deltaX * elasticity * 0.1 * fadeInFactor;
     const translateY = deltaY * elasticity * 0.1 * fadeInFactor;
 
-    return `translate3d(${translateX}px, ${translateY}px, 0) scaleX(${Math.max(
-      LiquidGlassComponent.MIN_SCALE,
-      scaleX
-    )}) scaleY(${Math.max(LiquidGlassComponent.MIN_SCALE, scaleY)})`;
+    return {
+      translateX,
+      translateY,
+      scaleX: Math.max(LiquidGlassComponent.MIN_SCALE, scaleX),
+      scaleY: Math.max(LiquidGlassComponent.MIN_SCALE, scaleY),
+      stretchIntensity,
+      isActive: true,
+    };
   });
+
+  readonly elasticContainerTransform = computed(() => {
+    const metrics = this.elasticMetrics();
+    if (!metrics.isActive) {
+      return LiquidGlassComponent.IDENTITY_TRANSFORM;
+    }
+
+    return `translate3d(${metrics.translateX}px, ${metrics.translateY}px, 0) scaleX(${metrics.scaleX}) scaleY(${metrics.scaleY})`;
+  });
+
+  readonly effectiveCornerRadius = computed(() => {
+    const baseRadius = this.config().cornerRadius;
+    if (baseRadius <= 0) {
+      return 0;
+    }
+
+    const metrics = this.elasticMetrics();
+    if (!metrics.isActive) {
+      return baseRadius;
+    }
+
+    const squeezeRatio = Math.min(metrics.scaleX, metrics.scaleY);
+    const intensityFactor =
+      1 -
+      Math.min(
+        LiquidGlassComponent.MAX_CORNER_COMPRESSION,
+        metrics.stretchIntensity * 0.55
+      );
+    const cornerRatio = Math.max(
+      LiquidGlassComponent.MIN_CORNER_RATIO,
+      Math.min(1, squeezeRatio * intensityFactor)
+    );
+
+    return Math.max(2, baseRadius * cornerRatio);
+  });
+
+  readonly liquidCornerCssValue = computed(
+    () => `${this.effectiveCornerRadius()}px`
+  );
+  readonly liquidCornerClipPath = computed(
+    () => `inset(0 round ${this.liquidCornerCssValue()})`
+  );
 
   readonly displacementMapUrl = computed(() => {
     const { mode } = this.config();
@@ -434,8 +526,8 @@ export class LiquidGlassComponent {
     this.hoverStart.emit();
   }
 
-  @HostListener('mousemove', ['$event'])
-  onMouseMove(event: MouseEvent): void {
+  @HostListener('window:mousemove', ['$event'])
+  onWindowMouseMove(event: MouseEvent): void {
     this.globalMousePos.set({ x: event.clientX, y: event.clientY });
     this.hasGlobalMouse.set(true);
   }
@@ -443,8 +535,12 @@ export class LiquidGlassComponent {
   @HostListener('mouseleave')
   onMouseLeave(): void {
     this.isHovered.set(false);
-    this.hasGlobalMouse.set(false);
     this.hoverEnd.emit();
+  }
+
+  @HostListener('window:mouseleave')
+  onWindowMouseLeave(): void {
+    this.hasGlobalMouse.set(false);
   }
 
   @HostListener('focusin')
