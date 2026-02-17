@@ -25,7 +25,7 @@ describe('LiquidGlassComponent', () => {
   });
 
   it('should generate correct filter id', () => {
-    expect(component.filterId()).toBe('liquid-filter-standard');
+    expect(component.filterId()).toMatch(/^liquid-filter-\d+-standard$/);
   });
 
   it('should compute backdrop filter correctly', () => {
@@ -39,10 +39,13 @@ describe('LiquidGlassComponent', () => {
     const container: HTMLDivElement = fixture.nativeElement.querySelector(
       '.liquid-glass-container'
     );
+    const solidBorderLayer: HTMLSpanElement | null =
+      fixture.nativeElement.querySelector('.liquid-solid-border');
 
     expect(container.style.borderWidth).toBe('1px');
     expect(container.style.borderColor).toContain('0.2');
     expect(container.style.boxShadow).toBe('none');
+    expect(solidBorderLayer).toBeNull();
   });
 
   it('should render solid border when enabled', () => {
@@ -54,9 +57,15 @@ describe('LiquidGlassComponent', () => {
     const container: HTMLDivElement = fixture.nativeElement.querySelector(
       '.liquid-glass-container'
     );
+    const solidBorderLayer: HTMLSpanElement = fixture.nativeElement.querySelector(
+      '.liquid-solid-border'
+    );
 
-    expect(container.style.borderWidth).toBe('3px');
-    expect(container.style.borderColor).toContain('0.9');
+    expect(container.style.borderWidth).toBe('0px');
+    expect(solidBorderLayer).toBeTruthy();
+    expect(solidBorderLayer.style.filter).toBe('');
+    expect(solidBorderLayer.style.borderWidth).toBe('3px');
+    expect(solidBorderLayer.style.borderColor).toContain('0.9');
   });
 
   it('should highlight solid border on hover', () => {
@@ -68,11 +77,11 @@ describe('LiquidGlassComponent', () => {
     component.onMouseEnter();
     fixture.detectChanges();
 
-    const container: HTMLDivElement = fixture.nativeElement.querySelector(
-      '.liquid-glass-container'
+    const solidBorderLayer: HTMLSpanElement = fixture.nativeElement.querySelector(
+      '.liquid-solid-border'
     );
 
-    expect(container.style.borderColor).toContain('1)');
-    expect(container.style.boxShadow).toContain('16px');
+    expect(solidBorderLayer.style.borderColor).toContain('1)');
+    expect(solidBorderLayer.style.boxShadow).toContain('16px');
   });
 });

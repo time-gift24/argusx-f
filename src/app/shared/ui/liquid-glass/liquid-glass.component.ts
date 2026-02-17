@@ -152,31 +152,46 @@ import { DEFAULT_LIQUID_CONFIG } from './liquid-glass.config';
         />
         <feComposite in="EDGE_ABERRATION" in2="CENTER_CLEAN" operator="over" />
       </filter>
+
     </defs>
   </svg>
 
   <div
-    class="liquid-glass-container"
+    class="liquid-shell"
     [style.border-radius.px]="config().cornerRadius"
     [style.transform]="elasticContainerTransform()"
-    [style.border-width.px]="effectiveBorderWidth()"
-    [style.border-color]="effectiveBorderColor()"
-    [style.box-shadow]="effectiveBorderGlow()"
   >
-    <span
-      class="liquid-warp"
-      [style.filter]="displacementFilter()"
-      [style.backdrop-filter]="backdropFilter()"
-      [style.-webkit-backdrop-filter]="backdropFilter()"
-    ></span>
-
     <div
-      class="liquid-highlight"
-    ></div>
+      class="liquid-glass-container"
+      [style.border-radius.px]="config().cornerRadius"
+      [style.border-width.px]="containerBorderWidth()"
+      [style.border-color]="containerBorderColor()"
+    >
+      <span
+        class="liquid-warp"
+        [style.filter]="displacementFilter()"
+        [style.backdrop-filter]="backdropFilter()"
+        [style.-webkit-backdrop-filter]="backdropFilter()"
+      ></span>
 
-    <div class="liquid-content">
-      <ng-content />
+      <div
+        class="liquid-highlight"
+      ></div>
+
+      <div class="liquid-content">
+        <ng-content />
+      </div>
     </div>
+
+    @if (solidBorder()) {
+      <span
+        class="liquid-solid-border"
+        [style.border-radius.px]="config().cornerRadius"
+        [style.border-width.px]="effectiveSolidBorderWidth()"
+        [style.border-color]="effectiveSolidBorderColor()"
+        [style.box-shadow]="effectiveSolidBorderGlow()"
+      ></span>
+    }
   </div>
 `,
   styles: [`
@@ -194,16 +209,18 @@ import { DEFAULT_LIQUID_CONFIG } from './liquid-glass.config';
     overflow: visible;
   }
 
+  .liquid-shell {
+    position: relative;
+    transform-origin: center;
+    transition: transform 0.2s ease-out;
+  }
+
   .liquid-glass-container {
     position: relative;
     overflow: hidden;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    transform-origin: center;
-    transition:
-      transform 0.2s ease-out,
-      border-color 0.2s ease-out,
-      box-shadow 0.2s ease-out;
+    transition: border-color 0.2s ease-out;
   }
 
   .liquid-warp {
@@ -226,6 +243,18 @@ import { DEFAULT_LIQUID_CONFIG } from './liquid-glass.config';
       rgba(255, 255, 255, 0.08) 100%
     );
     pointer-events: none;
+  }
+
+  .liquid-solid-border {
+    position: absolute;
+    inset: 0;
+    border-style: solid;
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 4;
+    transition:
+      border-color 0.2s ease-out,
+      box-shadow 0.2s ease-out;
   }
 
   .liquid-content {
@@ -268,17 +297,19 @@ export class LiquidGlassComponent {
     () => this.isHovered() || this.hasFocusWithin()
   );
 
-  readonly effectiveBorderWidth = computed(() => {
-    if (!this.solidBorder()) {
-      return 1;
-    }
+  readonly containerBorderWidth = computed(() => (this.solidBorder() ? 0 : 1));
 
-    return Math.max(1, this.solidBorderWidth());
-  });
+  readonly containerBorderColor = computed(() =>
+    this.solidBorder() ? 'transparent' : 'rgba(255, 255, 255, 0.2)'
+  );
 
-  readonly effectiveBorderColor = computed(() => {
+  readonly effectiveSolidBorderWidth = computed(() =>
+    this.solidBorder() ? Math.max(1, this.solidBorderWidth()) : 0
+  );
+
+  readonly effectiveSolidBorderColor = computed(() => {
     if (!this.solidBorder()) {
-      return 'rgba(255, 255, 255, 0.2)';
+      return 'transparent';
     }
 
     if (this.isSolidBorderHighlighted()) {
@@ -288,7 +319,7 @@ export class LiquidGlassComponent {
     return this.solidBorderColor();
   });
 
-  readonly effectiveBorderGlow = computed(() => {
+  readonly effectiveSolidBorderGlow = computed(() => {
     if (!this.solidBorder() || !this.isSolidBorderHighlighted()) {
       return 'none';
     }
