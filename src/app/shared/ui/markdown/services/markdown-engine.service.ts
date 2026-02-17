@@ -6,6 +6,9 @@ import { unified } from 'unified';
 import remarkGfm from 'remark-gfm';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
+import { harden } from 'rehype-harden';
 import { MarkdownParserService } from './markdown-parser.service';
 import { RemendService } from './remend.service';
 import type { RenderBlock, RenderNode, RenderRootNode, RenderOptions } from '../models/markdown.models';
@@ -71,8 +74,11 @@ export class MarkdownEngineService {
   }
 
   private createDefaultRehypePlugins(): PluggableList {
-    // 简化版本 - 后续可以添加 rehypeSanitize 等
-    return [];
+    return [
+      rehypeRaw,
+      [rehypeSanitize, { ...defaultSchema, tagNames: [...(defaultSchema.tagNames ?? []), 'pre', 'code'] }],
+      [harden, { allowedImagePrefixes: ['*'], allowedLinkPrefixes: ['*'], allowedProtocols: ['*'], allowDataImages: true }],
+    ];
   }
 
   private processorCache = new Map<string, unknown>();
@@ -105,17 +111,22 @@ export class MarkdownEngineService {
   }
 
   private toRenderNode(node: RootContent): RenderNode {
+    // 处理 text 节点
     if (node.type === 'text') {
-      return { kind: 'text', value: node.value };
+      return { kind: 'text', value: node.value ?? '' };
     }
+
+    // 处理 element 节点
     if (node.type === 'element') {
       return {
         kind: 'element',
         tagName: node.tagName,
-        properties: { ...node.properties },
-        children: node.children.map(child => this.toRenderNode(child as RootContent)),
+        properties: { ...node.properties } as Record<string, unknown>,
+        children: node.children?.map(child => this.toRenderNode(child as RootContent)) ?? [],
       };
     }
+
+    // 处理其他类型（如 doctype, comment 等）返回空文本
     return { kind: 'text', value: '' };
   }
 }
