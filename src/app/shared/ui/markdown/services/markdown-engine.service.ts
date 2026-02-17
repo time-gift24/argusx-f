@@ -23,6 +23,7 @@ import type {
   UrlTransform,
 } from '../models/markdown.models';
 import { MarkdownParserService } from './markdown-parser.service';
+import { ProcessorCache } from './processor-cache';
 import { RemendService } from './remend.service';
 
 const DEFAULT_REMARK_PLUGINS: PluggableList = [[remarkGfm, {}]];
@@ -123,7 +124,7 @@ interface NormalizedOptions {
 export class MarkdownEngineService {
   private readonly parser = inject(MarkdownParserService);
   private readonly remend = inject(RemendService);
-  private readonly processorCache = new Map<string, unknown>();
+  private readonly processorCache = new ProcessorCache<ReturnType<typeof unified>>();
 
   renderBlocks(markdown: string, options: RenderOptions = {}): RenderBlock[] {
     if (!markdown) {
@@ -189,10 +190,12 @@ export class MarkdownEngineService {
   }
 
   private getProcessor(options: NormalizedOptions): ReturnType<typeof unified> {
-    const cacheKey = this.getCacheKey(options);
-    const cached = this.processorCache.get(cacheKey) as
-      | ReturnType<typeof unified>
-      | undefined;
+    const cacheKey = this.processorCache.makeKey({
+      remarkPlugins: options.remarkPlugins,
+      rehypePlugins: options.rehypePlugins,
+      remarkRehypeOptions: options.remarkRehypeOptions,
+    });
+    const cached = this.processorCache.get(cacheKey);
 
     if (cached) {
       return cached;
@@ -206,28 +209,6 @@ export class MarkdownEngineService {
 
     this.processorCache.set(cacheKey, processor);
     return processor as unknown as ReturnType<typeof unified>;
-  }
-
-  private getCacheKey(options: NormalizedOptions): string {
-    const serializePlugins = (plugins: PluggableList): string =>
-      plugins
-        .map((plugin) => {
-          if (Array.isArray(plugin)) {
-            const [pluginFn, pluginOptions] = plugin;
-            const pluginName =
-              typeof pluginFn === 'function' ? pluginFn.name : String(pluginFn);
-            return `${pluginName}:${JSON.stringify(pluginOptions)}`;
-          }
-
-          return typeof plugin === 'function' ? plugin.name : String(plugin);
-        })
-        .join('|');
-
-    const remarkKey = serializePlugins(options.remarkPlugins);
-    const rehypeKey = serializePlugins(options.rehypePlugins);
-    const optionKey = JSON.stringify(options.remarkRehypeOptions);
-
-    return `${remarkKey}::${rehypeKey}::${optionKey}`;
   }
 
   private postProcessTree(tree: Nodes, options: NormalizedOptions): Root {
