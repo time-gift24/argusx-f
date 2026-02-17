@@ -61,13 +61,6 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'aspect-ratio',
-        loadComponent: () =>
-          import('../../component-comparisons/aspect-ratio/preview/aspect-ratio-preview.component').then(
-            (m) => m.AspectRatioPreviewComponent
-          ),
-      },
-      {
         path: 'alert',
         loadComponent: () =>
           import('./preview/alert-preview.component').then(
