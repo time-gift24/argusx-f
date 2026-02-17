@@ -2,11 +2,14 @@ import {
   afterEveryRender,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   ViewEncapsulation,
   computed,
+  effect,
   inject,
   input,
+  signal,
 } from '@angular/core';
 import type { PluggableList } from 'unified';
 import type {
@@ -17,6 +20,10 @@ import type {
 } from './models/markdown.models';
 import { MarkdownNodeComponent } from './components/markdown-node.component';
 import { MarkdownEngineService } from './services/markdown-engine.service';
+import {
+  createStreamUpdateCoalescer,
+  StreamUpdateCoalescer,
+} from './services/stream-update-coalescer';
 
 type AutoScrollTarget = 'nearest' | 'self';
 
@@ -43,9 +50,14 @@ type AutoScrollTarget = 'nearest' | 'self';
 export class SdMarkdownComponent {
   private readonly engine = inject(MarkdownEngineService);
   private readonly hostElement = inject(ElementRef<HTMLElement>);
+  private readonly destroyRef = inject(DestroyRef);
   private cachedScrollContainer: HTMLElement | null = null;
   private previousContentLength = 0;
   private previousAutoScrollTarget: AutoScrollTarget | null = null;
+  private streamCoalescer: StreamUpdateCoalescer | null = null;
+  private coalescerThrottleMs = -1;
+  private coalescerDebounceMs = -1;
+  private readonly renderedContent = signal('');
 
   readonly content = input<string>('');
   readonly mode = input<StreamMode>('streaming');
@@ -65,9 +77,11 @@ export class SdMarkdownComponent {
   readonly autoScroll = input(false);
   readonly autoScrollBehavior = input<ScrollBehavior>('auto');
   readonly autoScrollTarget = input<AutoScrollTarget>('nearest');
+  readonly streamThrottleMs = input(120);
+  readonly streamDebounceMs = input(24);
 
   readonly blocks = computed(() =>
-    this.engine.renderBlocks(this.content(), {
+    this.engine.renderBlocks(this.renderedContent(), {
       mode: this.mode(),
       parseIncompleteMarkdown: this.parseIncompleteMarkdown(),
       skipHtml: this.skipHtml(),
@@ -88,10 +102,31 @@ export class SdMarkdownComponent {
   });
 
   constructor() {
+    effect(() => {
+      const mode = this.mode();
+      const content = this.content();
+
+      if (mode !== 'streaming') {
+        this.destroyStreamCoalescer();
+        this.renderedContent.set(content);
+        return;
+      }
+
+      const coalescer = this.getOrCreateStreamCoalescer(
+        this.streamThrottleMs(),
+        this.streamDebounceMs()
+      );
+      coalescer.push(content);
+    });
+
     afterEveryRender({
       write: () => {
         this.handleAutoScrollAfterRender();
       },
+    });
+
+    this.destroyRef.onDestroy(() => {
+      this.destroyStreamCoalescer();
     });
   }
 
@@ -102,7 +137,7 @@ export class SdMarkdownComponent {
       this.previousAutoScrollTarget = target;
     }
 
-    const contentLength = this.content().length;
+    const contentLength = this.renderedContent().length;
     const hasNewContent = contentLength > this.previousContentLength;
     this.previousContentLength = contentLength;
 
@@ -173,5 +208,38 @@ export class SdMarkdownComponent {
   private isScrollableOverflow(value: string): boolean {
     const normalized = value.toLowerCase().trim();
     return normalized === 'auto' || normalized === 'scroll' || normalized === 'overlay';
+  }
+
+  private getOrCreateStreamCoalescer(
+    throttleMs: number,
+    debounceMs: number
+  ): StreamUpdateCoalescer {
+    if (
+      !this.streamCoalescer ||
+      this.coalescerThrottleMs !== throttleMs ||
+      this.coalescerDebounceMs !== debounceMs
+    ) {
+      this.destroyStreamCoalescer();
+      this.streamCoalescer = createStreamUpdateCoalescer(
+        (value) => this.renderedContent.set(value),
+        throttleMs,
+        debounceMs
+      );
+      this.coalescerThrottleMs = throttleMs;
+      this.coalescerDebounceMs = debounceMs;
+    }
+
+    return this.streamCoalescer;
+  }
+
+  private destroyStreamCoalescer(): void {
+    if (!this.streamCoalescer) {
+      return;
+    }
+
+    this.streamCoalescer.destroy();
+    this.streamCoalescer = null;
+    this.coalescerThrottleMs = -1;
+    this.coalescerDebounceMs = -1;
   }
 }
