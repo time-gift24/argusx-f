@@ -1,0 +1,84 @@
+{
+  "component": "card",
+  "baseline_url": "https://ui.shadcn.com/preview/radix/card-example?item=card-example&style=mira&theme=cyan&font=nunito-sans&menuAccent=bold&radius=medium&template=vite",
+  "visual_threshold": 0.05,
+  "states": [
+    {
+      "state": "default-view",
+      "local_path": "sources/local/default-view.png",
+      "shadcn_path": "sources/shadcn/default-view.png",
+      "diff_path": "sources/diffs/default-view-diff.png",
+      "width": 1024,
+      "height": 2200,
+      "diff_pixels": 46300,
+      "diff_ratio": 0.020552,
+      "threshold": 0.05,
+      "pass": true
+    },
+    {
+      "state": "default-size",
+      "local_path": "sources/local/default-size.png",
+      "shadcn_path": "sources/shadcn/default-size.png",
+      "diff_path": "sources/diffs/default-size-diff.png",
+      "width": 448,
+      "height": 261,
+      "diff_pixels": 3195,
+      "diff_ratio": 0.027325,
+      "threshold": 0.05,
+      "pass": true
+    },
+    {
+      "state": "small-size",
+      "local_path": "sources/local/small-size.png",
+      "shadcn_path": "sources/shadcn/small-size.png",
+      "diff_path": "sources/diffs/small-size-diff.png",
+      "width": 448,
+      "height": 261,
+      "diff_pixels": 2941,
+      "diff_ratio": 0.025152,
+      "threshold": 0.05,
+      "pass": true
+    },
+    {
+      "state": "with-image",
+      "local_path": "sources/local/with-image.png",
+      "shadcn_path": "sources/shadcn/with-image.png",
+      "diff_path": "sources/diffs/with-image-diff.png",
+      "width": 448,
+      "height": 423,
+      "diff_pixels": 2473,
+      "diff_ratio": 0.01305,
+      "threshold": 0.05,
+      "pass": true
+    },
+    {
+      "state": "login",
+      "local_path": "sources/local/login.png",
+      "shadcn_path": "sources/shadcn/login.png",
+      "diff_path": "sources/diffs/login-diff.png",
+      "width": 448,
+      "height": 429,
+      "diff_pixels": 7838,
+      "diff_ratio": 0.040782,
+      "threshold": 0.05,
+      "pass": true
+    },
+    {
+      "state": "meeting-notes",
+      "local_path": "sources/local/meeting-notes.png",
+      "shadcn_path": "sources/shadcn/meeting-notes.png",
+      "diff_path": "sources/diffs/meeting-notes-diff.png",
+      "width": 448,
+      "height": 429,
+      "diff_pixels": 8441,
+      "diff_ratio": 0.04392,
+      "threshold": 0.05,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "pass": true,
+    "avg_diff_ratio": 0.028464,
+    "max_diff_ratio": 0.04392
+  }
+}

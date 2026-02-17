@@ -27,6 +27,8 @@ import { cva } from 'class-variance-authority';
 import {
   LucideAngularModule,
   CheckIcon,
+  CircleIcon,
+  SquareIcon,
   ChevronRightIcon,
 } from 'lucide-angular';
 
@@ -146,6 +148,7 @@ export class ContextMenuTriggerComponent {
   host: {
     '[attr.data-slot]': '"context-menu-group"',
     role: 'group',
+    style: 'display: contents;',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -178,8 +181,8 @@ export class ContextMenuLabelComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'text-muted-foreground px-2 py-1.5 text-xs',
-      this.inset() ? 'pl-7.5' : '',
+      'text-foreground px-2 py-1.5 text-xs leading-4 font-medium',
+      this.inset() ? 'pl-8' : '',
       this.class()
     )
   );
@@ -190,7 +193,7 @@ export class ContextMenuLabelComponent {
 // ============================================================================
 
 const contextMenuItemVariants = cva(
-  "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:text-destructive not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5 group/context-menu-item relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:[&_svg]:!text-destructive data-[variant=default]:[&_svg:not([class*='text-'])]:text-muted-foreground group/context-menu-item relative flex cursor-default items-center gap-2 rounded-md px-2 py-1 text-xs leading-[19.5px] outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -272,9 +275,10 @@ export class ContextMenuItemComponent {
   selector: 'app-context-menu-checkbox-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <span class="absolute right-2 flex items-center justify-center pointer-events-none">
+    <span
+      class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
       @if (checked()) {
-        <lucide-icon [img]="checkIcon" class="size-3.5" />
+        <lucide-icon [img]="checkIcon" class="size-4" />
       }
     </span>
     <ng-content />
@@ -304,9 +308,7 @@ export class ContextMenuCheckboxItemComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
-      'pr-8',
-      'py-1',
+      "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-md py-1 pr-2 pl-8 text-xs leading-[19.5px] outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
       'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
       this.class()
     )
@@ -341,6 +343,7 @@ export class ContextMenuCheckboxItemComponent {
   host: {
     '[attr.data-slot]': '"context-menu-radio-group"',
     role: 'group',
+    style: 'display: contents;',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -361,9 +364,10 @@ export class ContextMenuRadioGroupComponent {
   selector: 'app-context-menu-radio-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <span class="absolute right-2 flex items-center justify-center pointer-events-none">
+    <span
+      class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
       @if (isSelected()) {
-        <lucide-icon [img]="checkIcon" class="size-3.5" />
+        <lucide-icon [img]="circleIcon" class="size-2 fill-current" />
       }
     </span>
     <ng-content />
@@ -390,7 +394,7 @@ export class ContextMenuRadioItemComponent {
   readonly disabled = input<boolean>(false);
   readonly class = input<string>('');
 
-  protected readonly checkIcon = CheckIcon;
+  protected readonly circleIcon = CircleIcon;
 
   protected readonly isSelected = computed(
     () => this.radioGroup?.value() === this.value()
@@ -398,9 +402,7 @@ export class ContextMenuRadioItemComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
-      'pr-8',
-      'py-1',
+      "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-md py-1 pr-2 pl-8 text-xs leading-[19.5px] outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
       'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
       this.class()
     )
@@ -446,7 +448,7 @@ export class ContextMenuSeparatorComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('bg-border/50 -mx-1 my-1 h-px', this.class())
+    cn('bg-border -mx-1 my-1 h-px block', this.class())
   );
 }
 
@@ -473,8 +475,8 @@ export class ContextMenuShortcutComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'text-muted-foreground group-focus/context-menu-item:text-accent-foreground ml-auto text-[0.625rem] tracking-widest',
-      'group-hover/context-menu-item:text-accent-foreground',
+      'text-muted-foreground ml-auto text-[10px] leading-[16.25px] tracking-[1px]',
+      'group-focus/context-menu-item:text-accent-foreground group-hover/context-menu-item:text-accent-foreground',
       this.class()
     )
   );
@@ -494,6 +496,7 @@ export class ContextMenuShortcutComponent {
   template: `<ng-content />`,
   host: {
     '[attr.data-slot]': '"context-menu-sub"',
+    style: 'display: contents;',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -567,7 +570,7 @@ export class ContextMenuSubComponent {
   imports: [CommonModule, LucideAngularModule],
   template: `
     <ng-content />
-    <lucide-icon [img]="chevronRightIcon" class="ml-auto size-3.5" />
+    <lucide-icon [img]="subTriggerIcon" class="ml-auto size-4" />
   `,
   host: {
     '[class]': 'computedClass()',
@@ -590,12 +593,12 @@ export class ContextMenuSubTriggerComponent {
   readonly inset = input<boolean>(false);
   readonly class = input<string>('');
 
-  protected readonly chevronRightIcon = ChevronRightIcon;
+  protected readonly subTriggerIcon = ChevronRightIcon;
 
   protected readonly computedClass = computed(() =>
     cn(
-      'focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 flex cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
-      'hover:bg-accent hover:text-accent-foreground not-data-[variant=destructive]:hover:**:text-accent-foreground',
+      "focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground flex min-h-7 cursor-default items-center rounded-md px-2 py-1 text-xs leading-4 outline-hidden select-none data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+      'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
       this.class()
     )
   );
@@ -646,6 +649,7 @@ export class ContextMenuSubTriggerComponent {
         [style.position]="'fixed'"
         [style.left.px]="positionLeft()"
         [style.top.px]="positionTop()"
+        [attr.data-slot]="'context-menu-sub-content'"
         role="menu"
         data-state="open"
         [attr.data-side]="computedSide()"
@@ -705,17 +709,7 @@ export class ContextMenuSubContentComponent {
 
   protected readonly contentClass = computed(() =>
     cn(
-      'bg-popover text-popover-foreground ring-foreground/10 min-w-32 rounded-lg p-1 shadow-md ring-1 duration-100',
-      'data-[state=open]:animate-in data-[state=closed]:animate-out',
-      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-      'data-[side=bottom]:slide-in-from-top-2',
-      'data-[side=left]:slide-in-from-right-2',
-      'data-[side=right]:slide-in-from-left-2',
-      'data-[side=top]:slide-in-from-bottom-2',
-      'origin-[var(--radix-context-menu-content-transform-origin)]',
-      'overflow-hidden',
-      'z-50',
+      'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-[var(--radix-context-menu-content-transform-origin)] overflow-hidden rounded-[10px] border p-1 shadow-lg',
       this.class()
     )
   );
@@ -765,6 +759,7 @@ export class ContextMenuSubContentComponent {
       <div
         #menuContent
         [class]="contentClass()"
+        [attr.data-slot]="'context-menu-content'"
         role="menu"
         tabindex="-1"
         [attr.data-state]="open() ? 'open' : 'closed'"
@@ -777,6 +772,7 @@ export class ContextMenuSubContentComponent {
   `,
   host: {
     '[attr.data-slot]': '"context-menu"',
+    style: 'display: contents;',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -784,7 +780,7 @@ export class ContextMenuComponent {
   private static activeMenu: ContextMenuComponent | null = null;
   readonly open = model<boolean>(false);
 
-  readonly side = input<ContextMenuSide>('bottom');
+  readonly side = input<ContextMenuSide>('right');
   readonly sideOffset = input<number>(4);
   readonly minWidth = input<number>(128);
   readonly class = input<string>('');
@@ -807,21 +803,19 @@ export class ContextMenuComponent {
   private readonly overlay = inject(Overlay);
   private overlayRef: OverlayRef | null = null;
   private activeTriggerElement: HTMLElement | null = null;
+  private readonly handleDocumentKeydown = (event: KeyboardEvent): void => {
+    if (!this.open() || event.key !== 'Escape') {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    this.closeMenu();
+  };
 
   protected readonly contentClass = computed(() =>
     cn(
-      'bg-popover text-popover-foreground ring-foreground/10 min-w-32 rounded-lg p-1 shadow-md ring-1 duration-100 z-50',
-      'data-[state=open]:animate-in data-[state=closed]:animate-out',
-      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-      'data-[side=bottom]:slide-in-from-top-2',
-      'data-[side=left]:slide-in-from-right-2',
-      'data-[side=right]:slide-in-from-left-2',
-      'data-[side=top]:slide-in-from-bottom-2',
-      'max-h-[var(--radix-context-menu-content-available-height)]',
-      'origin-[var(--radix-context-menu-content-transform-origin)]',
-      'overflow-x-hidden overflow-y-auto',
-      'data-[state=closed]:overflow-hidden',
+      'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-[var(--radix-context-menu-content-available-height)] min-w-[8rem] origin-[var(--radix-context-menu-content-transform-origin)] overflow-x-hidden overflow-y-auto rounded-[10px] border p-1 shadow-md',
       this.class(),
       this.contentClassOverride()
     )
@@ -911,6 +905,8 @@ export class ContextMenuComponent {
       undefined
     );
     this.overlayRef.attach(portal);
+    this.focusMenuContainer();
+    this.addGlobalKeydownListener();
 
     // Handle outside pointer events
     this.overlayRef.outsidePointerEvents().subscribe((event) => {
@@ -922,11 +918,26 @@ export class ContextMenuComponent {
   }
 
   private hideOverlay(): void {
+    this.removeGlobalKeydownListener();
     if (this.overlayRef) {
       this.overlayRef.detach();
       this.overlayRef.dispose();
       this.overlayRef = null;
     }
+  }
+
+  private addGlobalKeydownListener(): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    document.addEventListener('keydown', this.handleDocumentKeydown, true);
+  }
+
+  private removeGlobalKeydownListener(): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    document.removeEventListener('keydown', this.handleDocumentKeydown, true);
   }
 
   protected onContentKeydown(event: KeyboardEvent): void {
@@ -1215,7 +1226,7 @@ export class ContextMenuComponent {
 export class ContextMenuContentComponent {
   private readonly contextMenu = inject(ContextMenuComponent);
 
-  readonly side = input<ContextMenuSide>('bottom');
+  readonly side = input<ContextMenuSide>('right');
   readonly sideOffset = input<number>(4);
   readonly class = input<string>('');
 

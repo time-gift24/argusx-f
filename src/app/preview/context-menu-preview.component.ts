@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { LucideAngularModule, SquareIcon, CopyIcon, ScissorsIcon, ClipboardIcon, Trash2Icon, PencilIcon, Share2Icon, ArchiveIcon } from 'lucide-angular';
 import {
   ContextMenuCheckboxItemComponent,
   ContextMenuComponent,
@@ -15,7 +16,13 @@ import {
   ContextMenuSubTriggerComponent,
   ContextMenuTriggerDirective,
 } from '../shared/ui/context-menu';
-import { DialogComponent } from '../shared/ui/dialog';
+import {
+  DialogComponent,
+  DialogContentComponent,
+  DialogDescriptionComponent,
+  DialogHeaderComponent,
+  DialogTitleComponent,
+} from '../shared/ui/dialog';
 
 @Component({
   selector: 'app-context-menu-preview',
@@ -36,25 +43,22 @@ import { DialogComponent } from '../shared/ui/dialog';
     ContextMenuSubTriggerComponent,
     ContextMenuSubContentComponent,
     DialogComponent,
+    DialogContentComponent,
+    DialogHeaderComponent,
+    DialogTitleComponent,
+    DialogDescriptionComponent,
+    LucideAngularModule,
   ],
   template: `
-    <div class="mx-auto max-w-7xl p-8">
-      <h1 class="mb-2 text-2xl font-semibold">Context Menu</h1>
-      <p class="mb-8 text-muted-foreground">
-        Displays a menu on right-click with groups, labels, shortcuts, and nested
-        menu items.
-      </p>
-
-      <div class="grid grid-cols-1 gap-8 xl:grid-cols-2">
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">Basic</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
+    <div class="bg-background w-full">
+      <div class="mx-auto grid min-h-screen w-full max-w-5xl min-w-0 content-center items-start gap-8 p-4 pt-2 sm:gap-12 sm:p-6 md:grid-cols-2 md:gap-8 lg:p-12 2xl:max-w-6xl">
+      <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">Basic</div>
+        <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
           <app-context-menu>
             <div
               appContextMenuTrigger
-              class="flex h-24 w-full items-center justify-center rounded-lg border text-sm">
+              class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
             <app-context-menu-content>
@@ -68,18 +72,15 @@ import { DialogComponent } from '../shared/ui/dialog';
         </div>
       </section>
 
-      <section class="xl:col-span-2">
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">With Sides</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
+      <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Sides</div>
+        <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
           <div
-            class="grid gap-6"
-            style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+            class="grid grid-cols-2 gap-6">
             <app-context-menu>
               <div
                 appContextMenuTrigger
-                class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+                class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
                 Right click (top)
               </div>
               <app-context-menu-content side="top">
@@ -94,7 +95,7 @@ import { DialogComponent } from '../shared/ui/dialog';
             <app-context-menu>
               <div
                 appContextMenuTrigger
-                class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+                class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
                 Right click (right)
               </div>
               <app-context-menu-content side="right">
@@ -109,7 +110,7 @@ import { DialogComponent } from '../shared/ui/dialog';
             <app-context-menu>
               <div
                 appContextMenuTrigger
-                class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+                class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
                 Right click (bottom)
               </div>
               <app-context-menu-content side="bottom">
@@ -124,7 +125,7 @@ import { DialogComponent } from '../shared/ui/dialog';
             <app-context-menu>
               <div
                 appContextMenuTrigger
-                class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+                class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
                 Right click (left)
               </div>
               <app-context-menu-content side="left">
@@ -139,36 +140,34 @@ import { DialogComponent } from '../shared/ui/dialog';
         </div>
       </section>
 
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">With Icons</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
+      <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Icons</div>
+        <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
           <app-context-menu>
             <div
               appContextMenuTrigger
-              class="flex h-24 w-full items-center justify-center rounded-lg border text-sm">
+              class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
             <app-context-menu-content>
               <app-context-menu-group>
                 <app-context-menu-item>
-                  <span class="i-lucide-copy"></span>
+                  <lucide-icon [img]="copyIcon" class="size-4" />
                   Copy
                 </app-context-menu-item>
                 <app-context-menu-item>
-                  <span class="i-lucide-scissors"></span>
+                  <lucide-icon [img]="scissorsIcon" class="size-4" />
                   Cut
                 </app-context-menu-item>
                 <app-context-menu-item>
-                  <span class="i-lucide-clipboard"></span>
+                  <lucide-icon [img]="clipboardIcon" class="size-4" />
                   Paste
                 </app-context-menu-item>
               </app-context-menu-group>
               <app-context-menu-separator />
               <app-context-menu-group>
                 <app-context-menu-item variant="destructive">
-                  <span class="i-lucide-trash-2"></span>
+                  <lucide-icon [img]="trash2Icon" class="size-4" />
                   Delete
                 </app-context-menu-item>
               </app-context-menu-group>
@@ -177,15 +176,13 @@ import { DialogComponent } from '../shared/ui/dialog';
         </div>
       </section>
 
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">With Shortcuts</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
+      <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Shortcuts</div>
+        <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
           <app-context-menu>
             <div
               appContextMenuTrigger
-              class="flex h-24 w-full items-center justify-center rounded-lg border text-sm">
+              class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
             <app-context-menu-content>
@@ -219,15 +216,13 @@ import { DialogComponent } from '../shared/ui/dialog';
         </div>
       </section>
 
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">With Submenu</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
+      <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Submenu</div>
+        <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
           <app-context-menu>
             <div
               appContextMenuTrigger
-              class="flex h-24 w-full items-center justify-center rounded-lg border text-sm">
+              class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
             <app-context-menu-content>
@@ -266,17 +261,13 @@ import { DialogComponent } from '../shared/ui/dialog';
         </div>
       </section>
 
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">
-            With Groups, Labels & Separators
-          </h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
+      <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Groups, Labels & Separators</div>
+        <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
           <app-context-menu>
             <div
               appContextMenuTrigger
-              class="flex h-24 w-full items-center justify-center rounded-lg border text-sm">
+              class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
             <app-context-menu-content>
@@ -332,15 +323,13 @@ import { DialogComponent } from '../shared/ui/dialog';
         </div>
       </section>
 
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">With Checkboxes</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
+      <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Checkboxes</div>
+        <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
           <app-context-menu>
             <div
               appContextMenuTrigger
-              class="flex h-24 w-full items-center justify-center rounded-lg border text-sm">
+              class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
             <app-context-menu-content>
@@ -366,15 +355,13 @@ import { DialogComponent } from '../shared/ui/dialog';
         </div>
       </section>
 
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">With Radio Group</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
+      <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Radio Group</div>
+        <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
           <app-context-menu>
             <div
               appContextMenuTrigger
-              class="flex h-24 w-full items-center justify-center rounded-lg border text-sm">
+              class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
             <app-context-menu-content>
@@ -409,38 +396,34 @@ import { DialogComponent } from '../shared/ui/dialog';
         </div>
       </section>
 
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">
-            With Destructive Items
-          </h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
+      <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Destructive Items</div>
+        <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
           <app-context-menu>
             <div
               appContextMenuTrigger
-              class="flex h-24 w-full items-center justify-center rounded-lg border text-sm">
+              class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
             <app-context-menu-content>
               <app-context-menu-group>
                 <app-context-menu-item>
-                  <span class="i-lucide-pencil"></span>
+                  <lucide-icon [img]="pencilIcon" class="size-4" />
                   Edit
                 </app-context-menu-item>
                 <app-context-menu-item>
-                  <span class="i-lucide-share-2"></span>
+                  <lucide-icon [img]="share2Icon" class="size-4" />
                   Share
                 </app-context-menu-item>
               </app-context-menu-group>
               <app-context-menu-separator />
               <app-context-menu-group>
                 <app-context-menu-item>
-                  <span class="i-lucide-archive"></span>
+                  <lucide-icon [img]="archiveIcon" class="size-4" />
                   Archive
                 </app-context-menu-item>
                 <app-context-menu-item variant="destructive">
-                  <span class="i-lucide-trash-2"></span>
+                  <lucide-icon [img]="trash2Icon" class="size-4" />
                   Delete
                 </app-context-menu-item>
               </app-context-menu-group>
@@ -449,11 +432,9 @@ import { DialogComponent } from '../shared/ui/dialog';
         </div>
       </section>
 
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">In Dialog</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
+      <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">In Dialog</div>
+        <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
           <button
             type="button"
             class="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-xs hover:bg-accent hover:text-accent-foreground"
@@ -462,31 +443,32 @@ import { DialogComponent } from '../shared/ui/dialog';
           </button>
 
           <div argus-dialog [(open)]="dialogOpen">
-            <div class="grid gap-2">
-              <h3 class="text-lg font-semibold">Context Menu Example</h3>
-              <p class="text-sm text-muted-foreground">
-                Right click on the area below to see the context menu.
-              </p>
-            </div>
+            <div argus-dialog-content>
+              <div argus-dialog-header>
+                <h3 argus-dialog-title>Context Menu Example</h3>
+                <p argus-dialog-description>
+                  Right click on the area below to see the context menu.
+                </p>
+              </div>
 
             <app-context-menu>
               <div
                 appContextMenuTrigger
-                class="mt-4 flex h-20 w-full items-center justify-center rounded-lg border text-sm">
+                class="cn-context-menu-trigger mt-4 select-none flex h-20 w-full items-center justify-center rounded-lg border text-sm">
                 Right click here
               </div>
               <app-context-menu-content>
                 <app-context-menu-group>
                   <app-context-menu-item>
-                    <span class="i-lucide-copy"></span>
+                    <lucide-icon [img]="copyIcon" class="size-4" />
                     Copy
                   </app-context-menu-item>
                   <app-context-menu-item>
-                    <span class="i-lucide-scissors"></span>
+                    <lucide-icon [img]="scissorsIcon" class="size-4" />
                     Cut
                   </app-context-menu-item>
                   <app-context-menu-item>
-                    <span class="i-lucide-clipboard"></span>
+                    <lucide-icon [img]="clipboardIcon" class="size-4" />
                     Paste
                   </app-context-menu-item>
                 </app-context-menu-group>
@@ -508,36 +490,35 @@ import { DialogComponent } from '../shared/ui/dialog';
                 <app-context-menu-separator />
                 <app-context-menu-group>
                   <app-context-menu-item variant="destructive">
-                    <span class="i-lucide-trash-2"></span>
+                    <lucide-icon [img]="trash2Icon" class="size-4" />
                     Delete
                   </app-context-menu-item>
                 </app-context-menu-group>
               </app-context-menu-content>
             </app-context-menu>
+            </div>
           </div>
         </div>
       </section>
 
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">With Inset</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
+      <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Inset</div>
+        <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
           <app-context-menu>
             <div
               appContextMenuTrigger
-              class="flex h-24 w-full items-center justify-center rounded-lg border text-sm">
+              class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
             <app-context-menu-content class="w-44">
               <app-context-menu-group>
                 <app-context-menu-label>Actions</app-context-menu-label>
                 <app-context-menu-item>
-                  <span class="i-lucide-copy"></span>
+                  <lucide-icon [img]="copyIcon" class="size-4" />
                   Copy
                 </app-context-menu-item>
                 <app-context-menu-item>
-                  <span class="i-lucide-scissors"></span>
+                  <lucide-icon [img]="scissorsIcon" class="size-4" />
                   Cut
                 </app-context-menu-item>
                 <app-context-menu-item [inset]="true">Paste</app-context-menu-item>
@@ -594,6 +575,15 @@ import { DialogComponent } from '../shared/ui/dialog';
   `,
 })
 export class ContextMenuPreviewComponent {
+  protected readonly squareIcon = SquareIcon;
+  protected readonly copyIcon = CopyIcon;
+  protected readonly scissorsIcon = ScissorsIcon;
+  protected readonly clipboardIcon = ClipboardIcon;
+  protected readonly trash2Icon = Trash2Icon;
+  protected readonly pencilIcon = PencilIcon;
+  protected readonly share2Icon = Share2Icon;
+  protected readonly archiveIcon = ArchiveIcon;
+
   readonly dialogOpen = signal(false);
 
   readonly showBookmarksBar = signal(true);
