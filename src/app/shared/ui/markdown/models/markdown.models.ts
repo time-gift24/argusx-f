@@ -1,3 +1,5 @@
+import type { PluggableList } from 'unified';
+
 export type RenderNodeKind = 'text' | 'element' | 'root';
 
 export interface RenderTextNode {
@@ -26,11 +28,11 @@ export interface RenderBlock {
 }
 
 export interface RenderOptions {
-  mode: 'streaming' | 'static';
-  parseIncompleteMarkdown: boolean;
+  mode?: 'streaming' | 'static';
+  parseIncompleteMarkdown?: boolean;
   remendOptions?: RemendOptions;
-  remarkPlugins?: unknown[];
-  rehypePlugins?: unknown[];
+  remarkPlugins?: PluggableList;
+  rehypePlugins?: PluggableList;
 }
 
 export interface RemendOptions {
