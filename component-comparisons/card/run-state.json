@@ -1,0 +1,11 @@
+{
+  "component": "card",
+  "baseline_url": "https://ui.shadcn.com/preview/radix/card-example?item=card-example&style=mira&theme=cyan&font=nunito-sans&menuAccent=bold&radius=medium&template=vite",
+  "visual_threshold": 0.05,
+  "max_iterations": 10,
+  "iteration": 9,
+  "worktree_path": ".worktrees/card-comparison",
+  "branch": "codex/card-quality-compare",
+  "status": "success",
+  "notes": "Visual and interaction checks passed."
+}
