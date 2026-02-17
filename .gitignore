@@ -67,3 +67,7 @@ lerna-debug.log*
 docs
 .serena
 .worktrees
+
+# Python cache
+__pycache__/
+*.pyc
