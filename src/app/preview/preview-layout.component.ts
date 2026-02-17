@@ -15,7 +15,7 @@ import { distinctUntilChanged, filter, map } from 'rxjs';
 const PREVIEW_ITEMS = [
   { id: 'button', label: 'Button', manuallyReviewed: true },
   { id: 'input', label: 'Input', manuallyReviewed: true },
-  { id: 'card', label: 'Card' },
+{ id: 'card', label: 'Card', manuallyReviewed: true },
   { id: 'context-menu', label: 'Context Menu', manuallyReviewed: true },
   { id: 'calendar', label: 'Calendar', manuallyReviewed: true },
   { id: 'accordion', label: 'Accordion', manuallyReviewed: true },
