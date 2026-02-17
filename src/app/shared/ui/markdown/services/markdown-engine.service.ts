@@ -141,7 +141,7 @@ export class MarkdownEngineService {
         ? this.parser.parseBlocks(preprocessedMarkdown)
         : [preprocessedMarkdown];
 
-    const blocks = rawBlocks.filter((block) => block.length > 0);
+    const blocks = rawBlocks.filter((block) => block.trim().length > 0);
     if (blocks.length === 0) {
       return [];
     }

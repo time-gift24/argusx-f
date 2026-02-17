@@ -1,6 +1,8 @@
 import {
+  afterEveryRender,
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   ViewEncapsulation,
   computed,
   inject,
@@ -15,6 +17,8 @@ import type {
 } from './models/markdown.models';
 import { MarkdownNodeComponent } from './components/markdown-node.component';
 import { MarkdownEngineService } from './services/markdown-engine.service';
+
+type AutoScrollTarget = 'nearest' | 'self';
 
 @Component({
   selector: 'sd-markdown',
@@ -38,6 +42,10 @@ import { MarkdownEngineService } from './services/markdown-engine.service';
 })
 export class SdMarkdownComponent {
   private readonly engine = inject(MarkdownEngineService);
+  private readonly hostElement = inject(ElementRef<HTMLElement>);
+  private cachedScrollContainer: HTMLElement | null = null;
+  private previousContentLength = 0;
+  private previousAutoScrollTarget: AutoScrollTarget | null = null;
 
   readonly content = input<string>('');
   readonly mode = input<StreamMode>('streaming');
@@ -54,6 +62,9 @@ export class SdMarkdownComponent {
   readonly allowedTags = input<AllowedTags | undefined>(undefined);
   readonly remarkPlugins = input<PluggableList | undefined>(undefined);
   readonly rehypePlugins = input<PluggableList | undefined>(undefined);
+  readonly autoScroll = input(false);
+  readonly autoScrollBehavior = input<ScrollBehavior>('auto');
+  readonly autoScrollTarget = input<AutoScrollTarget>('nearest');
 
   readonly blocks = computed(() =>
     this.engine.renderBlocks(this.content(), {
@@ -75,4 +86,92 @@ export class SdMarkdownComponent {
     const customClass = this.className().trim();
     return customClass ? `sd-root ${customClass}` : 'sd-root';
   });
+
+  constructor() {
+    afterEveryRender({
+      write: () => {
+        this.handleAutoScrollAfterRender();
+      },
+    });
+  }
+
+  private handleAutoScrollAfterRender(): void {
+    const target = this.autoScrollTarget();
+    if (this.previousAutoScrollTarget !== target) {
+      this.cachedScrollContainer = null;
+      this.previousAutoScrollTarget = target;
+    }
+
+    const contentLength = this.content().length;
+    const hasNewContent = contentLength > this.previousContentLength;
+    this.previousContentLength = contentLength;
+
+    if (
+      !this.autoScroll() ||
+      this.mode() !== 'streaming' ||
+      contentLength === 0 ||
+      !hasNewContent
+    ) {
+      return;
+    }
+
+    this.scrollToBottom();
+  }
+
+  private scrollToBottom(): void {
+    const scrollContainer = this.resolveScrollContainer();
+    if (!scrollContainer) {
+      return;
+    }
+
+    const behavior = this.autoScrollBehavior();
+    if (typeof scrollContainer.scrollTo === 'function') {
+      scrollContainer.scrollTo({
+        top: scrollContainer.scrollHeight,
+        behavior,
+      });
+      return;
+    }
+
+    scrollContainer.scrollTop = scrollContainer.scrollHeight;
+  }
+
+  private resolveScrollContainer(): HTMLElement | null {
+    const host = this.hostElement.nativeElement;
+    if (this.autoScrollTarget() === 'self') {
+      return host;
+    }
+
+    if (this.cachedScrollContainer?.isConnected) {
+      return this.cachedScrollContainer;
+    }
+
+    let current: HTMLElement | null = host.parentElement;
+    while (current) {
+      if (this.isScrollable(current)) {
+        this.cachedScrollContainer = current;
+        return current;
+      }
+      current = current.parentElement;
+    }
+
+    return host;
+  }
+
+  private isScrollable(element: HTMLElement): boolean {
+    if (typeof getComputedStyle !== 'function') {
+      return false;
+    }
+
+    const style = getComputedStyle(element);
+    return (
+      this.isScrollableOverflow(style.overflowY) ||
+      this.isScrollableOverflow(style.overflow)
+    );
+  }
+
+  private isScrollableOverflow(value: string): boolean {
+    const normalized = value.toLowerCase().trim();
+    return normalized === 'auto' || normalized === 'scroll' || normalized === 'overlay';
+  }
 }

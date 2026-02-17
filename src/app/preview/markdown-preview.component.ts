@@ -1,13 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  computed,
+  inject,
   signal,
 } from '@angular/core';
+import { ButtonComponent } from '@app/shared/ui/button';
 import { SdMarkdownComponent } from '../shared/ui/markdown/markdown.component';
 
 @Component({
   selector: 'app-markdown-preview',
-  imports: [SdMarkdownComponent],
+  imports: [ButtonComponent, SdMarkdownComponent],
   template: `
     <div class="mx-auto max-w-6xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Markdown</h1>
@@ -15,7 +19,6 @@ import { SdMarkdownComponent } from '../shared/ui/markdown/markdown.component';
         Renders markdown content with support for streaming and static modes.
       </p>
 
-      <!-- Mode Toggle -->
       <div class="mb-6">
         <h2 class="mb-3 text-sm font-medium text-muted-foreground">Mode</h2>
         <div class="flex gap-4">
@@ -38,7 +41,6 @@ import { SdMarkdownComponent } from '../shared/ui/markdown/markdown.component';
         </div>
       </div>
 
-      <!-- Demo Content Selector -->
       <div class="mb-6">
         <h2 class="mb-3 text-sm font-medium text-muted-foreground">Demo Content</h2>
         <div class="flex flex-wrap gap-2">
@@ -54,27 +56,88 @@ import { SdMarkdownComponent } from '../shared/ui/markdown/markdown.component';
           <button argus-button variant="outline" (click)="loadDemo('mermaid')">
             Mermaid
           </button>
-          <button argus-button variant="outline" (click)="loadDemo('streaming')">
-            Streaming
-          </button>
         </div>
       </div>
 
-      <!-- Markdown Input -->
-      <div class="mb-6">
-        <h2 class="mb-3 text-sm font-medium text-muted-foreground">Input</h2>
-        <textarea
-          [value]="content()"
-          (input)="content.set($any($event.target).value)"
-          class="w-full h-48 p-4 border rounded-lg font-mono text-sm bg-background"
-          placeholder="Enter markdown..."></textarea>
+      <div class="mb-6 rounded-lg border p-4">
+        <h2 class="mb-2 text-sm font-medium text-muted-foreground">Real Streaming</h2>
+        <p class="mb-4 text-sm text-muted-foreground">
+          Simulate token-by-token updates to preview the real streaming rendering process.
+        </p>
+
+        <div class="flex flex-wrap gap-2">
+          <button argus-button (click)="startLiveStreaming()">
+            Start Streaming
+          </button>
+
+          @if (isStreaming()) {
+            <button argus-button variant="outline" (click)="pauseStreaming()">
+              Pause
+            </button>
+          } @else if (hasPendingChunks()) {
+            <button argus-button variant="outline" (click)="resumeStreaming()">
+              Resume
+            </button>
+          }
+
+          <button
+            argus-button
+            variant="outline"
+            [disabled]="!isStreaming() && !hasPendingChunks()"
+            (click)="stopStreaming()">
+            Stop
+          </button>
+
+          <button argus-button variant="ghost" (click)="showFullStreamingResult()">
+            Show Full Result
+          </button>
+        </div>
+
+        <p class="mt-3 text-xs text-muted-foreground">
+          Status: {{ streamingStatus() }} · {{ streamProgress() }}%
+        </p>
+
+        <div class="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+          <label class="flex items-center gap-2">
+            <input
+              type="checkbox"
+              [checked]="autoScroll()"
+              (change)="autoScroll.set($any($event.target).checked)" />
+            Auto scroll to bottom
+          </label>
+
+          <label class="flex items-center gap-2">
+            Behavior
+            <select
+              class="rounded border bg-background px-2 py-1 text-xs"
+              [value]="autoScrollBehavior()"
+              (change)="autoScrollBehavior.set($any($event.target).value)">
+              <option value="auto">Instant</option>
+              <option value="smooth">Smooth</option>
+            </select>
+          </label>
+        </div>
       </div>
 
-      <!-- Rendered Output -->
-      <div>
-        <h2 class="mb-3 text-sm font-medium text-muted-foreground">Output</h2>
-        <div class="border rounded-lg p-6 min-h-[200px] bg-background">
-          <sd-markdown [content]="content()" [mode]="mode()" />
+      <div class="grid gap-6 lg:grid-cols-2">
+        <div>
+          <h2 class="mb-3 text-sm font-medium text-muted-foreground">Input</h2>
+          <textarea
+            [value]="content()"
+            (input)="onContentInput($any($event.target).value)"
+            class="h-[480px] w-full rounded-lg border bg-background p-4 font-mono text-sm"
+            placeholder="Enter markdown..."></textarea>
+        </div>
+
+        <div>
+          <h2 class="mb-3 text-sm font-medium text-muted-foreground">Output</h2>
+          <div class="h-[480px] overflow-auto rounded-lg border bg-background p-6">
+            <sd-markdown
+              [content]="content()"
+              [mode]="mode()"
+              [autoScroll]="autoScroll()"
+              [autoScrollBehavior]="autoScrollBehavior()" />
+          </div>
         </div>
       </div>
     </div>
@@ -82,14 +145,174 @@ import { SdMarkdownComponent } from '../shared/ui/markdown/markdown.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MarkdownPreviewComponent {
-  mode = signal<'streaming' | 'static'>('streaming');
-  content = signal<string>(DEMOS.basic);
+  private readonly destroyRef = inject(DestroyRef);
+  private streamTimer: ReturnType<typeof setTimeout> | null = null;
+  private streamSource = STREAMING_RESPONSE;
 
-  loadDemo(name: string) {
-    const demo = DEMOS[name as keyof typeof DEMOS];
-    if (demo) {
-      this.content.set(demo);
+  readonly mode = signal<'streaming' | 'static'>('streaming');
+  readonly content = signal<string>(DEMOS.basic);
+  readonly autoScroll = signal(true);
+  readonly autoScrollBehavior = signal<ScrollBehavior>('auto');
+
+  readonly isStreaming = signal(false);
+  readonly streamFinished = signal(false);
+  readonly streamCursor = signal(0);
+  readonly streamTotal = signal(0);
+
+  readonly hasPendingChunks = computed(
+    () => this.streamCursor() > 0 && this.streamCursor() < this.streamTotal()
+  );
+
+  readonly streamProgress = computed(() => {
+    if (this.streamTotal() === 0) {
+      return 0;
     }
+
+    return Math.floor((this.streamCursor() / this.streamTotal()) * 100);
+  });
+
+  readonly streamingStatus = computed(() => {
+    if (this.isStreaming()) {
+      return 'Streaming';
+    }
+
+    if (this.streamFinished()) {
+      return 'Completed';
+    }
+
+    if (this.hasPendingChunks()) {
+      return 'Paused';
+    }
+
+    return 'Idle';
+  });
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.clearStreamTimer();
+    });
+  }
+
+  loadDemo(name: keyof typeof DEMOS) {
+    const demo = DEMOS[name];
+    if (!demo) {
+      return;
+    }
+
+    this.clearStreamTimer();
+    this.isStreaming.set(false);
+    this.streamFinished.set(false);
+    this.streamCursor.set(0);
+    this.streamTotal.set(0);
+    this.content.set(demo);
+  }
+
+  startLiveStreaming() {
+    this.clearStreamTimer();
+
+    this.streamSource = STREAMING_RESPONSE;
+    this.mode.set('streaming');
+    this.content.set('');
+    this.streamCursor.set(0);
+    this.streamTotal.set(this.streamSource.length);
+    this.streamFinished.set(false);
+    this.isStreaming.set(true);
+
+    this.pushNextChunk();
+  }
+
+  pauseStreaming() {
+    if (!this.isStreaming()) {
+      return;
+    }
+
+    this.clearStreamTimer();
+    this.isStreaming.set(false);
+  }
+
+  resumeStreaming() {
+    if (this.isStreaming() || !this.hasPendingChunks()) {
+      return;
+    }
+
+    this.mode.set('streaming');
+    this.isStreaming.set(true);
+    this.pushNextChunk();
+  }
+
+  stopStreaming() {
+    this.clearStreamTimer();
+    this.isStreaming.set(false);
+  }
+
+  showFullStreamingResult() {
+    this.clearStreamTimer();
+
+    this.mode.set('streaming');
+    this.content.set(STREAMING_RESPONSE);
+    this.streamCursor.set(STREAMING_RESPONSE.length);
+    this.streamTotal.set(STREAMING_RESPONSE.length);
+    this.streamFinished.set(true);
+    this.isStreaming.set(false);
+  }
+
+  onContentInput(nextValue: string) {
+    this.stopStreaming();
+    this.streamFinished.set(false);
+    this.streamCursor.set(0);
+    this.streamTotal.set(0);
+    this.content.set(nextValue);
+  }
+
+  private pushNextChunk() {
+    if (!this.isStreaming()) {
+      return;
+    }
+
+    const cursor = this.streamCursor();
+    const total = this.streamTotal();
+    if (cursor >= total) {
+      this.finishStreaming();
+      return;
+    }
+
+    const chunkSize = Math.min(total - cursor, this.nextChunkSize());
+    const nextCursor = cursor + chunkSize;
+    const chunk = this.streamSource.slice(cursor, nextCursor);
+
+    this.content.update((current) => current + chunk);
+    this.streamCursor.set(nextCursor);
+
+    if (nextCursor >= total) {
+      this.finishStreaming();
+      return;
+    }
+
+    this.streamTimer = setTimeout(() => {
+      this.pushNextChunk();
+    }, this.nextDelayMs());
+  }
+
+  private finishStreaming() {
+    this.clearStreamTimer();
+    this.isStreaming.set(false);
+    this.streamFinished.set(true);
+    this.streamCursor.set(this.streamTotal());
+  }
+
+  private clearStreamTimer() {
+    if (this.streamTimer !== null) {
+      clearTimeout(this.streamTimer);
+      this.streamTimer = null;
+    }
+  }
+
+  private nextChunkSize(): number {
+    return 2 + Math.floor(Math.random() * 10);
+  }
+
+  private nextDelayMs(): number {
+    return 35 + Math.floor(Math.random() * 90);
   }
 }
 
@@ -178,9 +401,27 @@ sequenceDiagram
     Bob-->>Alice: Hi Alice!
 \`\`\`
 `,
-  streaming: `# Streaming Demo
-
-This simulates streaming content as it arrives from an AI response.
-
-Hello! I'm generating res`,
 };
+
+const STREAMING_RESPONSE = `# Streaming Demo (Live)
+
+This section is produced chunk by chunk, just like an actual LLM streaming response.
+
+## Partial Plan
+
+1. Read the request and identify constraints.
+2. Propose a practical implementation path.
+3. Execute incrementally and verify each step.
+
+## Example Output
+
+\`\`\`ts
+export async function streamAnswer(push: (chunk: string) => void) {
+  for (const chunk of ['hello', ' ', 'streaming', '!']) {
+    push(chunk);
+    await new Promise((resolve) => setTimeout(resolve, 80));
+  }
+}
+\`\`\`
+
+The final sentence arrives at the end, confirming the response is complete.`;
