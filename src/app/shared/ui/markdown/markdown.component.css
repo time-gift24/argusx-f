@@ -143,3 +143,57 @@ sd-markdown {
   border: none;
   border-top: 1px solid color-mix(in oklab, currentColor 20%, transparent);
 }
+
+.sd-root sd-code-block code[class*='language-'] {
+  color: var(--foreground);
+  background: transparent;
+  text-shadow: none;
+}
+
+.sd-root sd-code-block .token.comment {
+  color: color-mix(in oklab, var(--foreground) 45%, transparent);
+}
+
+.sd-root sd-code-block .token.punctuation {
+  color: color-mix(in oklab, var(--foreground) 70%, transparent);
+}
+
+.sd-root sd-code-block .token.boolean,
+.sd-root sd-code-block .token.number {
+  color: oklch(0.58 0.17 275);
+}
+
+.sd-root sd-code-block .token.string,
+.sd-root sd-code-block .token.char,
+.sd-root sd-code-block .token.attr-value {
+  color: oklch(0.58 0.15 155);
+}
+
+.sd-root sd-code-block .token.function,
+.sd-root sd-code-block .token.class-name {
+  color: oklch(0.62 0.14 230);
+}
+
+.sd-root sd-code-block .token.keyword {
+  color: oklch(0.56 0.19 260);
+}
+
+.dark .sd-root sd-code-block .token.boolean,
+.dark .sd-root sd-code-block .token.number {
+  color: oklch(0.78 0.14 290);
+}
+
+.dark .sd-root sd-code-block .token.string,
+.dark .sd-root sd-code-block .token.char,
+.dark .sd-root sd-code-block .token.attr-value {
+  color: oklch(0.8 0.13 160);
+}
+
+.dark .sd-root sd-code-block .token.function,
+.dark .sd-root sd-code-block .token.class-name {
+  color: oklch(0.82 0.11 235);
+}
+
+.dark .sd-root sd-code-block .token.keyword {
+  color: oklch(0.8 0.16 275);
+}
