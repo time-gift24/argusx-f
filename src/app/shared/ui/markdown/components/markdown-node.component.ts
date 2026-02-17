@@ -5,7 +5,12 @@ import {
   forwardRef,
   input,
 } from '@angular/core';
-import type { RenderNode, RenderElementNode, RenderTextNode, RenderRootNode } from '../models/markdown.models';
+import type {
+  RenderElementNode,
+  RenderNode,
+  RenderRootNode,
+  RenderTextNode,
+} from '../models/markdown.models';
 import { CodeBlockComponent } from './code-block.component';
 import { MermaidComponent } from './mermaid.component';
 
@@ -19,172 +24,227 @@ import { MermaidComponent } from './mermaid.component';
       }
       @case ('root') {
         @for (child of children(); track $index) {
-          <sd-markdown-node [node]="child" />
+          <sd-markdown-node [node]="child"></sd-markdown-node>
         }
       }
       @case ('element') {
         @switch (tagName()) {
           @case ('p') {
-            <p [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <p [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </p>
           }
-          @case ('h1') { <h1 [class]="className()">{{ elementTextContent() }}</h1> }
-          @case ('h2') { <h2 [class]="className()">{{ elementTextContent() }}</h2> }
-          @case ('h3') { <h3 [class]="className()">{{ elementTextContent() }}</h3> }
-          @case ('h4') { <h4 [class]="className()">{{ elementTextContent() }}</h4> }
-          @case ('h5') { <h5 [class]="className()">{{ elementTextContent() }}</h5> }
-          @case ('h6') { <h6 [class]="className()">{{ elementTextContent() }}</h6> }
+          @case ('h1') {
+            <h1 [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
+              }
+            </h1>
+          }
+          @case ('h2') {
+            <h2 [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
+              }
+            </h2>
+          }
+          @case ('h3') {
+            <h3 [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
+              }
+            </h3>
+          }
+          @case ('h4') {
+            <h4 [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
+              }
+            </h4>
+          }
+          @case ('h5') {
+            <h5 [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
+              }
+            </h5>
+          }
+          @case ('h6') {
+            <h6 [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
+              }
+            </h6>
+          }
           @case ('ul') {
-            <ul [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <ul [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </ul>
           }
           @case ('ol') {
-            <ol [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <ol [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </ol>
           }
           @case ('li') {
-            <li [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <li [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </li>
           }
           @case ('blockquote') {
-            <blockquote [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <blockquote [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </blockquote>
           }
           @case ('a') {
-            <a [href]="attr('href')" [class]="className()" target="_blank" rel="noopener noreferrer">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <a
+              [attr.aria-disabled]="isIncompleteLink() ? 'true' : null"
+              [attr.href]="linkHref()"
+              [attr.rel]="linkRel()"
+              [attr.style]="styleText()"
+              [attr.target]="linkTarget()"
+              [class]="className()"
+            >
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </a>
           }
           @case ('img') {
-            <img [src]="attr('src')" [alt]="attr('alt')" [class]="className()" />
+            <img
+              [attr.alt]="imgAlt()"
+              [attr.height]="attr('height')"
+              [attr.src]="attr('src')"
+              [attr.style]="styleText()"
+              [attr.title]="attr('title')"
+              [attr.width]="attr('width')"
+              [class]="className()"
+            />
           }
           @case ('pre') {
-            @if (isMermaidBlock()) {
-              <sd-mermaid [chart]="elementTextContent()" />
-            } @else if (isCodeBlock()) {
-              <sd-code-block [code]="elementTextContent()" [language]="codeLanguage()" />
+            @if (codeChild() && preCodeLanguage() === 'mermaid') {
+              <sd-mermaid [chart]="preCodeText()"></sd-mermaid>
+            } @else if (codeChild() && preCodeLanguage()) {
+              <sd-code-block
+                [code]="preCodeText()"
+                [language]="preCodeLanguage()"
+              ></sd-code-block>
             } @else {
-              <pre [class]="className()">
-                @for (child of elementChildren(); track $index) {
-                  <sd-markdown-node [node]="child" />
+              <pre [attr.style]="styleText()" [class]="className()">
+                @for (child of children(); track $index) {
+                  <sd-markdown-node [node]="child"></sd-markdown-node>
                 }
               </pre>
             }
           }
           @case ('code') {
-            @if (isInlineCode()) {
-              <code [class]="className()">{{ elementTextContent() }}</code>
-            } @else {
-              <code [class]="className()">{{ elementTextContent() }}</code>
-            }
-          }
-          @case ('strong') {
-            <strong [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <code [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
-            </strong>
-          }
-          @case ('em') {
-            <em [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
-              }
-            </em>
+            </code>
           }
           @case ('table') {
-            <table [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <table [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </table>
           }
           @case ('thead') {
-            <thead [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <thead [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </thead>
           }
           @case ('tbody') {
-            <tbody [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <tbody [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </tbody>
           }
           @case ('tr') {
-            <tr [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <tr [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </tr>
           }
           @case ('th') {
-            <th [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <th [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </th>
           }
           @case ('td') {
-            <td [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <td [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </td>
           }
-          @case ('hr') { <hr [class]="className()" /> }
-          @case ('br') { <br /> }
-          @case ('del') {
-            <del [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+          @case ('strong') {
+            <strong [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
-            </del>
+            </strong>
+          }
+          @case ('em') {
+            <em [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
+              }
+            </em>
           }
           @case ('sup') {
-            <sup [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <sup [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </sup>
           }
           @case ('sub') {
-            <sub [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <sub [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </sub>
           }
           @case ('section') {
-            <section [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <section [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </section>
           }
+          @case ('hr') {
+            <hr [attr.style]="styleText()" [class]="className()" />
+          }
+          @case ('br') {
+            <br />
+          }
           @default {
-            <span [class]="className()">
-              @for (child of elementChildren(); track $index) {
-                <sd-markdown-node [node]="child" />
+            <span
+              [attr.data-tag]="tagName()"
+              [attr.style]="styleText()"
+              [class]="className()"
+            >
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child"></sd-markdown-node>
               }
             </span>
           }
@@ -198,67 +258,175 @@ export class MarkdownNodeComponent {
   readonly node = input.required<RenderNode>();
 
   readonly elementNode = computed<RenderElementNode | null>(() => {
-    const n = this.node();
-    return n.kind === 'element' ? (n as RenderElementNode) : null;
+    const currentNode = this.node();
+    return currentNode.kind === 'element' ? currentNode : null;
+  });
+
+  readonly textValue = computed(() => {
+    const currentNode = this.node();
+    return currentNode.kind === 'text' ? currentNode.value : '';
+  });
+
+  readonly children = computed(() => {
+    const currentNode = this.node();
+    return currentNode.kind === 'text' ? [] : currentNode.children;
   });
 
   readonly tagName = computed(() => this.elementNode()?.tagName ?? '');
 
   readonly className = computed(() => {
-    const props = this.elementNode()?.properties;
-    if (!props) return null;
-    return (props['className'] as string) ?? (props['class'] as string) ?? null;
+    const properties = this.elementNode()?.properties;
+    if (!properties) {
+      return null;
+    }
+
+    return (
+      this.stringifyAttribute(properties['className']) ??
+      this.stringifyAttribute(properties['class']) ??
+      null
+    );
   });
 
-  readonly children = computed<RenderNode[]>(() => {
-    const n = this.node();
-    if (n.kind === 'text') return [];
-    return (n as RenderRootNode).children;
+  readonly styleText = computed(() => {
+    const properties = this.elementNode()?.properties;
+    if (!properties) {
+      return null;
+    }
+
+    return this.toStyleText(properties['style']);
   });
 
-  readonly elementChildren = computed<RenderNode[]>(() => {
-    const n = this.node();
-    if (n.kind !== 'element') return [];
-    return (n as RenderElementNode).children;
+  readonly codeChild = computed<RenderElementNode | null>(() => {
+    if (this.tagName() !== 'pre') {
+      return null;
+    }
+
+    const firstCode = this.children().find(
+      (child): child is RenderElementNode =>
+        child.kind === 'element' && child.tagName === 'code'
+    );
+
+    return firstCode ?? null;
   });
 
-  readonly textValue = computed(() => {
-    const n = this.node();
-    if (n.kind !== 'text') return '';
-    return (n as RenderTextNode).value;
-  });
+  readonly preCodeLanguage = computed(() => {
+    const codeNode = this.codeChild();
+    if (!codeNode) {
+      return '';
+    }
 
-  readonly elementTextContent = computed(() => {
-    const children = this.elementChildren();
-    return children
-      .filter((c): c is RenderTextNode => c.kind === 'text')
-      .map(c => c.value)
-      .join('');
-  });
+    const className =
+      this.stringifyAttribute(codeNode.properties['className']) ??
+      this.stringifyAttribute(codeNode.properties['class']) ??
+      '';
 
-  readonly codeLanguage = computed(() => {
-    const classStr = this.className() ?? '';
-    const match = classStr.match(/language-(\S+)/);
+    const match = className.match(/language-([^\s]+)/);
     return match ? match[1] : '';
   });
 
-  readonly isMermaidBlock = computed(() => {
-    return this.codeLanguage() === 'mermaid';
+  readonly preCodeText = computed(() => {
+    const codeNode = this.codeChild();
+    if (!codeNode) {
+      return '';
+    }
+
+    return this.collectText(codeNode.children);
   });
 
-  readonly isCodeBlock = computed(() => {
-    const classStr = this.className() ?? '';
-    return classStr.includes('language-') && !this.isMermaidBlock();
+  readonly isIncompleteLink = computed(() => {
+    if (this.tagName() !== 'a') {
+      return false;
+    }
+
+    return this.attr('href') === 'streamdown:incomplete-link';
   });
 
-  readonly isInlineCode = computed(() => {
-    const classStr = this.className() ?? '';
-    return !classStr.includes('language-');
+  readonly linkHref = computed(() =>
+    this.isIncompleteLink() ? null : this.attr('href')
+  );
+
+  readonly linkTarget = computed(() => {
+    if (this.isIncompleteLink()) {
+      return null;
+    }
+
+    return this.attr('target') ?? '_blank';
   });
+
+  readonly linkRel = computed(() => {
+    if (this.isIncompleteLink()) {
+      return null;
+    }
+
+    return this.attr('rel') ?? 'noreferrer noopener';
+  });
+
+  readonly imgAlt = computed(() => this.attr('alt') ?? '');
 
   attr(name: string): string | null {
-    const props = this.elementNode()?.properties;
-    if (!props) return null;
-    return props[name] as string ?? null;
+    const properties = this.elementNode()?.properties;
+    if (!properties) {
+      return null;
+    }
+
+    return this.stringifyAttribute(properties[name]);
+  }
+
+  private collectText(nodes: RenderNode[]): string {
+    let output = '';
+
+    for (const child of nodes) {
+      if (child.kind === 'text') {
+        output += child.value;
+        continue;
+      }
+
+      output += this.collectText(child.children);
+    }
+
+    return output;
+  }
+
+  private stringifyAttribute(value: unknown): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    if (typeof value === 'number' || typeof value === 'boolean') {
+      return String(value);
+    }
+
+    if (Array.isArray(value)) {
+      const rendered = value
+        .map((item) => this.stringifyAttribute(item))
+        .filter((item): item is string => item !== null && item.length > 0);
+
+      return rendered.length > 0 ? rendered.join(' ') : null;
+    }
+
+    return null;
+  }
+
+  private toStyleText(value: unknown): string | null {
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    if (!value || typeof value !== 'object') {
+      return null;
+    }
+
+    const styleEntries = Object.entries(value as Record<string, unknown>)
+      .map(([key, rawValue]) => {
+        const renderedValue = this.stringifyAttribute(rawValue);
+        return renderedValue ? `${key}:${renderedValue}` : null;
+      })
+      .filter((item): item is string => item !== null);
+
+    return styleEntries.length > 0 ? `${styleEntries.join(';')};` : null;
   }
 }

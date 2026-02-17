@@ -1,12 +1,20 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ViewEncapsulation,
   computed,
   inject,
   input,
 } from '@angular/core';
-import { MarkdownEngineService } from './services/markdown-engine.service';
+import type { PluggableList } from 'unified';
+import type {
+  AllowElement,
+  AllowedTags,
+  StreamMode,
+  UrlTransform,
+} from './models/markdown.models';
 import { MarkdownNodeComponent } from './components/markdown-node.component';
+import { MarkdownEngineService } from './services/markdown-engine.service';
 
 @Component({
   selector: 'sd-markdown',
@@ -14,7 +22,7 @@ import { MarkdownNodeComponent } from './components/markdown-node.component';
   template: `
     <section [class]="containerClass()" aria-live="polite" role="region">
       @if (blocks().length === 0) {
-        <span></span>
+        <p aria-hidden="true" class="sd-empty"></p>
       } @else {
         @for (block of blocks(); track block.id) {
           <article class="sd-block">
@@ -24,29 +32,47 @@ import { MarkdownNodeComponent } from './components/markdown-node.component';
       }
     </section>
   `,
-  styles: [`
-    :host { display: block; }
-    .sd-root { margin-top: 1rem; margin-bottom: 1rem; }
-    .sd-block { margin-top: 0; margin-bottom: 0; }
-  `],
+  styleUrl: './markdown.component.css',
+  encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SdMarkdownComponent {
-  private engine = inject(MarkdownEngineService);
+  private readonly engine = inject(MarkdownEngineService);
 
   readonly content = input<string>('');
-  readonly mode = input<'streaming' | 'static'>('streaming');
+  readonly mode = input<StreamMode>('streaming');
+  readonly parseIncompleteMarkdown = input(true);
+  readonly skipHtml = input(false);
+  readonly unwrapDisallowed = input(false);
   readonly className = input<string>('');
+
+  readonly allowedElements = input<readonly string[] | undefined>(undefined);
+  readonly disallowedElements = input<readonly string[] | undefined>(undefined);
+  readonly allowElement = input<AllowElement | undefined>(undefined);
+  readonly urlTransform = input<UrlTransform | undefined>(undefined);
+
+  readonly allowedTags = input<AllowedTags | undefined>(undefined);
+  readonly remarkPlugins = input<PluggableList | undefined>(undefined);
+  readonly rehypePlugins = input<PluggableList | undefined>(undefined);
 
   readonly blocks = computed(() =>
     this.engine.renderBlocks(this.content(), {
       mode: this.mode(),
-      parseIncompleteMarkdown: this.mode() === 'streaming',
+      parseIncompleteMarkdown: this.parseIncompleteMarkdown(),
+      skipHtml: this.skipHtml(),
+      unwrapDisallowed: this.unwrapDisallowed(),
+      allowedElements: this.allowedElements(),
+      disallowedElements: this.disallowedElements(),
+      allowElement: this.allowElement(),
+      urlTransform: this.urlTransform(),
+      allowedTags: this.allowedTags(),
+      remarkPlugins: this.remarkPlugins(),
+      rehypePlugins: this.rehypePlugins(),
     })
   );
 
   readonly containerClass = computed(() => {
-    const custom = this.className().trim();
-    return custom ? `sd-root ${custom}` : 'sd-root';
+    const customClass = this.className().trim();
+    return customClass ? `sd-root ${customClass}` : 'sd-root';
   });
 }

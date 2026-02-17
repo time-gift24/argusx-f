@@ -1,21 +1,38 @@
+import type { Element, Parents } from 'hast';
+import type { Options as RemarkRehypeOptions } from 'remark-rehype';
+import type { RemendOptions } from 'remend';
 import type { PluggableList } from 'unified';
 
-export type RenderNodeKind = 'text' | 'element' | 'root';
+export type StreamMode = 'streaming' | 'static';
+
+export type AllowElement = (
+  element: Readonly<Element>,
+  index: number,
+  parent: Readonly<Parents> | undefined
+) => boolean | null | undefined;
+
+export type UrlTransform = (
+  url: string,
+  key: string,
+  node: Readonly<Element>
+) => string | null | undefined;
+
+export type AllowedTags = Record<string, string[]>;
 
 export interface RenderTextNode {
-  kind: RenderNodeKind;
+  kind: 'text';
   value: string;
 }
 
 export interface RenderElementNode {
-  kind: RenderNodeKind;
+  kind: 'element';
   tagName: string;
   properties: Record<string, unknown>;
   children: RenderNode[];
 }
 
 export interface RenderRootNode {
-  kind: RenderNodeKind;
+  kind: 'root';
   children: RenderNode[];
 }
 
@@ -28,23 +45,17 @@ export interface RenderBlock {
 }
 
 export interface RenderOptions {
-  mode?: 'streaming' | 'static';
+  mode?: StreamMode;
   parseIncompleteMarkdown?: boolean;
   remendOptions?: RemendOptions;
   remarkPlugins?: PluggableList;
   rehypePlugins?: PluggableList;
-}
-
-export interface RemendOptions {
-  links?: boolean;
-  images?: boolean;
-  bold?: boolean;
-  italic?: boolean;
-  boldItalic?: boolean;
-  inlineCode?: boolean;
-  strikethrough?: boolean;
-  katex?: boolean;
-  setextHeadings?: boolean;
-  comparisonOperators?: boolean;
-  htmlTags?: boolean;
+  remarkRehypeOptions?: Readonly<RemarkRehypeOptions>;
+  allowedElements?: readonly string[];
+  disallowedElements?: readonly string[];
+  allowElement?: AllowElement;
+  skipHtml?: boolean;
+  unwrapDisallowed?: boolean;
+  urlTransform?: UrlTransform;
+  allowedTags?: AllowedTags;
 }
