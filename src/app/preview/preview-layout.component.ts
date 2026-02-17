@@ -9,21 +9,22 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { LucideAngularModule, UserCheck } from 'lucide-angular';
 import { distinctUntilChanged, filter, map } from 'rxjs';
 
 const PREVIEW_ITEMS = [
-  { id: 'button', label: 'Button' },
-  { id: 'input', label: 'Input' },
+  { id: 'button', label: 'Button', manuallyReviewed: true },
+  { id: 'input', label: 'Input', manuallyReviewed: true },
   { id: 'card', label: 'Card' },
   { id: 'context-menu', label: 'Context Menu' },
-  { id: 'calendar', label: 'Calendar' },
+  { id: 'calendar', label: 'Calendar', manuallyReviewed: true },
   { id: 'accordion', label: 'Accordion' },
-  { id: 'dialog', label: 'Dialog' },
+  { id: 'dialog', label: 'Dialog', manuallyReviewed: true },
   { id: 'aspect-ratio', label: 'Aspect Ratio' },
   { id: 'alert', label: 'Alert' },
   { id: 'avatar', label: 'Avatar' },
   { id: 'liquid-glass', label: 'Liquid Glass' },
-  { id: 'alert-dialog', label: 'Alert Dialog' },
+  { id: 'alert-dialog', label: 'Alert Dialog', manuallyReviewed: true },
   { id: 'badge', label: 'Badge' },
   { id: 'breadcrumb', label: 'Breadcrumb' },
   { id: 'button-group', label: 'Button Group' },
@@ -50,7 +51,7 @@ const PREVIEW_ITEMS = [
   { id: 'radio-group', label: 'Radio Group' },
   { id: 'resizable', label: 'Resizable' },
   { id: 'scroll-area', label: 'Scroll Area' },
-  { id: 'select', label: 'Select' },
+  { id: 'select', label: 'Select', manuallyReviewed: true },
   { id: 'separator', label: 'Separator' },
   { id: 'sheet', label: 'Sheet' },
   { id: 'skeleton', label: 'Skeleton' },
@@ -69,6 +70,7 @@ type PreviewItemId = (typeof PREVIEW_ITEMS)[number]['id'];
 type PreviewItem = {
   id: PreviewItemId;
   label: string;
+  manuallyReviewed?: boolean;
 };
 
 const PREVIEW_ITEM_IDS = new Set(PREVIEW_ITEMS.map((item) => item.id));
@@ -80,6 +82,7 @@ function isPreviewItemId(id: string | null): id is PreviewItemId {
 @Component({
   selector: 'app-preview-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LucideAngularModule],
   template: `
     <div class="flex h-screen w-screen overflow-hidden">
       <nav class="flex h-full min-h-0 w-56 shrink-0 flex-col border-r border-border bg-sidebar">
@@ -107,7 +110,17 @@ function isPreviewItemId(id: string | null): id is PreviewItemId {
                       : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                   }}"
                 >
-                  {{ item.label }}
+                  <span class="flex items-center justify-between gap-2">
+                    <span class="truncate">{{ item.label }}</span>
+                    @if (item.manuallyReviewed) {
+                      <lucide-icon
+                        [img]="manualReviewIcon"
+                        class="size-3.5 shrink-0 text-emerald-600"
+                        title="人工审核通过"
+                        aria-hidden="true"
+                      />
+                    }
+                  </span>
                 </button>
               </li>
             }
@@ -131,6 +144,7 @@ export class PreviewLayoutComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly iframeVersion = signal(Date.now());
 
+  readonly manualReviewIcon = UserCheck;
   readonly previewItems: readonly PreviewItem[] = PREVIEW_ITEMS;
   readonly currentPreview = signal<PreviewItemId>('button');
 
