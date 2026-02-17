@@ -56,7 +56,7 @@ let alertDialogIdCounter = 0;
     <div class="inline-flex">
       <!-- Trigger element -->
       <div cdkOverlayOrigin #trigger="cdkOverlayOrigin">
-        <ng-content select="[appAlertDialogTrigger]" />
+        <ng-content select="[appAlertDialogTrigger],[app-alert-dialog-trigger]" />
       </div>
 
       <!-- Dialog overlay and content via CDK Overlay -->
@@ -98,7 +98,7 @@ let alertDialogIdCounter = 0;
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AlertDialogComponent implements OnDestroy {
+export class AlertDialogComponent {
   readonly open = model<boolean>(false);
 
   readonly size = input<AlertDialogSize>('default');
@@ -123,7 +123,7 @@ export class AlertDialogComponent implements OnDestroy {
       'fixed inset-0 z-50 bg-black/80',
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      'duration-100',
+      'duration-200',
       'supports-backdrop-filter:backdrop-blur-xs'
     )
   );
@@ -131,7 +131,8 @@ export class AlertDialogComponent implements OnDestroy {
   protected readonly contentWrapperClass = computed(() =>
     cn(
       'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
-      'outline-none'
+      'outline-none',
+      this.class()
     )
   );
 
@@ -173,9 +174,6 @@ export class AlertDialogComponent implements OnDestroy {
     this.open.set(false);
   }
 
-  ngOnDestroy(): void {
-    // Cleanup if needed
-  }
 }
 
 // ============================================================================
@@ -187,7 +185,7 @@ export class AlertDialogComponent implements OnDestroy {
  * Opens the alert dialog when clicked
  */
 @Directive({
-  selector: '[appAlertDialogTrigger]',
+  selector: '[appAlertDialogTrigger],[app-alert-dialog-trigger]',
   host: {
     '[attr.data-slot]': '"alert-dialog-trigger"',
     '[attr.aria-haspopup]': '"dialog"',
@@ -212,7 +210,7 @@ export class AlertDialogTriggerDirective {
  * This component exists for API compatibility
  */
 @Directive({
-  selector: 'app-alert-dialog-portal',
+  selector: 'app-alert-dialog-portal,[app-alert-dialog-portal]',
   host: {
     '[attr.data-slot]': '"alert-dialog-portal"',
   },
@@ -230,7 +228,7 @@ export class AlertDialogPortalComponent {
  * The semi-transparent background behind the dialog
  */
 @Component({
-  selector: 'app-alert-dialog-overlay',
+  selector: 'app-alert-dialog-overlay,[app-alert-dialog-overlay]',
   imports: [CommonModule],
   template: '',
   host: {
@@ -248,7 +246,7 @@ export class AlertDialogOverlayComponent {
     cn(
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      'fixed inset-0 z-50 bg-black/80 duration-100',
+      'fixed inset-0 z-50 bg-black/80 duration-200',
       'supports-backdrop-filter:backdrop-blur-xs',
       this.class()
     )
@@ -260,7 +258,7 @@ export class AlertDialogOverlayComponent {
 // ============================================================================
 
 const alertDialogContentVariants = cva(
-  'bg-background ring-foreground/10 gap-3 rounded-xl p-4 ring-1 duration-100 outline-none',
+  'bg-background ring-foreground/10 gap-3 rounded-lg p-4 shadow-lg ring-1 duration-200 outline-none',
   {
     variants: {
       size: {
@@ -279,13 +277,13 @@ const alertDialogContentVariants = cva(
  * The main dialog panel
  */
 @Component({
-  selector: 'app-alert-dialog-content',
+  selector: 'app-alert-dialog-content,[app-alert-dialog-content]',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"alert-dialog-content"',
-    '[attr.data-size]': 'size()',
+    '[attr.data-size]': 'resolvedSize()',
     '[attr.data-state]': 'alertDialog.open() ? "open" : "closed"',
     'role': 'document',
   },
@@ -299,12 +297,16 @@ const alertDialogContentVariants = cva(
 })
 export class AlertDialogContentComponent {
   readonly alertDialog = inject(AlertDialogComponent);
-  readonly size = input<AlertDialogSize>('default');
+  readonly size = input<AlertDialogSize | null>(null);
   readonly class = input<string>('');
+
+  protected readonly resolvedSize = computed<AlertDialogSize>(
+    () => this.size() ?? this.alertDialog.size()
+  );
 
   protected readonly computedClass = computed(() =>
     cn(
-      alertDialogContentVariants({ size: this.size() }),
+      alertDialogContentVariants({ size: this.resolvedSize() }),
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -323,7 +325,7 @@ export class AlertDialogContentComponent {
  * Container for title, description, and optional media
  */
 @Component({
-  selector: 'app-alert-dialog-header',
+  selector: 'app-alert-dialog-header,[app-alert-dialog-header]',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -340,9 +342,8 @@ export class AlertDialogHeaderComponent {
       'grid grid-rows-[auto_1fr] place-items-center gap-1 text-center',
       'has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr]',
       'has-data-[slot=alert-dialog-media]:gap-x-4',
-      'sm:group-data-[size=default]/alert-dialog-content:place-items-start',
-      'sm:group-data-[size=default]/alert-dialog-content:text-left',
-      'sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]',
+      'sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left',
+      'sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-cols-[auto_1fr] sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]',
       this.class()
     )
   );
@@ -357,7 +358,7 @@ export class AlertDialogHeaderComponent {
  * Container for action buttons
  */
 @Component({
-  selector: 'app-alert-dialog-footer',
+  selector: 'app-alert-dialog-footer,[app-alert-dialog-footer]',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -374,7 +375,7 @@ export class AlertDialogFooterComponent {
       'flex flex-col-reverse gap-2',
       'group-data-[size=sm]/alert-dialog-content:grid',
       'group-data-[size=sm]/alert-dialog-content:grid-cols-2',
-      'sm:flex-row sm:justify-end',
+      'sm:flex-row sm:justify-end sm:space-x-2',
       this.class()
     )
   );
@@ -389,7 +390,7 @@ export class AlertDialogFooterComponent {
  * Container for icons or visual media
  */
 @Component({
-  selector: 'app-alert-dialog-media',
+  selector: 'app-alert-dialog-media,[app-alert-dialog-media]',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -403,8 +404,10 @@ export class AlertDialogMediaComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'bg-muted mb-2 inline-flex size-8 items-center justify-center rounded-md',
-      "sm:group-data-[size=default]/alert-dialog-content:row-span-2",
+      'bg-muted mb-1 inline-flex size-8 items-center justify-center rounded-md',
+      'text-foreground',
+      'sm:group-data-[size=default]/alert-dialog-content:row-span-2',
+      'sm:group-data-[size=default]/alert-dialog-content:mb-0',
       "*:[svg:not([class*='size-'])]:size-4",
       this.class()
     )
@@ -420,7 +423,7 @@ export class AlertDialogMediaComponent {
  * Required for accessibility - provides the dialog's accessible name
  */
 @Component({
-  selector: 'app-alert-dialog-title',
+  selector: 'app-alert-dialog-title,[app-alert-dialog-title]',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -437,7 +440,7 @@ export class AlertDialogTitleComponent implements OnInit, OnDestroy {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'text-sm font-medium',
+      'text-sm font-semibold',
       "sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
       this.class()
     )
@@ -461,7 +464,7 @@ export class AlertDialogTitleComponent implements OnInit, OnDestroy {
  * Provides additional context for the dialog
  */
 @Component({
-  selector: 'app-alert-dialog-description',
+  selector: 'app-alert-dialog-description,[app-alert-dialog-description]',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -479,7 +482,7 @@ export class AlertDialogDescriptionComponent implements OnInit, OnDestroy {
   protected readonly computedClass = computed(() =>
     cn(
       'text-muted-foreground *:[a]:hover:text-foreground',
-      'text-xs/relaxed text-balance md:text-pretty',
+      'text-xs/relaxed text-balance',
       '*:[a]:underline *:[a]:underline-offset-3',
       this.class()
     )
@@ -498,40 +501,19 @@ export class AlertDialogDescriptionComponent implements OnInit, OnDestroy {
 // Alert Dialog Action
 // ============================================================================
 
-const alertDialogActionVariants = cva(
-  "focus-visible:border-ring focus-visible:ring-ring/30 rounded-md border border-transparent bg-clip-padding text-xs/relaxed font-medium focus-visible:ring-2 [&_svg:not([class*='size-'])]:size-4 inline-flex items-center justify-center whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none shrink-0 [&_svg]:shrink-0 outline-none cursor-pointer",
-  {
-    variants: {
-      variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/80',
-        destructive: 'bg-destructive/10 hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/20 text-destructive focus-visible:border-destructive/40 dark:hover:bg-destructive/30',
-        outline: 'border-border dark:bg-input/30 hover:bg-input/50 hover:text-foreground',
-      },
-      size: {
-        default: "h-7 gap-1 px-2 text-xs/relaxed has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-        sm: "h-6 gap-1 px-2 text-xs/relaxed has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
-        lg: "h-8 gap-1 px-2.5 text-xs/relaxed has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-4",
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
-    },
-  }
-);
-
 /**
  * Alert Dialog Action Component
  * Primary action button that closes the dialog
  */
 @Component({
-  selector: 'app-alert-dialog-action',
+  selector: 'app-alert-dialog-action,[app-alert-dialog-action]',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"alert-dialog-action"',
     '[attr.data-variant]': 'variant()',
+    '[attr.type]': '"button"',
     '(click)': 'onClick()',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -546,7 +528,7 @@ export class AlertDialogActionComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      alertDialogActionVariants({ variant: this.variant(), size: this.size() }),
+      buttonVariants({ variant: this.variant(), size: this.size() }),
       this.class()
     )
   );
@@ -567,12 +549,13 @@ export class AlertDialogActionComponent {
  * Secondary action button that closes the dialog without action
  */
 @Component({
-  selector: 'app-alert-dialog-cancel',
+  selector: 'app-alert-dialog-cancel,[app-alert-dialog-cancel]',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"alert-dialog-cancel"',
+    '[attr.type]': '"button"',
     '(click)': 'onClick()',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -587,6 +570,7 @@ export class AlertDialogCancelComponent {
   protected readonly computedClass = computed(() =>
     cn(
       buttonVariants({ variant: 'outline', size: this.size() }),
+      'mt-2 sm:mt-0 group-data-[size=sm]/alert-dialog-content:mt-0',
       this.class()
     )
   );

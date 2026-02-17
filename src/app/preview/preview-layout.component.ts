@@ -23,7 +23,46 @@ interface PreviewItem {
     | 'aspect-ratio'
     | 'alert'
     | 'avatar'
-    | 'liquid-glass';
+    | 'liquid-glass'
+    | 'alert-dialog'
+    | 'badge'
+    | 'breadcrumb'
+    | 'button-group'
+    | 'carousel'
+    | 'chart'
+    | 'checkbox'
+    | 'collapsible'
+    | 'combobox'
+    | 'command'
+    | 'drawer'
+    | 'dropdown-menu'
+    | 'empty'
+    | 'field'
+    | 'hover-card'
+    | 'input-group'
+    | 'input-otp'
+    | 'kbd'
+    | 'label'
+    | 'menubar'
+    | 'native-select'
+    | 'pagination'
+    | 'popover'
+    | 'progress'
+    | 'radio-group'
+    | 'resizable'
+    | 'scroll-area'
+    | 'select'
+    | 'separator'
+    | 'sheet'
+    | 'skeleton'
+    | 'spinner'
+    | 'table'
+    | 'tabs'
+    | 'textarea'
+    | 'toast'
+    | 'toggle'
+    | 'toggle-group'
+    | 'tooltip';
   label: string;
 }
 
@@ -39,6 +78,45 @@ const PREVIEW_ITEMS: PreviewItem[] = [
   { id: 'alert', label: 'Alert' },
   { id: 'avatar', label: 'Avatar' },
   { id: 'liquid-glass', label: 'Liquid Glass' },
+  { id: 'alert-dialog', label: 'Alert Dialog' },
+  { id: 'badge', label: 'Badge' },
+  { id: 'breadcrumb', label: 'Breadcrumb' },
+  { id: 'button-group', label: 'Button Group' },
+  { id: 'carousel', label: 'Carousel' },
+  { id: 'chart', label: 'Chart' },
+  { id: 'checkbox', label: 'Checkbox' },
+  { id: 'collapsible', label: 'Collapsible' },
+  { id: 'combobox', label: 'Combobox' },
+  { id: 'command', label: 'Command' },
+  { id: 'drawer', label: 'Drawer' },
+  { id: 'dropdown-menu', label: 'Dropdown Menu' },
+  { id: 'empty', label: 'Empty' },
+  { id: 'field', label: 'Field' },
+  { id: 'hover-card', label: 'Hover Card' },
+  { id: 'input-group', label: 'Input Group' },
+  { id: 'input-otp', label: 'Input OTP' },
+  { id: 'kbd', label: 'Keyboard Key' },
+  { id: 'label', label: 'Label' },
+  { id: 'menubar', label: 'Menubar' },
+  { id: 'native-select', label: 'Native Select' },
+  { id: 'pagination', label: 'Pagination' },
+  { id: 'popover', label: 'Popover' },
+  { id: 'progress', label: 'Progress' },
+  { id: 'radio-group', label: 'Radio Group' },
+  { id: 'resizable', label: 'Resizable' },
+  { id: 'scroll-area', label: 'Scroll Area' },
+  { id: 'select', label: 'Select' },
+  { id: 'separator', label: 'Separator' },
+  { id: 'sheet', label: 'Sheet' },
+  { id: 'skeleton', label: 'Skeleton' },
+  { id: 'spinner', label: 'Spinner' },
+  { id: 'table', label: 'Table' },
+  { id: 'tabs', label: 'Tabs' },
+  { id: 'textarea', label: 'Textarea' },
+  { id: 'toast', label: 'Toast' },
+  { id: 'toggle', label: 'Toggle' },
+  { id: 'toggle-group', label: 'Toggle Group' },
+  { id: 'tooltip', label: 'Tooltip' },
 ];
 
 const PREVIEW_ITEM_IDS = new Set(PREVIEW_ITEMS.map((item) => item.id));
