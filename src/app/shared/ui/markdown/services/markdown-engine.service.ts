@@ -3,10 +3,7 @@ import type { Element, Nodes, Parents, Root, RootContent } from 'hast';
 import { urlAttributes } from 'html-url-attributes';
 import type { HTML, Root as MdastRoot } from 'mdast';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
-import { harden } from 'rehype-harden';
 import rehypeRaw from 'rehype-raw';
-import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
-import remarkGfm from 'remark-gfm';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import type { Parent } from 'unist';
@@ -15,77 +12,25 @@ import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
 import type {
   AllowElement,
-  AllowedTags,
   RenderBlock,
   RenderNode,
   RenderOptions,
   RenderRootNode,
   UrlTransform,
 } from '../models/markdown.models';
+import {
+  getDefaultRehypePlugins,
+  getDefaultRemarkPlugins,
+} from './default-markdown-plugins';
 import { MarkdownParserService } from './markdown-parser.service';
 import { ProcessorCache } from './processor-cache';
 import { RemendService } from './remend.service';
-
-const DEFAULT_REMARK_PLUGINS: PluggableList = [[remarkGfm, {}]];
-
-interface SanitizeSchemaLike {
-  protocols?: Record<string, string[] | undefined>;
-  tagNames?: string[];
-  attributes?: Record<string, string[] | undefined>;
-  [key: string]: unknown;
-}
-
-const BASE_SANITIZE_SCHEMA = defaultSchema as unknown as SanitizeSchemaLike;
-
-const DEFAULT_SANITIZE_SCHEMA: SanitizeSchemaLike = {
-  ...BASE_SANITIZE_SCHEMA,
-  protocols: {
-    ...(BASE_SANITIZE_SCHEMA.protocols ?? {}),
-    href: [...(BASE_SANITIZE_SCHEMA.protocols?.['href'] ?? []), 'tel'],
-  },
-};
 
 const DEFAULT_REMARK_REHYPE_OPTIONS: Readonly<RemarkRehypeOptions> = {
   allowDangerousHtml: true,
 };
 
 const DEFAULT_URL_TRANSFORM: UrlTransform = (value) => value;
-
-const buildSanitizeSchema = (allowedTags?: AllowedTags): SanitizeSchemaLike => {
-  if (!allowedTags || Object.keys(allowedTags).length === 0) {
-    return DEFAULT_SANITIZE_SCHEMA;
-  }
-
-  return {
-    ...DEFAULT_SANITIZE_SCHEMA,
-    tagNames: [
-      ...(DEFAULT_SANITIZE_SCHEMA.tagNames ?? []),
-      ...Object.keys(allowedTags),
-    ],
-    attributes: {
-      ...(DEFAULT_SANITIZE_SCHEMA.attributes ?? {}),
-      ...allowedTags,
-    },
-  };
-};
-
-const createDefaultRehypePlugins = (allowedTags?: AllowedTags): PluggableList => {
-  const sanitizeSchema = buildSanitizeSchema(allowedTags);
-
-  return [
-    rehypeRaw,
-    [rehypeSanitize, sanitizeSchema],
-    [
-      harden,
-      {
-        allowedImagePrefixes: ['*'],
-        allowedLinkPrefixes: ['*'],
-        allowedProtocols: ['*'],
-        allowDataImages: true,
-      },
-    ],
-  ];
-};
 
 const hasRehypeRaw = (plugins: PluggableList): boolean =>
   plugins.some((plugin) =>
@@ -162,14 +107,14 @@ export class MarkdownEngineService {
   }
 
   private normalizeOptions(options: RenderOptions): NormalizedOptions {
-    const rehypePlugins =
-      options.rehypePlugins ?? createDefaultRehypePlugins(options.allowedTags);
+    const rehypePlugins = options.rehypePlugins ?? getDefaultRehypePlugins(options.allowedTags);
+    const defaultRemarkPlugins = getDefaultRemarkPlugins();
 
     const remarkPlugins =
       options.remarkPlugins ??
       (hasRehypeRaw(rehypePlugins)
-        ? DEFAULT_REMARK_PLUGINS
-        : [...DEFAULT_REMARK_PLUGINS, remarkEscapeHtml]);
+        ? defaultRemarkPlugins
+        : [...defaultRemarkPlugins, remarkEscapeHtml]);
 
     return {
       mode: options.mode ?? 'streaming',
