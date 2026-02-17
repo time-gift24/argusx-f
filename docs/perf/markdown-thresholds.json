@@ -1,0 +1,5 @@
+{
+  "maxP95Ms": 32,
+  "maxHeapDeltaMb": 40,
+  "maxStreamingStepMs": 12
+}
