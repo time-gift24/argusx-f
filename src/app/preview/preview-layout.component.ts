@@ -16,7 +16,7 @@ const PREVIEW_ITEMS = [
   { id: 'button', label: 'Button', manuallyReviewed: true },
   { id: 'input', label: 'Input', manuallyReviewed: true },
   { id: 'card', label: 'Card' },
-  { id: 'context-menu', label: 'Context Menu' },
+  { id: 'context-menu', label: 'Context Menu', manuallyReviewed: true },
   { id: 'calendar', label: 'Calendar', manuallyReviewed: true },
   { id: 'accordion', label: 'Accordion', manuallyReviewed: true },
   { id: 'dialog', label: 'Dialog', manuallyReviewed: true },
