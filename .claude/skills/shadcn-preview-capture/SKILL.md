@@ -1,13 +1,13 @@
 ---
 name: shadcn-preview-capture
-description: "Capture shadcn/ui component previews using Chrome DevTools MCP. Use when: (1) Getting shadcn/ui component preview pages from ui.shadcn.com, (2) Taking screenshots of UI components with static/dynamic states, (3) Automating hover, expand, focus interactions to capture component behaviors. Triggered by requests involving shadcn/ui preview screenshots, component visual testing, or capturing UI states."
+description: "Capture shadcn/ui component previews using Playwright. Use when: (1) Getting shadcn/ui component preview pages from ui.shadcn.com, (2) Taking screenshots of UI components with static/dynamic states, (3) Automating hover, expand, focus interactions to capture component behaviors. Triggered by requests involving shadcn/ui preview screenshots, component visual testing, or capturing UI states."
 ---
 
 # Shadcn Preview Capture
 
 ## Overview
 
-This skill enables capturing shadcn/ui component previews using Chrome DevTools MCP. It provides URL construction for accessing preview pages and automation for capturing screenshots with various interaction states.
+This skill captures shadcn/ui component previews using **Playwright** (via `npx playwright screenshot`). This is more reliable than Chrome DevTools MCP for capturing screenshots.
 
 ## URL Construction
 
@@ -35,60 +35,61 @@ https://ui.shadcn.com/preview/radix/select-example?item=select-example&style=mir
 
 If the primary URL returns 404:
 1. Navigate to: `https://ui.shadcn.com/create?base=radix&style=mira&baseColor=neutral&theme=cyan&iconLibrary=lucide&font=nunito-sans&menuAccent=bold&menuColor=default&radius=medium&template=vite&rtl=false`
-2. Use Chrome DevTools to extract links from the left navbar
+2. Use Playwright to extract links from the left navbar
 3. Find the component link and construct the preview URL
 
 See [URL_REFERENCE.md](references/URL_REFERENCE.md) for complete component list and URL patterns.
 
 ## Workflow
 
-### Step 1: Open Preview Page
+### Step 1: Create Output Directory
 
-Use Chrome DevTools MCP to navigate to the preview page:
-
-```json
-{
-  "url": "https://ui.shadcn.com/preview/radix/select-example?item=select-example&style=mira&theme=cyan&font=nunito-sans&menuAccent=bold&radius=medium&template=vite",
-  "waitUntil": "networkidle"
-}
+Create the output directory for screenshots:
+```bash
+mkdir -p previews/shadcn/{component}
 ```
 
-### Step 2: Capture Static Screenshots
+### Step 2: Capture Screenshot with Playwright
 
-Take screenshots of the default component state:
+Use `npx playwright screenshot` to capture the preview:
 
-```json
-{
-  "fullPage": false
-}
+```bash
+npx playwright screenshot "<URL>" <output-path> --full-page --wait-for-timeout 2000
+```
+
+**Example:**
+```bash
+npx playwright screenshot \
+  "https://ui.shadcn.com/preview/radix/select-example?item=select-example&style=mira&theme=cyan&font=nunito-sans&menuAccent=bold&radius=medium&template=vite" \
+  previews/shadcn/select/select-default.png \
+  --full-page --wait-for-timeout 2000
 ```
 
 ### Step 3: Capture Dynamic States
 
-Use interaction commands to capture different states:
+For interactive components, create a Playwright script to capture different states:
 
-**Hover State:**
-```json
-{
-  "selector": "[data-state='closed']",
-  "action": "hover"
-}
-```
+```python
+from playwright.sync_api import sync_playwright
 
-**Click/Expand State:**
-```json
-{
-  "selector": "button[aria-haspopup='listbox']",
-  "action": "click"
-}
-```
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=True)
+    page = browser.new_page()
+    page.goto('<URL>')
+    page.wait_for_load_state('networkidle')
 
-**Focus State:**
-```json
-{
-  "selector": "input",
-  "action": "focus"
-}
+    # Default state
+    page.screenshot(path='previews/shadcn/{component}/{component}-default.png')
+
+    # Hover state
+    page.hover('<selector>')
+    page.screenshot(path='previews/shadcn/{component}/{component}-hover.png')
+
+    # Click/expand state
+    page.click('<selector>')
+    page.screenshot(path='previews/shadcn/{component}/{component}-open.png')
+
+    browser.close()
 ```
 
 ### Step 4: Multiple Component Variations
@@ -102,17 +103,6 @@ For components with multiple variants, capture each state:
 - Loading state
 
 See [INTERACTIONS.md](references/INTERACTIONS.md) for complete interaction patterns.
-
-## Chrome DevTools MCP Integration
-
-Load the chrome-devtools skill for detailed MCP tool usage:
-- `chrome-devtools:new_page` - Open new browser page
-- `chrome-devtools:navigate_page` - Navigate to URL
-- `chrome-devtools:take_screenshot` - Capture screenshot
-- `chrome-devtools:click` - Click elements
-- `chrome-devtools:hover` - Hover over elements
-- `chrome-devtools:fill` - Fill form fields
-- `chrome-devtools:evaluate_script` - Execute JavaScript for complex interactions
 
 ## Common Components
 
@@ -153,7 +143,7 @@ Specify custom output directory:
 - Absolute path: `/Users/wanyaozhong/Projects/argusx-f/previews/{component}`
 - Relative path: `previews/{component}`
 
-### Image Analysis
+## Image Analysis
 
 After capturing screenshots, analyze the image to extract:
 - Component structure and layout
