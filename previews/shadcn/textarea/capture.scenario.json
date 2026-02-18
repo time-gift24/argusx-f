@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "textarea-default",
+      "screenshot": {
+        "file": "textarea-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "textarea-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "focus",
+          "target": {
+            "selector": "input:not([disabled]),textarea:not([disabled])"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "textarea-default",
+      "screenshot": {
+        "file": "textarea-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "dialog-default",
+      "screenshot": {
+        "file": "dialog-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "dialog-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "button[aria-expanded='false']"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "dialog-default",
+      "screenshot": {
+        "file": "dialog-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

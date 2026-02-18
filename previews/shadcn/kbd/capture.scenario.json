@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "kbd-default",
+      "screenshot": {
+        "file": "kbd-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "kbd-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "[data-state='closed']"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "kbd-default",
+      "screenshot": {
+        "file": "kbd-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

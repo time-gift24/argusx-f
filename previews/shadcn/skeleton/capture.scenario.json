@@ -1,0 +1,29 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "skeleton-default",
+      "screenshot": {
+        "file": "skeleton-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "skeleton-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "press",
+          "key": "ArrowDown"
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "skeleton-default",
+      "screenshot": {
+        "file": "skeleton-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

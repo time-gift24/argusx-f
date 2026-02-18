@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "button-default",
+      "screenshot": {
+        "file": "button-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "button-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "button"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "button-default",
+      "screenshot": {
+        "file": "button-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

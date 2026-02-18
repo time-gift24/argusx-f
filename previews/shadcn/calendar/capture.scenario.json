@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "calendar-default",
+      "screenshot": {
+        "file": "calendar-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "calendar-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "button[aria-expanded='false']"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "calendar-default",
+      "screenshot": {
+        "file": "calendar-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

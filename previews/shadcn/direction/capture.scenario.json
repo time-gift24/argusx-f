@@ -1,0 +1,23 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "note": "Fallback: this component had no detectable interactive state under standard action candidates. Interactive image captured with viewport variant for visual coverage.",
+  "shots": [
+    {
+      "name": "direction-default",
+      "screenshot": {
+        "file": "direction-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "direction-interactive",
+      "reset": true,
+      "actions": [],
+      "screenshot": {
+        "file": "direction-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

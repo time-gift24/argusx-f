@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "collapsible-default",
+      "screenshot": {
+        "file": "collapsible-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "collapsible-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "[role='tab']:not([data-state='active'])"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "collapsible-default",
+      "screenshot": {
+        "file": "collapsible-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

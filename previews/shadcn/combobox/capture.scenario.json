@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "combobox-default",
+      "screenshot": {
+        "file": "combobox-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "combobox-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "button[role='combobox']"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "combobox-default",
+      "screenshot": {
+        "file": "combobox-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

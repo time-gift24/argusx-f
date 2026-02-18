@@ -1,0 +1,29 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "progress-default",
+      "screenshot": {
+        "file": "progress-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "progress-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "press",
+          "key": "Tab"
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "progress-default",
+      "screenshot": {
+        "file": "progress-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

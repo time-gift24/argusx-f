@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "checkbox-default",
+      "screenshot": {
+        "file": "checkbox-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "checkbox-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "button"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "checkbox-default",
+      "screenshot": {
+        "file": "checkbox-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

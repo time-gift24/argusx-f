@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "input-otp-default",
+      "screenshot": {
+        "file": "input-otp-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "input-otp-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "button"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "input-otp-default",
+      "screenshot": {
+        "file": "input-otp-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

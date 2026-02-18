@@ -1,0 +1,23 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "note": "Fallback: this component had no detectable interactive state under standard action candidates. Interactive image captured with viewport variant for visual coverage.",
+  "shots": [
+    {
+      "name": "aspect-ratio-default",
+      "screenshot": {
+        "file": "aspect-ratio-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "aspect-ratio-interactive",
+      "reset": true,
+      "actions": [],
+      "screenshot": {
+        "file": "aspect-ratio-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

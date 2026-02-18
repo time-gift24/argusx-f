@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "tooltip-default",
+      "screenshot": {
+        "file": "tooltip-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "tooltip-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "[data-slot*='trigger']"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "tooltip-default",
+      "screenshot": {
+        "file": "tooltip-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "breadcrumb-default",
+      "screenshot": {
+        "file": "breadcrumb-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "breadcrumb-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "button[aria-expanded='false']"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "breadcrumb-default",
+      "screenshot": {
+        "file": "breadcrumb-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

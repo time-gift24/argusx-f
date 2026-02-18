@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "command-default",
+      "screenshot": {
+        "file": "command-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "command-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "button"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "command-default",
+      "screenshot": {
+        "file": "command-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

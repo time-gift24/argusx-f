@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "drawer-default",
+      "screenshot": {
+        "file": "drawer-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "drawer-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "button[aria-expanded='false']"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "drawer-default",
+      "screenshot": {
+        "file": "drawer-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

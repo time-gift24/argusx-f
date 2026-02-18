@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "alert-default",
+      "screenshot": {
+        "file": "alert-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "alert-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "button"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "alert-default",
+      "screenshot": {
+        "file": "alert-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "slider-default",
+      "screenshot": {
+        "file": "slider-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "slider-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "press",
+          "key": "Tab"
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "slider-default",
+      "screenshot": {
+        "file": "slider-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

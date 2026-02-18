@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "toggle-group-default",
+      "screenshot": {
+        "file": "toggle-group-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "toggle-group-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "button[role='combobox']"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "toggle-group-default",
+      "screenshot": {
+        "file": "toggle-group-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

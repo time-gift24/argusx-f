@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "sidebar-default",
+      "screenshot": {
+        "file": "sidebar-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "sidebar-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "button[aria-expanded='false']"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "sidebar-default",
+      "screenshot": {
+        "file": "sidebar-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}

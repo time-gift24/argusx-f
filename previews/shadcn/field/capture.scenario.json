@@ -1,0 +1,31 @@
+{
+  "waitAfterLoadMs": 1000,
+  "networkIdleTimeoutMs": 2500,
+  "shots": [
+    {
+      "name": "field-default",
+      "screenshot": {
+        "file": "field-default.png",
+        "fullPage": true
+      }
+    },
+    {
+      "name": "field-interactive",
+      "reset": true,
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "selector": "button[role='combobox']"
+          }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "field-default",
+      "screenshot": {
+        "file": "field-interactive.png",
+        "fullPage": true
+      }
+    }
+  ]
+}
