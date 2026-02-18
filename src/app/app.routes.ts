@@ -306,6 +306,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'slider',
+        loadComponent: () =>
+          import('./preview/slider-preview.component').then(
+            (m) => m.SliderPreviewComponent
+          ),
+      },
+      {
         path: 'sheet',
         loadComponent: () =>
           import('./preview/sheet-preview.component').then(
