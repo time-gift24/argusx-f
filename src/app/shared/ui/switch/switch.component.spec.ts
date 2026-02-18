@@ -1,7 +1,19 @@
+import {
+  BrowserDynamicTestingModule,
+  platformBrowserDynamicTesting,
+} from '@angular/platform-browser-dynamic/testing';
+import 'zone.js';
+import 'zone.js/testing';
 import { Component, input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi, describe, it, expect, beforeEach, spyOn } from 'vitest';
 import { SwitchComponent } from './switch.component';
+
+// Initialize Angular test environment
+TestBed.initTestEnvironment(
+  BrowserDynamicTestingModule,
+  platformBrowserDynamicTesting()
+);
 
 describe('SwitchComponent', () => {
   let fixture: ComponentFixture<TestSwitchComponent>;
