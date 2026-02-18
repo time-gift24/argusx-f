@@ -16,11 +16,13 @@ import { cn } from '../../utils/cn';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'computedClass()',
+    '[attr.id]': 'id() || null',
     '[attr.data-state]': 'checked() ? "checked" : "unchecked"',
     '[attr.data-disabled]': 'disabled() ? "" : null',
     role: 'switch',
     '[attr.aria-checked]': 'checked()',
     '[attr.aria-disabled]': 'disabled() ? true : null',
+    '[attr.aria-required]': 'required() ? "true" : null',
     '[attr.tabindex]': 'disabled() ? -1 : 0',
     '(click)': 'onClick()',
     '(keydown)': 'onKeydown($event)',
@@ -34,6 +36,7 @@ import { cn } from '../../utils/cn';
   `,
 })
 export class SwitchComponent {
+  readonly id = input<string>('');
   readonly checked = input<boolean>(false);
   readonly disabled = input<boolean>(false);
   readonly required = input<boolean>(false);
