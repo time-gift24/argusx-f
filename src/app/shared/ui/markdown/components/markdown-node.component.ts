@@ -8,9 +8,9 @@ import {
 import type {
   RenderElementNode,
   RenderNode,
-  RenderRootNode,
   RenderTextNode,
 } from '../models/markdown.models';
+import type { MarkdownRenderCapabilities } from '../services/markdown-render-capabilities.service';
 import { CodeBlockComponent } from './code-block.component';
 import { MermaidComponent } from './mermaid.component';
 
@@ -24,7 +24,7 @@ import { MermaidComponent } from './mermaid.component';
       }
       @case ('root') {
         @for (child of children(); track $index) {
-          <sd-markdown-node [node]="child"></sd-markdown-node>
+          <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
         }
       }
       @case ('element') {
@@ -32,77 +32,77 @@ import { MermaidComponent } from './mermaid.component';
           @case ('p') {
             <p [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </p>
           }
           @case ('h1') {
             <h1 [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </h1>
           }
           @case ('h2') {
             <h2 [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </h2>
           }
           @case ('h3') {
             <h3 [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </h3>
           }
           @case ('h4') {
             <h4 [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </h4>
           }
           @case ('h5') {
             <h5 [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </h5>
           }
           @case ('h6') {
             <h6 [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </h6>
           }
           @case ('ul') {
             <ul [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </ul>
           }
           @case ('ol') {
             <ol [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </ol>
           }
           @case ('li') {
             <li [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </li>
           }
           @case ('blockquote') {
             <blockquote [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </blockquote>
           }
@@ -116,7 +116,7 @@ import { MermaidComponent } from './mermaid.component';
               [class]="className()"
             >
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </a>
           }
@@ -152,7 +152,7 @@ import { MermaidComponent } from './mermaid.component';
             } @else {
               <pre [attr.style]="styleText()" [class]="className()">
                 @for (child of children(); track $index) {
-                  <sd-markdown-node [node]="child"></sd-markdown-node>
+                  <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
                 }
               </pre>
             }
@@ -160,84 +160,84 @@ import { MermaidComponent } from './mermaid.component';
           @case ('code') {
             <code [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </code>
           }
           @case ('table') {
             <table [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </table>
           }
           @case ('thead') {
             <thead [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </thead>
           }
           @case ('tbody') {
             <tbody [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </tbody>
           }
           @case ('tr') {
             <tr [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </tr>
           }
           @case ('th') {
             <th [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </th>
           }
           @case ('td') {
             <td [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </td>
           }
           @case ('strong') {
             <strong [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </strong>
           }
           @case ('em') {
             <em [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </em>
           }
           @case ('sup') {
             <sup [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </sup>
           }
           @case ('sub') {
             <sub [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </sub>
           }
           @case ('section') {
             <section [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </section>
           }
@@ -254,7 +254,7 @@ import { MermaidComponent } from './mermaid.component';
               [class]="className()"
             >
               @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child"></sd-markdown-node>
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </span>
           }
@@ -266,6 +266,7 @@ import { MermaidComponent } from './mermaid.component';
 })
 export class MarkdownNodeComponent {
   readonly node = input.required<RenderNode>();
+  readonly renderCapabilities = input.required<MarkdownRenderCapabilities>();
 
   readonly elementNode = computed<RenderElementNode | null>(() => {
     const currentNode = this.node();
