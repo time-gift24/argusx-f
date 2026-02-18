@@ -6,10 +6,50 @@ Use this prompt as the subagent payload for one component task.
 
 你现在是子 agent，只处理一个组件，禁止处理其他组件。
 
-输入文件：`{{inputFile}}`  
+输入文件：`{{inputFile}}`
 输出文件：`{{outputFile}}`
 
-执行要求：
+## Git Worktree Setup (MANDATORY)
+
+你必须使用 git worktree 来隔离工作，禁止在主目录操作。
+
+### 1. 确定 Worktree 目录
+
+```bash
+# 检查工作目录（优先使用 .worktrees）
+ls -d {{worktreeRoot}} 2>/dev/null || echo "NOT_FOUND"
+git check-ignore -q {{worktreeRoot}} 2>/dev/null && echo "IGNORED" || echo "NOT_IGNORED"
+```
+
+- 如果 `{{worktreeRoot}}` 不存在：创建它
+- 如果 `{{worktreeRoot}}` 未被 gitignore：添加到 .gitignore 并 commit
+
+### 2. 创建 Worktree
+
+```bash
+cd {{repoRoot}}
+git worktree add "{{worktreePath}}" -b "{{branch}}"
+cd "{{worktreePath}}"
+```
+
+### 3. 安装依赖
+
+```bash
+# Node.js 项目
+npm install
+```
+
+### 4. 验证基线
+
+```bash
+# 运行测试确认 worktree 干净
+npm test
+```
+
+如果测试失败，报告错误并退出，不要在有问题的基线上继续。
+
+## 执行要求
+
 1. 读取输入 JSON，并仅处理 `component` 指定的组件。
 2. 首先阅读 `baselineDir`（`previews/shadcn/{component}`）中的基线资料：
    - `*.png` 截图
@@ -17,7 +57,7 @@ Use this prompt as the subagent payload for one component task.
    - `analysis.md` / `capability-analysis.md`（若存在）
 3. 打开并比对线上预览 `onlinePreviewUrl`，确认本地基线截图没有漂移；若发现漂移，先更新基线证据再继续。
 4. 修改后打开本地预览 `localPreviewUrl`，逐状态对比基线截图与线上预览，直到 1:1 像素级一致。
-5. 所有实现与验证工作只能在 `worktreePath` 下进行。
+5. **所有实现与验证工作只能在 `{{worktreePath}}` 下进行**，禁止修改主仓库。
 6. 视觉与交互都必须验证：
    - `checks.visualPass === true`
    - `checks.interactionPass === true`
@@ -26,7 +66,7 @@ Use this prompt as the subagent payload for one component task.
 9. 若你没有完成 preview 1:1 像素级复刻，禁止返回 `status=success`。
 
 主进程会质问（硬门禁）：
-- 你为什么在“测试通过”后没有提交像素级复刻证据？
+- 你为什么在"测试通过"后没有提交像素级复刻证据？
 - 你的 `visualDiffJson` 在哪里？其结果是否通过？
 - 你的 `interactionResultsJson` 在哪里？其结果是否通过？
 - 如果缺任一证据，主进程会直接判定任务失败。

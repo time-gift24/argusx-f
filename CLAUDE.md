@@ -158,6 +158,19 @@ src/
 - 样式是否基于 Tailwind 与主题变量，避免硬编码。
 - 是否避免新增 `shared/components` 目录内容（应进入 `shared/ui` 或 `features/*`）。
 
+## 15. Shadcn 组件对齐自动化
+
+运行 preview 组件 review orchestrator（并行 5 个 subagent，每个在独立 worktree 中）：
+
+```bash
+npm run review:start
+```
+
+自定义组件：
+```bash
+npm run review:orchestrate -- --components button,avatar,alert --subagent-cmd 'node $PWD/.argus/skills/shadcn-component-alignment-worktree/scripts/subagent-wrapper.mjs {{inputFile}} {{outputFile}}'
+```
+
 ## 15. 违规示例（禁止）
 
 ```ts
