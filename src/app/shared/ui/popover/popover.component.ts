@@ -253,14 +253,18 @@ export class PopoverAnchorDirective {
 @Component({
   selector: 'app-popover-content',
   imports: [CommonModule],
-  template: `<ng-content />`,
+  template: `
+    <div [class]="glass() ? glassClass() : computedClass()" (keydown.escape)="popover.closePopover()">
+      <ng-content />
+    </div>
+  `,
   host: {
     '[attr.data-slot]': '"popover-content"',
     '[attr.id]': 'popover.id',
     '[attr.data-state]': 'popover.open() ? "open" : "closed"',
     '[attr.data-side]': 'popover.side()',
-    '[class]': 'computedClass()',
-    '(keydown.escape)': 'popover.closePopover()',
+    '[style.background]': 'glass() ? "transparent" : "var(--popover)"',
+    '[style.color]': 'glass() ? "inherit" : "var(--popover-foreground)"',
   },
   styles: [`
     :host {
@@ -269,11 +273,8 @@ export class PopoverAnchorDirective {
       gap: 1rem;
       padding: 0.625rem;
       border-radius: 0.5rem;
-      background: var(--popover-background);
-      color: var(--popover-foreground);
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
       z-index: 50;
-      width: 18rem;
       outline: none;
     }
   `],
@@ -282,10 +283,12 @@ export class PopoverAnchorDirective {
 export class PopoverContentComponent {
   readonly popover = inject(PopoverComponent);
   readonly class = input<string>('');
+  readonly glass = input<boolean>(false);
 
-  protected readonly computedClass = computed(() =>
+  protected readonly glassClass = computed(() =>
     cn(
-      'bg-popover text-popover-foreground',
+      'bg-black/40 text-white border border-white/10 w-72',
+      'shadow-2xl',
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -293,7 +296,21 @@ export class PopoverContentComponent {
       'data-[side=left]:slide-in-from-right-2',
       'data-[side=right]:slide-in-from-left-2',
       'data-[side=top]:slide-in-from-bottom-2',
-      'ring-foreground/10 ring-1',
+      'duration-100',
+      this.class()
+    )
+  );
+
+  protected readonly computedClass = computed(() =>
+    cn(
+      'bg-popover text-popover-foreground border border-border w-72',
+      'data-[state=open]:animate-in data-[state=closed]:animate-out',
+      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+      'data-[side=bottom]:slide-in-from-top-2',
+      'data-[side=left]:slide-in-from-right-2',
+      'data-[side=right]:slide-in-from-left-2',
+      'data-[side=top]:slide-in-from-bottom-2',
       'duration-100',
       this.class()
     )

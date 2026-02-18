@@ -1,0 +1,11 @@
+[ 2810519ms] [ERROR] ERROR RuntimeError: NG0203: afterNextRender() can only be used within an injection context such as a constructor, a factory function, a field initializer, or a function used with `runInInjectionContext`. Find more at https://v20.angular.dev/errors/NG0203
+    at assertInInjectionContext (http://localhost:1420/@fs/Users/wanyaozhong/projects/argusx/argusx-f/.worktrees/streamdown/.angular/cache/20.3.16/argusx-f/vite/deps/chunk-5UMQTW2J.js?v=c709b804:2023:11)
+    at afterNextRender (http://localhost:1420/@fs/Users/wanyaozhong/projects/argusx/argusx-f/.worktrees/streamdown/.angular/cache/20.3.16/argusx-f/vite/deps/chunk-SFPH4NYH.js?v=c709b804:5229:5)
+    at _SdMarkdownComponent.scheduleAutoScroll (http://localhost:1420/chunk-OY54TGJK.js:1806:5)
+    at http://localhost:1420/chunk-OY54TGJK.js:1798:12
+    at Object.fn (http://localhost:1420/@fs/Users/wanyaozhong/projects/argusx/argusx-f/.worktrees/streamdown/.angular/cache/20.3.16/argusx-f/vite/deps/chunk-5UMQTW2J.js?v=c709b804:3261:5)
+    at runEffect (http://localhost:1420/@fs/Users/wanyaozhong/projects/argusx/argusx-f/.worktrees/streamdown/.angular/cache/20.3.16/argusx-f/vite/deps/chunk-5UMQTW2J.js?v=c709b804:504:10)
+    at Object.run (http://localhost:1420/@fs/Users/wanyaozhong/projects/argusx/argusx-f/.worktrees/streamdown/.angular/cache/20.3.16/argusx-f/vite/deps/chunk-5UMQTW2J.js?v=c709b804:3184:7)
+    at runEffectsInView (http://localhost:1420/@fs/Users/wanyaozhong/projects/argusx/argusx-f/.worktrees/streamdown/.angular/cache/20.3.16/argusx-f/vite/deps/chunk-SFPH4NYH.js?v=c709b804:6421:17)
+    at refreshView (http://localhost:1420/@fs/Users/wanyaozhong/projects/argusx/argusx-f/.worktrees/streamdown/.angular/cache/20.3.16/argusx-f/vite/deps/chunk-SFPH4NYH.js?v=c709b804:6529:5)
+    at detectChangesInView (http://localhost:1420/@fs/Users/wanyaozhong/projects/argusx/argusx-f/.worktrees/streamdown/.angular/cache/20.3.16/argusx-f/vite/deps/chunk-SFPH4NYH.js?v=c709b804:6677:5) @ http://localhost:1420/@fs/Users/wanyaozhong/projects/argusx/argusx-f/.worktrees/streamdown/.angular/cache/20.3.16/argusx-f/vite/deps/chunk-5UMQTW2J.js?v=c709b804:2750
