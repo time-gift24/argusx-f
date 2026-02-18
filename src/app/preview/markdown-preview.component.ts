@@ -59,6 +59,17 @@ import { SdMarkdownComponent } from '../shared/ui/markdown/markdown.component';
         </div>
       </div>
 
+      <div class="mb-6">
+        <h2 class="mb-3 text-sm font-medium text-muted-foreground">Capabilities</h2>
+        <label class="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            [checked]="capabilityTableControls()"
+            (change)="capabilityTableControls.set($any($event.target).checked)" />
+          Enable table controls
+        </label>
+      </div>
+
       <div class="mb-6 rounded-lg border p-4">
         <h2 class="mb-2 text-sm font-medium text-muted-foreground">Real Streaming</h2>
         <p class="mb-4 text-sm text-muted-foreground">
@@ -135,6 +146,7 @@ import { SdMarkdownComponent } from '../shared/ui/markdown/markdown.component';
             <sd-markdown
               [content]="content()"
               [mode]="mode()"
+              [capabilities]="markdownCapabilities()"
               [autoScroll]="autoScroll()"
               [autoScrollBehavior]="autoScrollBehavior()" />
           </div>
@@ -153,6 +165,15 @@ export class MarkdownPreviewComponent {
   readonly content = signal<string>(DEMOS.basic);
   readonly autoScroll = signal(true);
   readonly autoScrollBehavior = signal<ScrollBehavior>('auto');
+  readonly capabilityTableControls = signal(true);
+  readonly markdownCapabilities = computed(() => ({
+    controls: { table: this.capabilityTableControls() },
+    image: { download: true },
+    linkSafety: {
+      enabled: true,
+      trustedPrefixes: ['https://argusx.ai'],
+    },
+  }));
 
   readonly isStreaming = signal(false);
   readonly streamFinished = signal(false);
