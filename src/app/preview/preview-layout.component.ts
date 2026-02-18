@@ -12,61 +12,63 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule, UserCheck } from 'lucide-angular';
 import { distinctUntilChanged, filter, map } from 'rxjs';
 
+type ReviewStatus = 'not_processed' | 'ready_to_review' | 'reviewed';
+
 const PREVIEW_ITEMS = [
-  { id: 'button', label: 'Button', manuallyReviewed: true },
-  { id: 'input', label: 'Input', manuallyReviewed: true },
-{ id: 'card', label: 'Card', manuallyReviewed: true },
-  { id: 'context-menu', label: 'Context Menu', manuallyReviewed: true },
-  { id: 'calendar', label: 'Calendar', manuallyReviewed: true },
-  { id: 'accordion', label: 'Accordion', manuallyReviewed: true },
-  { id: 'dialog', label: 'Dialog', manuallyReviewed: true },
-  { id: 'aspect-ratio', label: 'Aspect Ratio' },
-  { id: 'alert', label: 'Alert' },
-  { id: 'avatar', label: 'Avatar' },
-  { id: 'liquid-glass', label: 'Liquid Glass' },
-  { id: 'llm-chat', label: 'LLM Chat' },
-  { id: 'markdown', label: 'Markdown' },
-  { id: 'alert-dialog', label: 'Alert Dialog', manuallyReviewed: true },
-  { id: 'badge', label: 'Badge' },
-  { id: 'breadcrumb', label: 'Breadcrumb' },
-  { id: 'button-group', label: 'Button Group' },
-  { id: 'carousel', label: 'Carousel', manuallyReviewed: true },
-  { id: 'chart', label: 'Chart' },
-  { id: 'checkbox', label: 'Checkbox' },
-  { id: 'collapsible', label: 'Collapsible' },
-  { id: 'combobox', label: 'Combobox' },
-  { id: 'command', label: 'Command' },
-  { id: 'drawer', label: 'Drawer' },
-  { id: 'dropdown-menu', label: 'Dropdown Menu' },
-  { id: 'empty', label: 'Empty' },
-  { id: 'field', label: 'Field' },
-  { id: 'hover-card', label: 'Hover Card' },
-  { id: 'input-group', label: 'Input Group' },
-  { id: 'input-otp', label: 'Input OTP' },
-  { id: 'kbd', label: 'Keyboard Key' },
-  { id: 'label', label: 'Label' },
-  { id: 'menubar', label: 'Menubar' },
-  { id: 'native-select', label: 'Native Select' },
-  { id: 'pagination', label: 'Pagination', manuallyReviewed: true },
-  { id: 'popover', label: 'Popover' },
-  { id: 'progress', label: 'Progress' },
-  { id: 'radio-group', label: 'Radio Group' },
-  { id: 'resizable', label: 'Resizable' },
-  { id: 'scroll-area', label: 'Scroll Area' },
-  { id: 'select', label: 'Select', manuallyReviewed: true },
-  { id: 'switch', label: 'Switch', manuallyReviewed: true },
-  { id: 'slider', label: 'Slider', manuallyReviewed: true },
-  { id: 'separator', label: 'Separator' },
-  { id: 'sheet', label: 'Sheet' },
-  { id: 'skeleton', label: 'Skeleton' },
-  { id: 'spinner', label: 'Spinner' },
-  { id: 'table', label: 'Table' },
-  { id: 'tabs', label: 'Tabs' },
-  { id: 'textarea', label: 'Textarea' },
-  { id: 'toast', label: 'Toast' },
-  { id: 'toggle', label: 'Toggle' },
-  { id: 'toggle-group', label: 'Toggle Group' },
-  { id: 'tooltip', label: 'Tooltip' },
+  { id: 'button', label: 'Button', reviewStatus: 'reviewed' },
+  { id: 'input', label: 'Input', reviewStatus: 'reviewed' },
+  { id: 'card', label: 'Card', reviewStatus: 'reviewed' },
+  { id: 'context-menu', label: 'Context Menu', reviewStatus: 'reviewed' },
+  { id: 'calendar', label: 'Calendar', reviewStatus: 'reviewed' },
+  { id: 'accordion', label: 'Accordion', reviewStatus: 'reviewed' },
+  { id: 'dialog', label: 'Dialog', reviewStatus: 'reviewed' },
+  { id: 'aspect-ratio', label: 'Aspect Ratio', reviewStatus: 'not_processed' },
+  { id: 'alert', label: 'Alert', reviewStatus: 'not_processed' },
+  { id: 'avatar', label: 'Avatar', reviewStatus: 'not_processed' },
+  { id: 'liquid-glass', label: 'Liquid Glass', reviewStatus: 'not_processed' },
+  { id: 'llm-chat', label: 'LLM Chat', reviewStatus: 'not_processed' },
+  { id: 'markdown', label: 'Markdown', reviewStatus: 'not_processed' },
+  { id: 'alert-dialog', label: 'Alert Dialog', reviewStatus: 'reviewed' },
+  { id: 'badge', label: 'Badge', reviewStatus: 'not_processed' },
+  { id: 'breadcrumb', label: 'Breadcrumb', reviewStatus: 'not_processed' },
+  { id: 'button-group', label: 'Button Group', reviewStatus: 'not_processed' },
+  { id: 'carousel', label: 'Carousel', reviewStatus: 'reviewed' },
+  { id: 'chart', label: 'Chart', reviewStatus: 'not_processed' },
+  { id: 'checkbox', label: 'Checkbox', reviewStatus: 'not_processed' },
+  { id: 'collapsible', label: 'Collapsible', reviewStatus: 'not_processed' },
+  { id: 'combobox', label: 'Combobox', reviewStatus: 'not_processed' },
+  { id: 'command', label: 'Command', reviewStatus: 'not_processed' },
+  { id: 'drawer', label: 'Drawer', reviewStatus: 'not_processed' },
+  { id: 'dropdown-menu', label: 'Dropdown Menu', reviewStatus: 'not_processed' },
+  { id: 'empty', label: 'Empty', reviewStatus: 'not_processed' },
+  { id: 'field', label: 'Field', reviewStatus: 'not_processed' },
+  { id: 'hover-card', label: 'Hover Card', reviewStatus: 'not_processed' },
+  { id: 'input-group', label: 'Input Group', reviewStatus: 'not_processed' },
+  { id: 'input-otp', label: 'Input OTP', reviewStatus: 'not_processed' },
+  { id: 'kbd', label: 'Keyboard Key', reviewStatus: 'not_processed' },
+  { id: 'label', label: 'Label', reviewStatus: 'not_processed' },
+  { id: 'menubar', label: 'Menubar', reviewStatus: 'not_processed' },
+  { id: 'native-select', label: 'Native Select', reviewStatus: 'not_processed' },
+  { id: 'pagination', label: 'Pagination', reviewStatus: 'reviewed' },
+  { id: 'popover', label: 'Popover', reviewStatus: 'not_processed' },
+  { id: 'progress', label: 'Progress', reviewStatus: 'not_processed' },
+  { id: 'radio-group', label: 'Radio Group', reviewStatus: 'not_processed' },
+  { id: 'resizable', label: 'Resizable', reviewStatus: 'not_processed' },
+  { id: 'scroll-area', label: 'Scroll Area', reviewStatus: 'not_processed' },
+  { id: 'select', label: 'Select', reviewStatus: 'reviewed' },
+  { id: 'switch', label: 'Switch', reviewStatus: 'reviewed' },
+  { id: 'slider', label: 'Slider', reviewStatus: 'reviewed' },
+  { id: 'separator', label: 'Separator', reviewStatus: 'not_processed' },
+  { id: 'sheet', label: 'Sheet', reviewStatus: 'not_processed' },
+  { id: 'skeleton', label: 'Skeleton', reviewStatus: 'not_processed' },
+  { id: 'spinner', label: 'Spinner', reviewStatus: 'not_processed' },
+  { id: 'table', label: 'Table', reviewStatus: 'not_processed' },
+  { id: 'tabs', label: 'Tabs', reviewStatus: 'not_processed' },
+  { id: 'textarea', label: 'Textarea', reviewStatus: 'not_processed' },
+  { id: 'toast', label: 'Toast', reviewStatus: 'not_processed' },
+  { id: 'toggle', label: 'Toggle', reviewStatus: 'not_processed' },
+  { id: 'toggle-group', label: 'Toggle Group', reviewStatus: 'not_processed' },
+  { id: 'tooltip', label: 'Tooltip', reviewStatus: 'not_processed' },
 ] as const;
 
 type PreviewItemId = (typeof PREVIEW_ITEMS)[number]['id'];
@@ -74,7 +76,7 @@ type PreviewItemId = (typeof PREVIEW_ITEMS)[number]['id'];
 type PreviewItem = {
   id: PreviewItemId;
   label: string;
-  manuallyReviewed?: boolean;
+  reviewStatus: ReviewStatus;
 };
 
 const PREVIEW_ITEM_IDS = new Set(PREVIEW_ITEMS.map((item) => item.id));
@@ -116,7 +118,7 @@ function isPreviewItemId(id: string | null): id is PreviewItemId {
                 >
                   <span class="flex items-center justify-between gap-2">
                     <span class="truncate">{{ item.label }}</span>
-                    @if (item.manuallyReviewed) {
+                    @if (item.reviewStatus === 'reviewed') {
                       <lucide-icon
                         [img]="manualReviewIcon"
                         class="size-3.5 shrink-0 text-emerald-600"
