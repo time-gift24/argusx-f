@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ButtonDirective } from '@app/shared/ui/button';
 import { KbdDirective, KbdGroupDirective } from '@app/shared/ui/kbd';
 
 @Component({
   selector: 'app-kbd-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [KbdDirective, KbdGroupDirective],
+  imports: [ButtonDirective, KbdDirective, KbdGroupDirective],
   template: `
     <div class="mx-auto max-w-3xl p-8 space-y-8">
       <h1 class="mb-2 text-2xl font-semibold">Kbd</h1>
@@ -41,6 +42,45 @@ import { KbdDirective, KbdGroupDirective } from '@app/shared/ui/kbd';
             <span>Close dialog</span>
             <kbd appKbd>Esc</kbd>
           </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">With Button</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6 flex flex-wrap items-center gap-4">
+          <button argusButton variant="outline" size="sm" class="pr-2">
+            Accept <kbd appKbd>⏎</kbd>
+          </button>
+          <button argusButton variant="outline" size="sm" class="pr-2">
+            Cancel <kbd appKbd>Esc</kbd>
+          </button>
+          <button argusButton variant="outline" size="sm" class="pr-2">
+            Copy link <kbd appKbdGroup>
+              <kbd appKbd>⌘</kbd>
+              <span>+</span>
+              <kbd appKbd>C</kbd>
+            </kbd>
+          </button>
+          <button argusButton variant="outline" size="sm" class="pr-2">
+            Paste <kbd appKbdGroup>
+              <kbd appKbd>⌘</kbd>
+              <span>+</span>
+              <kbd appKbd>V</kbd>
+            </kbd>
+          </button>
+        </div>
+      </section>
+
+      <section>
+        <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">Sizes</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6 flex flex-wrap items-center gap-2">
+          <kbd appKbd size="sm">⌘</kbd>
+          <kbd appKbd size="default">⌘</kbd>
+          <kbd appKbd size="lg">⌘</kbd>
         </div>
       </section>
     </div>

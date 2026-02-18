@@ -1,1 +1,1 @@
-export { KbdDirective, KbdGroupDirective } from './kbd.directive';
+export { KbdDirective, KbdGroupDirective, kbdSizes, type KbdSize } from './kbd.directive';

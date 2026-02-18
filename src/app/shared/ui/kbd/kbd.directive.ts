@@ -6,6 +6,14 @@ const kbdBaseClasses = "bg-muted text-muted-foreground in-data-[slot=tooltip-con
 
 const kbdGroupBaseClasses = "gap-1 inline-flex items-center";
 
+export const kbdSizes = {
+  sm: "h-4 text-[0.5rem] min-w-4",
+  default: "h-5 text-[0.625rem] min-w-5",
+  lg: "h-6 text-[0.75rem] min-w-6",
+} as const;
+
+export type KbdSize = keyof typeof kbdSizes;
+
 /**
  * Directive that applies keyboard key styling to kbd elements.
  * Use on <kbd> elements for displaying keyboard shortcuts.
@@ -14,6 +22,7 @@ const kbdGroupBaseClasses = "gap-1 inline-flex items-center";
  * ```html
  * <kbd appKbd>⌘</kbd>
  * <kbd appKbd>Ctrl</kbd> + <kbd appKbd>K</kbd>
+ * <kbd appKbd size="lg">⌘K</kbd>
  * ```
  */
 @Directive({
@@ -24,10 +33,11 @@ const kbdGroupBaseClasses = "gap-1 inline-flex items-center";
   },
 })
 export class KbdDirective {
+  readonly size = input<KbdSize>('default');
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(kbdBaseClasses, this.class())
+    cn(kbdBaseClasses, kbdSizes[this.size()], this.class())
   );
 }
 
