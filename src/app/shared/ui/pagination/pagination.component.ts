@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { cn } from '../../utils/cn';
 import { LucideAngularModule, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-angular';
-import { ButtonDirective } from '../button/button.directive';
+import { buttonVariants, type ButtonVariant, type ButtonSize } from '../button/button.directive';
 
 /**
  * Pagination navigation container.
@@ -23,7 +23,6 @@ import { ButtonDirective } from '../button/button.directive';
 @Component({
   selector: 'app-pagination',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LucideAngularModule],
   host: {
     '[class]': 'computedClass()',
     '[attr.role]': '"navigation"',
@@ -63,7 +62,7 @@ export class PaginationContentComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('flex flex-row items-center gap-0.5', this.class())
+    cn('flex flex-row items-center gap-1', this.class())
   );
 }
 
@@ -99,32 +98,48 @@ export class PaginationItemComponent {}
 @Component({
   selector: 'app-pagination-link',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonDirective, LucideAngularModule],
   host: {
-    '[class]': 'computedClass()',
-    '[attr.data-slot]': '"pagination-link"',
-    '[attr.data-active]': 'isActive() ? "true" : null',
-    '[attr.aria-current]': 'isActive() ? "page" : null',
+    '[class]': '"contents"',
   },
   template: `
-    <button
-      argusButton
-      [variant]="isActive() ? 'outline' : 'ghost'"
-      [size]="size()"
+    <a
+      [href]="href()"
+      [class]="computedClass()"
+      data-slot="pagination-link"
+      [attr.data-active]="isActive()"
+      [attr.aria-current]="isActive() ? 'page' : null"
       (click)="onClick($event)"
     >
       <ng-content />
-    </button>
+    </a>
   `,
 })
 export class PaginationLinkComponent {
   readonly page = input.required<number>();
+  readonly href = input<string>('#');
   readonly isActive = input<boolean>(false);
-  readonly size = input<'default' | 'sm' | 'lg' | 'icon' | 'icon-sm' | 'icon-xs' | 'icon-lg'>('icon');
+  readonly size = input<ButtonSize>('icon');
+  readonly variant = input<ButtonVariant>('ghost');
   readonly class = input<string>('');
   readonly pageChange = output<number>();
 
-  protected readonly computedClass = computed(() => this.class());
+  /**
+   * Computed variant based on isActive state and variant input.
+   * If isActive is true, always use 'outline' variant.
+   */
+  protected readonly computedVariant = computed(() =>
+    this.isActive() ? 'outline' : this.variant()
+  );
+
+  protected readonly computedClass = computed(() =>
+    cn(
+      buttonVariants({
+        variant: this.computedVariant(),
+        size: this.size(),
+      }),
+      this.class()
+    )
+  );
 
   onClick(event: Event): void {
     event.preventDefault();
@@ -143,33 +158,34 @@ export class PaginationLinkComponent {
 @Component({
   selector: 'app-pagination-previous',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonDirective, LucideAngularModule],
+  imports: [LucideAngularModule],
   host: {
-    '[class]': 'computedClass()',
-    '[attr.aria-label]': '"Go to previous page"',
-    '[attr.data-slot]': '"pagination-link"',
+    '[class]': '"contents"',
   },
   template: `
-    <button
-      argusButton
-      variant="ghost"
-      size="default"
-      class="pl-2!"
+    <a
+      [href]="href()"
+      [class]="computedClass()"
+      aria-label="Go to previous page"
+      data-slot="pagination-link"
       (click)="onClick($event)"
     >
       <lucide-icon [img]="chevronLeftIcon" data-icon="inline-start" class="size-3.5"></lucide-icon>
       <span class="hidden sm:block">{{ text() }}</span>
-    </button>
+    </a>
   `,
 })
 export class PaginationPreviousComponent {
+  readonly href = input<string>('#');
   readonly text = input<string>('Previous');
   readonly class = input<string>('');
   readonly pageChange = output<number>();
 
   protected readonly chevronLeftIcon = ChevronLeft;
 
-  protected readonly computedClass = computed(() => this.class());
+  protected readonly computedClass = computed(() =>
+    cn(buttonVariants({ variant: 'ghost', size: 'default' }), 'gap-1 px-2.5 sm:pl-2.5', this.class())
+  );
 
   onClick(event: Event): void {
     event.preventDefault();
@@ -188,33 +204,34 @@ export class PaginationPreviousComponent {
 @Component({
   selector: 'app-pagination-next',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonDirective, LucideAngularModule],
+  imports: [LucideAngularModule],
   host: {
-    '[class]': 'computedClass()',
-    '[attr.aria-label]': '"Go to next page"',
-    '[attr.data-slot]': '"pagination-link"',
+    '[class]': '"contents"',
   },
   template: `
-    <button
-      argusButton
-      variant="ghost"
-      size="default"
-      class="pr-2!"
+    <a
+      [href]="href()"
+      [class]="computedClass()"
+      aria-label="Go to next page"
+      data-slot="pagination-link"
       (click)="onClick($event)"
     >
       <span class="hidden sm:block">{{ text() }}</span>
       <lucide-icon [img]="chevronRightIcon" data-icon="inline-end" class="size-3.5"></lucide-icon>
-    </button>
+    </a>
   `,
 })
 export class PaginationNextComponent {
+  readonly href = input<string>('#');
   readonly text = input<string>('Next');
   readonly class = input<string>('');
   readonly pageChange = output<number>();
 
   protected readonly chevronRightIcon = ChevronRight;
 
-  protected readonly computedClass = computed(() => this.class());
+  protected readonly computedClass = computed(() =>
+    cn(buttonVariants({ variant: 'ghost', size: 'default' }), 'gap-1 px-2.5 sm:pr-2.5', this.class())
+  );
 
   onClick(event: Event): void {
     event.preventDefault();
@@ -235,13 +252,13 @@ export class PaginationNextComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [LucideAngularModule],
   host: {
-    '[class]': 'computedClass()',
-    '[attr.aria-hidden]': '"true"',
-    '[attr.data-slot]': '"pagination-ellipsis"',
+    '[class]': '"contents"',
   },
   template: `
-    <span class="sr-only">More pages</span>
-    <lucide-icon [img]="moreHorizontalIcon" class="size-3.5"></lucide-icon>
+    <span aria-hidden="true" data-slot="pagination-ellipsis" [class]="computedClass()">
+      <lucide-icon [img]="moreHorizontalIcon" class="size-4"></lucide-icon>
+      <span class="sr-only">More pages</span>
+    </span>
   `,
 })
 export class PaginationEllipsisComponent {
@@ -250,6 +267,6 @@ export class PaginationEllipsisComponent {
   protected readonly moreHorizontalIcon = MoreHorizontal;
 
   protected readonly computedClass = computed(() =>
-    cn('size-7 [&_svg:not([class*=\'size-\'])]:size-3.5 flex items-center justify-center', this.class())
+    cn('flex size-9 items-center justify-center', this.class())
   );
 }
