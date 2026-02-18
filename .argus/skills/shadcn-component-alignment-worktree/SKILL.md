@@ -23,16 +23,21 @@ Main process dispatches subagents (max parallel 5), each subagent works on one c
    - `artifacts.visualDiffJson`
    - `artifacts.interactionResultsJson`
 5. Main process must challenge any “test passed but no 1:1 pixel evidence” result and fail that task.
+6. Before coding, subagent must read baseline evidence from `previews/shadcn/{component}` and compare against online preview page.
 
 ## Main Process Workflow
 
 1. Build queue from `src/app/preview/preview-layout.component.ts`.
 2. Select only items without manual-review marker.
 3. Dispatch subagents with max concurrency `5`.
-4. Track task states (`pending/running/success/failed`) and progress fields (`isRunning`, `agentCompleted`).
-5. Validate subagent output contract strictly.
-6. For success tasks, cherry-pick returned commits.
-7. Continue even if some tasks fail, then output final summary.
+4. Provide each subagent with:
+   - `baselineDir` (`previews/shadcn/{component}`)
+   - `onlinePreviewUrl` (shadcn preview URL)
+   - `localPreviewUrl` (local preview route)
+5. Track task states (`pending/running/success/failed`) and progress fields (`isRunning`, `agentCompleted`).
+6. Validate subagent output contract strictly.
+7. For success tasks, cherry-pick returned commits.
+8. Continue even if some tasks fail, then output final summary.
 
 ## Post-Test Interrogation Gate
 
@@ -55,9 +60,21 @@ Use JSON with fields:
 - `branch`
 - `worktreePath`
 - `baselineDir`
+- `onlinePreviewUrl`
+- `localPreviewUrl`
 - `artifactDir`
 - `verification.visualThreshold`
 - `verification.requireInteractionChecks`
+
+## Subagent Baseline Comparison Procedure
+
+Subagent must execute this order:
+
+1. Read local baseline directory: `previews/shadcn/{component}`.
+2. Inspect baseline screenshots and scenario/doc files in that directory.
+3. Open `onlinePreviewUrl` and compare visual state against baseline screenshots.
+4. If baseline is stale vs online preview, update evidence first, then start implementation.
+5. Only after baseline is trusted, do local implementation and validation.
 
 ## Subagent Output Contract
 

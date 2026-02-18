@@ -3,12 +3,11 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const scriptPath = fileURLToPath(import.meta.url);
-const scriptDir = dirname(scriptPath);
-const defaultRepoRoot = resolve(scriptDir, '..');
+const defaultRepoRoot = process.cwd();
 
 const INPUT_SCHEMA_VERSION = 'v1';
 const OUTPUT_SCHEMA_VERSION = 'v1';
@@ -175,6 +174,11 @@ export function createRunId(now = new Date()) {
   ].join('');
 }
 
+export function buildShadcnOnlinePreviewUrl(component) {
+  const encoded = encodeURIComponent(`${component}-example`);
+  return `https://ui.shadcn.com/preview/radix/${component}-example?item=${encoded}&style=mira&theme=cyan&font=nunito-sans&menuAccent=bold&radius=medium&template=vite`;
+}
+
 export function makeTaskContract({
   component,
   repoRoot,
@@ -188,6 +192,8 @@ export function makeTaskContract({
     branch: `codex/review-${component}`,
     worktreePath: resolve(worktreeRoot, `review-${component}`),
     baselineDir: resolve(repoRoot, 'previews', 'shadcn', component),
+    onlinePreviewUrl: buildShadcnOnlinePreviewUrl(component),
+    localPreviewUrl: `http://127.0.0.1:4200/preview/${component}`,
     artifactDir: resolve(repoRoot, 'component-comparisons', component),
     verification: {
       visualThreshold,
@@ -412,14 +418,14 @@ function printHelp() {
   console.log(`preview-review-orchestrator
 
 Usage:
-  node scripts/preview-review-orchestrator.mjs --subagent-cmd "<command-template>" [options]
+  node .argus/skills/shadcn-component-alignment-worktree/scripts/preview-review-orchestrator.mjs --subagent-cmd "<command-template>" [options]
 
 Required:
   --subagent-cmd    Command template to execute one component subagent task.
                     Available placeholders:
                     {{component}}, {{inputFile}}, {{outputFile}}, {{repoRoot}},
                     {{worktreeRoot}}, {{worktreePath}}, {{branch}},
-                    {{baselineDir}}, {{artifactDir}}
+                    {{baselineDir}}, {{onlinePreviewUrl}}, {{localPreviewUrl}}, {{artifactDir}}
 
 Options:
   --repo-root <path>         Repository root (default: project root)
@@ -542,6 +548,8 @@ async function processTask({
     worktreePath: contract.worktreePath,
     branch: contract.branch,
     baselineDir: contract.baselineDir,
+    onlinePreviewUrl: contract.onlinePreviewUrl,
+    localPreviewUrl: contract.localPreviewUrl,
     artifactDir: contract.artifactDir,
   });
 

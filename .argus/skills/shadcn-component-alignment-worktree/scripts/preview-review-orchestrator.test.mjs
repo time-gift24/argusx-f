@@ -3,8 +3,10 @@ import test from 'node:test';
 
 import {
   buildMainProcessInterrogation,
+  buildShadcnOnlinePreviewUrl,
   createInitialTaskRecords,
   getUnreviewedComponents,
+  makeTaskContract,
   parsePreviewItems,
   renderTaskListConsole,
   renderTaskListMarkdown,
@@ -176,4 +178,17 @@ test('task list helpers include running and agent completion markers', () => {
   assert.ok(consoleText.includes('running=1'));
   assert.ok(consoleText.includes('agentCompleted=1'));
   assert.ok(consoleText.includes('popover | running | true | false |'));
+});
+
+test('makeTaskContract includes baseline and preview compare urls', () => {
+  const contract = makeTaskContract({
+    component: 'popover',
+    repoRoot: '/repo',
+    worktreeRoot: '/repo/.worktrees',
+    visualThreshold: 0.1,
+  });
+
+  assert.equal(contract.baselineDir, '/repo/previews/shadcn/popover');
+  assert.equal(contract.onlinePreviewUrl, buildShadcnOnlinePreviewUrl('popover'));
+  assert.equal(contract.localPreviewUrl, 'http://127.0.0.1:4200/preview/popover');
 });
