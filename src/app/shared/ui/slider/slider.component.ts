@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, signal, computed, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, computed, inject, input, output, signal } from '@angular/core';
 import { cn } from '../../utils/cn';
 
 /**
@@ -15,9 +15,11 @@ import { cn } from '../../utils/cn';
   selector: 'app-slider',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    '[attr.data-slot]': '"slider"',
     '[class]': 'computedClass()',
     '[attr.id]': 'id() || null',
     '[attr.name]': 'name() || null',
+    '[attr.data-orientation]': 'orientation()',
     '[attr.data-disabled]': 'disabled() ? "" : null',
     role: 'slider',
     '[attr.aria-valuemin]': 'min()',
@@ -32,26 +34,34 @@ import { cn } from '../../utils/cn';
     '(keydown)': 'onKeyDown($event)',
   },
   template: `
-    <!-- Track -->
-    <div class="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
-      <!-- Range (filled portion) -->
+    <div
+      data-slot="slider-track"
+      [attr.data-orientation]="orientation()"
+      class="bg-muted relative grow overflow-hidden rounded-full data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5"
+    >
       <div
-        class="absolute h-full bg-primary"
-        [style.width.%]="position()"
+        data-slot="slider-range"
+        [attr.data-orientation]="orientation()"
+        class="bg-primary absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
+        [style.left.%]="orientation() === 'horizontal' ? 0 : null"
+        [style.width.%]="orientation() === 'horizontal' ? position() : null"
+        [style.bottom.%]="orientation() === 'vertical' ? 0 : null"
+        [style.height.%]="orientation() === 'vertical' ? position() : null"
       ></div>
     </div>
 
-    <!-- Thumb -->
     <div
-      #thumb
-      class="block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+      data-slot="slider-thumb"
+      [attr.data-orientation]="orientation()"
+      class="border-primary bg-background ring-ring/50 absolute block size-4 shrink-0 rounded-full border shadow-sm transition-[color,box-shadow] hover:ring-4 disabled:pointer-events-none"
       [class.cursor-grab]="!disabled()"
       [class.cursor-grabbing]="isDragging()"
-      [style.left.%]="position()"
-      [style.transform]="'translateX(-50%)'"
+      [class.ring-4]="isDragging()"
+      [style.left.%]="orientation() === 'horizontal' ? position() : 50"
+      [style.top.%]="orientation() === 'vertical' ? 100 - position() : 50"
+      [style.transform]="'translate(-50%, -50%)'"
     ></div>
 
-    <!-- Hidden native input for form integration -->
     <input
       type="hidden"
       [attr.name]="name() || null"
@@ -60,7 +70,7 @@ import { cn } from '../../utils/cn';
   `,
 })
 export class SliderComponent implements OnDestroy {
-  @ViewChild('thumb') thumb!: ElementRef<HTMLDivElement>;
+  private readonly hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly id = input<string>('');
   readonly name = input<string>('');
@@ -82,20 +92,20 @@ export class SliderComponent implements OnDestroy {
   protected readonly position = computed(() => {
     const min = this.min();
     const max = this.max();
+    if (max <= min) {
+      return 0;
+    }
     const val = this.value();
-    return ((val - min) / (max - min)) * 100;
+    const normalized = (val - min) / (max - min);
+    return Math.max(0, Math.min(100, normalized * 100));
   });
 
   protected readonly computedClass = (): string => {
     return cn(
-      // Base styles
-      'relative flex w-full touch-none select-none items-center',
-      // Horizontal (default)
-      'h-4',
-      // Vertical orientation
-      this.orientation() === 'vertical' && 'flex-col h-full w-4',
-      // Disabled styles
-      'disabled:opacity-50 disabled:pointer-events-none',
+      'relative flex w-full touch-none select-none items-center data-[orientation=horizontal]:h-4',
+      'data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col',
+      'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'focus-visible:outline-none focus-visible:[&_[data-slot=slider-thumb]]:ring-4 focus-visible:[&_[data-slot=slider-thumb]]:ring-ring/50',
       this.class()
     );
   };
@@ -133,8 +143,7 @@ export class SliderComponent implements OnDestroy {
   }
 
   private updateValueFromEvent(event: PointerEvent): void {
-    const track = event.currentTarget as HTMLElement;
-    const rect = track.getBoundingClientRect();
+    const rect = this.hostElement.nativeElement.getBoundingClientRect();
     const clientKey = this.orientation() === 'vertical' ? 'clientY' : 'clientX';
 
     // For vertical, we need to calculate from bottom to top
@@ -157,12 +166,20 @@ export class SliderComponent implements OnDestroy {
 
     // Snap to step
     const step = this.step();
-    const steppedValue = Math.round(rawValue / step) * step;
+    const safeStep = step > 0 ? step : 1;
+    const steppedValue = min + Math.round((rawValue - min) / safeStep) * safeStep;
+    const precision = this.getPrecision(safeStep);
+    const roundedSteppedValue = Number(steppedValue.toFixed(precision));
 
     // Clamp to min/max
-    const finalValue = Math.max(min, Math.min(max, steppedValue));
+    const finalValue = Math.max(min, Math.min(max, roundedSteppedValue));
 
     this.valueChange.emit(finalValue);
+  }
+
+  private getPrecision(step: number): number {
+    const parts = step.toString().split('.');
+    return parts[1]?.length ?? 0;
   }
 
   onKeyDown(event: KeyboardEvent): void {
