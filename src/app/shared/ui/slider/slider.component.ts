@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, signal, computed, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal, computed, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { cn } from '../../utils/cn';
 
 /**
@@ -37,7 +37,7 @@ import { cn } from '../../utils/cn';
       <!-- Range (filled portion) -->
       <div
         class="absolute h-full bg-primary"
-        [style.width.%]="fillPercentage()"
+        [style.width.%]="position()"
       ></div>
     </div>
 
@@ -59,7 +59,7 @@ import { cn } from '../../utils/cn';
     />
   `,
 })
-export class SliderComponent {
+export class SliderComponent implements OnDestroy {
   @ViewChild('thumb') thumb!: ElementRef<HTMLDivElement>;
 
   readonly id = input<string>('');
@@ -84,11 +84,6 @@ export class SliderComponent {
     const max = this.max();
     const val = this.value();
     return ((val - min) / (max - min)) * 100;
-  });
-
-  // Calculate fill percentage for the range portion
-  protected readonly fillPercentage = computed(() => {
-    return this.position();
   });
 
   protected readonly computedClass = (): string => {
@@ -130,6 +125,12 @@ export class SliderComponent {
     document.removeEventListener('pointermove', this.onPointerMove);
     document.removeEventListener('pointerup', this.onPointerUp);
   };
+
+  ngOnDestroy(): void {
+    // Clean up event listeners to prevent memory leaks
+    document.removeEventListener('pointermove', this.onPointerMove);
+    document.removeEventListener('pointerup', this.onPointerUp);
+  }
 
   private updateValueFromEvent(event: PointerEvent): void {
     const track = event.currentTarget as HTMLElement;
