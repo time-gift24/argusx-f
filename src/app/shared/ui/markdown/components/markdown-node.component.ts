@@ -160,9 +160,15 @@ import { TableControlsComponent } from './table-controls.component';
             </div>
           }
           @case ('pre') {
-            @if (codeChild() && preCodeLanguage() === 'mermaid') {
+            @if (codeChild() && preCodeLanguage() === 'mermaid' && renderCapabilities().mermaid.enabled) {
               @defer (when true) {
-                <sd-mermaid [chart]="preCodeText()"></sd-mermaid>
+                <sd-mermaid
+                  [chart]="preCodeText()"
+                  [allowCopy]="renderCapabilities().mermaid.copy"
+                  [allowDownload]="renderCapabilities().mermaid.download"
+                  [allowFullscreen]="renderCapabilities().mermaid.fullscreen"
+                  [showControlsBar]="renderCapabilities().controls.mermaid"
+                  [showPanZoom]="renderCapabilities().mermaid.panZoom"></sd-mermaid>
               } @placeholder {
                 <div class="my-4 min-h-[100px] text-muted-foreground">
                   Loading diagram...
@@ -173,6 +179,10 @@ import { TableControlsComponent } from './table-controls.component';
                 <sd-code-block
                   [code]="preCodeText()"
                   [language]="preCodeLanguage()"
+                  [showCopy]="renderCapabilities().code.copy"
+                  [showDownload]="renderCapabilities().code.download"
+                  [showHeader]="renderCapabilities().controls.code"
+                  [showLanguageLabel]="renderCapabilities().code.showLanguageLabel"
                 ></sd-code-block>
               } @placeholder {
                 <pre class="overflow-x-auto p-4"><code>{{ preCodeText() }}</code></pre>
