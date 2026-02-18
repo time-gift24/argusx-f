@@ -22,6 +22,7 @@ import type {
 import { MarkdownNodeComponent } from './components/markdown-node.component';
 import { normalizeCapabilities } from './services/markdown-capabilities-normalizer';
 import { MarkdownEngineService } from './services/markdown-engine.service';
+import { MarkdownRenderCapabilitiesService } from './services/markdown-render-capabilities.service';
 import {
   createStreamUpdateCoalescer,
   StreamUpdateCoalescer,
@@ -39,7 +40,9 @@ type AutoScrollTarget = 'nearest' | 'self';
       } @else {
         @for (block of blocks(); track block.id) {
           <article class="sd-block">
-            <sd-markdown-node [node]="block.root" />
+            <sd-markdown-node
+              [node]="block.root"
+              [renderCapabilities]="renderCapabilities()" />
           </article>
         }
       }
@@ -51,6 +54,9 @@ type AutoScrollTarget = 'nearest' | 'self';
 })
 export class SdMarkdownComponent {
   private readonly engine = inject(MarkdownEngineService);
+  private readonly renderCapabilitiesService = inject(
+    MarkdownRenderCapabilitiesService
+  );
   private readonly hostElement = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
   private cachedScrollContainer: HTMLElement | null = null;
@@ -90,6 +96,10 @@ export class SdMarkdownComponent {
       rehypePlugins: this.rehypePlugins(),
       allowedTags: this.allowedTags(),
     })
+  );
+
+  readonly renderCapabilities = computed(() =>
+    this.renderCapabilitiesService.create(this.normalizedCapabilities())
   );
 
   readonly blocks = computed(() =>
