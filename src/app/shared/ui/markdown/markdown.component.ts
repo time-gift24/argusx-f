@@ -12,6 +12,7 @@ import {
   signal,
 } from '@angular/core';
 import type { PluggableList } from 'unified';
+import type { MarkdownCapabilities } from './models/markdown-capabilities.models';
 import type {
   AllowElement,
   AllowedTags,
@@ -19,6 +20,7 @@ import type {
   UrlTransform,
 } from './models/markdown.models';
 import { MarkdownNodeComponent } from './components/markdown-node.component';
+import { normalizeCapabilities } from './services/markdown-capabilities-normalizer';
 import { MarkdownEngineService } from './services/markdown-engine.service';
 import {
   createStreamUpdateCoalescer,
@@ -65,6 +67,7 @@ export class SdMarkdownComponent {
   readonly skipHtml = input(false);
   readonly unwrapDisallowed = input(false);
   readonly className = input<string>('');
+  readonly capabilities = input<MarkdownCapabilities | undefined>(undefined);
 
   readonly allowedElements = input<readonly string[] | undefined>(undefined);
   readonly disallowedElements = input<readonly string[] | undefined>(undefined);
@@ -80,6 +83,15 @@ export class SdMarkdownComponent {
   readonly streamThrottleMs = input(120);
   readonly streamDebounceMs = input(24);
 
+  readonly normalizedCapabilities = computed(() =>
+    normalizeCapabilities({
+      capabilities: this.capabilities(),
+      remarkPlugins: this.remarkPlugins(),
+      rehypePlugins: this.rehypePlugins(),
+      allowedTags: this.allowedTags(),
+    })
+  );
+
   readonly blocks = computed(() =>
     this.engine.renderBlocks(this.renderedContent(), {
       mode: this.mode(),
@@ -90,9 +102,7 @@ export class SdMarkdownComponent {
       disallowedElements: this.disallowedElements(),
       allowElement: this.allowElement(),
       urlTransform: this.urlTransform(),
-      allowedTags: this.allowedTags(),
-      remarkPlugins: this.remarkPlugins(),
-      rehypePlugins: this.rehypePlugins(),
+      capabilities: this.normalizedCapabilities(),
     })
   );
 
