@@ -1,261 +1,230 @@
-# Interaction Patterns
+# Interaction Scenarios
 
-## Basic Interactions
+Use this file to author scenario JSON for `scripts/capture_interactions.mjs`.
 
-### Hover
+## Scenario Schema
+
 ```json
 {
-  "selector": "button",
-  "action": "hover"
+  "waitAfterLoadMs": 1200,
+  "shots": [
+    {
+      "name": "select-default",
+      "reset": false,
+      "actions": [],
+      "assertions": [],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "select-default",
+      "mustDifferFromPrevious": false,
+      "screenshot": {
+        "file": "select-default.png",
+        "fullPage": true,
+        "target": { "selector": "main" }
+      }
+    }
+  ]
 }
 ```
 
-### Click
+Notes:
+- `mustDifferFrom` should not be set on baseline shot.
+- Use `reset: true` when a shot should start from clean initial state.
+- Use page screenshot (`fullPage`) for portal overlays (dialog/popover/tooltip/dropdown).
+
+## Target Syntax
+
+Use one of:
+
+```json
+{ "selector": "[role='combobox']" }
+```
+
+```json
+{ "role": "button", "name": "Open", "exact": false }
+```
+
+```json
+{ "text": "Open", "exact": true }
+```
+
+```json
+{ "label": "Email" }
+```
+
+```json
+{ "testId": "component-trigger" }
+```
+
+## Supported Actions
+
+- `wait` -> `{ "type": "wait", "ms": 300 }`
+- `waitFor` -> `{ "type": "waitFor", "target": {...}, "state": "visible" }`
+- `click`
+- `dblclick`
+- `rightClick`
+- `hover`
+- `focus`
+- `blur`
+- `press`
+- `fill`
+- `type`
+- `check`
+- `uncheck`
+- `drag`
+- `scrollIntoView`
+
+## Supported Assertions
+
+- `visible`
+- `hidden`
+- `exists`
+- `notExists`
+- `count`
+- `attr`
+- `textIncludes`
+- `urlIncludes`
+
+## Example: Select (click + open listbox)
+
 ```json
 {
-  "selector": "button[aria-haspopup='listbox']",
-  "action": "click"
+  "waitAfterLoadMs": 1400,
+  "shots": [
+    {
+      "name": "select-default",
+      "screenshot": { "file": "select-default.png", "fullPage": true }
+    },
+    {
+      "name": "select-open",
+      "reset": true,
+      "actions": [
+        { "type": "click", "target": { "selector": "button[role='combobox']" } },
+        { "type": "waitFor", "target": { "selector": "[role='listbox']" }, "state": "visible" }
+      ],
+      "assertions": [
+        { "type": "visible", "target": { "selector": "[role='listbox']" } },
+        {
+          "type": "exists",
+          "target": { "selector": "button[role='combobox'][aria-expanded='true']" }
+        }
+      ],
+      "beforeScreenshotWaitMs": 120,
+      "mustDifferFrom": "select-default",
+      "screenshot": { "file": "select-open.png", "fullPage": true }
+    }
+  ]
 }
 ```
 
-### Double Click
+## Example: Accordion (hover + expand)
+
 ```json
 {
-  "selector": "button",
-  "action": "double_click"
+  "waitAfterLoadMs": 1200,
+  "shots": [
+    {
+      "name": "accordion-default",
+      "screenshot": { "file": "accordion-default.png", "fullPage": true }
+    },
+    {
+      "name": "accordion-hover",
+      "reset": true,
+      "actions": [
+        {
+          "type": "hover",
+          "target": { "selector": "button[aria-controls]" },
+          "waitAfterMs": 120
+        }
+      ],
+      "mustDifferFrom": "accordion-default",
+      "screenshot": { "file": "accordion-hover.png", "fullPage": true }
+    },
+    {
+      "name": "accordion-open",
+      "reset": true,
+      "actions": [
+        { "type": "click", "target": { "selector": "button[aria-controls]" } },
+        {
+          "type": "waitFor",
+          "target": { "selector": "[data-state='open']" },
+          "state": "visible"
+        }
+      ],
+      "assertions": [{ "type": "exists", "target": { "selector": "[data-state='open']" } }],
+      "mustDifferFrom": "accordion-default",
+      "screenshot": { "file": "accordion-open.png", "fullPage": true }
+    }
+  ]
 }
 ```
 
-### Right Click (Context Menu)
+## Example: Tooltip / Hover Card
+
 ```json
 {
-  "selector": ".context-area",
-  "action": "click",
-  "button": "right"
+  "waitAfterLoadMs": 1200,
+  "shots": [
+    {
+      "name": "tooltip-default",
+      "screenshot": { "file": "tooltip-default.png", "fullPage": true }
+    },
+    {
+      "name": "tooltip-hover",
+      "reset": true,
+      "actions": [
+        {
+          "type": "hover",
+          "target": { "selector": "[data-slot='tooltip-trigger']" },
+          "waitAfterMs": 240
+        },
+        {
+          "type": "waitFor",
+          "target": { "selector": "[role='tooltip']" },
+          "state": "visible"
+        }
+      ],
+      "assertions": [
+        { "type": "visible", "target": { "selector": "[role='tooltip']" } },
+        {
+          "type": "exists",
+          "target": { "selector": "[data-slot='tooltip-trigger'][data-state*='open']" }
+        }
+      ],
+      "mustDifferFrom": "tooltip-default",
+      "screenshot": { "file": "tooltip-hover.png", "fullPage": true }
+    }
+  ]
 }
 ```
 
-## Form Interactions
+## Example: Tabs (switch content)
 
-### Focus Input
 ```json
 {
-  "selector": "input[type='text']",
-  "action": "focus"
+  "waitAfterLoadMs": 1200,
+  "shots": [
+    {
+      "name": "tabs-default",
+      "screenshot": { "file": "tabs-default.png", "fullPage": true }
+    },
+    {
+      "name": "tabs-account",
+      "reset": true,
+      "actions": [
+        { "type": "click", "target": { "role": "tab", "name": "Account" } },
+        { "type": "wait", "ms": 120 }
+      ],
+      "assertions": [
+        {
+          "type": "attr",
+          "target": { "role": "tab", "name": "Account" },
+          "name": "data-state",
+          "value": "active"
+        }
+      ],
+      "mustDifferFrom": "tabs-default",
+      "screenshot": { "file": "tabs-account.png", "fullPage": true }
+    }
+  ]
 }
 ```
-
-### Fill Input
-```json
-{
-  "selector": "input[type='text']",
-  "action": "fill",
-  "value": "Hello World"
-}
-```
-
-### Type in Input
-```json
-{
-  "selector": "input[type='text']",
-  "action": "type",
-  "value": "Hello"
-}
-```
-
-### Clear Input
-```json
-{
-  "selector": "input",
-  "action": "clear"
-}
-```
-
-### Checkbox Toggle
-```json
-{
-  "selector": "input[type='checkbox']",
-  "action": "check"
-}
-```
-
-### Radio Selection
-```json
-{
-  "selector": "input[type='radio'][value='option1']",
-  "action": "check"
-}
-```
-
-### Slider Move
-```json
-{
-  "selector": "input[type='range']",
-  "action": "fill",
-  "value": "50"
-}
-```
-
-## Dropdown/Select Interactions
-
-### Open Select Dropdown
-```json
-{
-  "selector": "button[role='combobox']",
-  "action": "click"
-}
-```
-
-### Select Option
-```json
-{
-  "selector": "[role='option']:has-text('Option 1')",
-  "action": "click"
-}
-```
-
-### Keyboard Navigation in Select
-```json
-{
-  "selector": "button[role='combobox']",
-  "action": "press",
-  "key": "ArrowDown"
-}
-```
-
-## Dialog/Popover Interactions
-
-### Open Dialog
-```json
-{
-  "selector": "button:text('Open Dialog')",
-  "action": "click"
-}
-```
-
-### Close Dialog
-```json
-{
-  "selector": "[role='dialog'] button[aria-label='Close']",
-  "action": "click"
-}
-```
-
-### Open Popover
-```json
-{
-  "selector": "button[data-state='closed']",
-  "action": "click"
-}
-```
-
-## Accordion/Tabs Interactions
-
-### Toggle Accordion Item
-```json
-{
-  "selector": "button[aria-expanded='false']",
-  "action": "click"
-}
-```
-
-### Switch Tabs
-```json
-{
-  "selector": "button[role='tab']:has-text('Account')",
-  "action": "click"
-}
-```
-
-## Carousel/Slider Interactions
-
-### Navigate Carousel Next
-```json
-{
-  "selector": "button[aria-label='Next']",
-  "action": "click"
-}
-```
-
-### Navigate Carousel Previous
-```json
-{
-  "selector": "button[aria-label='Previous']",
-  "action": "click"
-}
-```
-
-### Drag Slider
-```json
-{
-  "selector": "[data-orientation='horizontal'] > [role='slider']",
-  "action": "click",
-  "position": {"x": 200, "y": 0}
-}
-```
-
-## Navigation Interactions
-
-### Hover Navigation Menu
-```json
-{
-  "selector": "a:text('Products')",
-  "action": "hover"
-}
-```
-
-### Click Navigation Link
-```json
-{
-  "selector": "a:text('Products')",
-  "action": "click"
-}
-```
-
-## Screenshot Capture Patterns
-
-### Wait Before Screenshot
-Use `wait_for` to wait for animations or state changes:
-```json
-{
-  "selector": "[data-state='open']",
-  "state": "visible",
-  "timeout": 5000
-}
-```
-
-### Capture After Interaction
-1. Perform interaction (click, hover)
-2. Wait for state change
-3. Take screenshot
-
-### Full Page Screenshot
-```json
-{
-  "fullPage": true
-}
-```
-
-### Element Screenshot
-```json
-{
-  "selector": ".component-container",
-  "fullPage": false
-}
-```
-
-## Complex Interactions
-
-### Multi-step: Form Submission
-1. Fill input fields
-2. Select options
-3. Click submit
-4. Wait for success state
-5. Screenshot
-
-### Multi-step: Selection Flow
-1. Open dropdown (click)
-2. Wait for options to appear
-3. Hover option (preview)
-4. Click option (select)
-5. Screenshot result
