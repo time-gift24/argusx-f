@@ -13,10 +13,16 @@ import type {
 import type { MarkdownRenderCapabilities } from '../services/markdown-render-capabilities.service';
 import { CodeBlockComponent } from './code-block.component';
 import { MermaidComponent } from './mermaid.component';
+import { TableControlsComponent } from './table-controls.component';
 
 @Component({
   selector: 'sd-markdown-node',
-  imports: [forwardRef(() => MarkdownNodeComponent), CodeBlockComponent, MermaidComponent],
+  imports: [
+    forwardRef(() => MarkdownNodeComponent),
+    CodeBlockComponent,
+    MermaidComponent,
+    TableControlsComponent,
+  ],
   template: `
     @switch (node().kind) {
       @case ('text') {
@@ -165,6 +171,9 @@ import { MermaidComponent } from './mermaid.component';
             </code>
           }
           @case ('table') {
+            @if (renderCapabilities().controls.table) {
+              <sd-table-controls [tableMarkdown]="tableMarkdown()"></sd-table-controls>
+            }
             <table [attr.style]="styleText()" [class]="className()">
               @for (child of children(); track $index) {
                 <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
@@ -342,6 +351,14 @@ export class MarkdownNodeComponent {
     }
 
     return this.collectText(codeNode.children);
+  });
+
+  readonly tableMarkdown = computed(() => {
+    if (this.tagName() !== 'table') {
+      return '';
+    }
+
+    return this.collectText(this.children());
   });
 
   readonly isIncompleteLink = computed(() => {
