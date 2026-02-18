@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, signal, computed, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal, computed, ElementRef, ViewChild } from '@angular/core';
 import { cn } from '../../utils/cn';
 
 /**
@@ -28,6 +28,8 @@ import { cn } from '../../utils/cn';
     '[attr.aria-labelledby]': 'ariaLabelledby() || null',
     '[attr.tabindex]': 'disabled() ? -1 : 0',
     '[attr.aria-orientation]': 'orientation()',
+    '(pointerdown)': 'onPointerDown($event)',
+    '(keydown)': 'onKeyDown($event)',
   },
   template: `
     <!-- Track -->
@@ -103,7 +105,6 @@ export class SliderComponent {
     );
   };
 
-  @HostListener('pointerdown', ['$event'])
   onPointerDown(event: PointerEvent): void {
     if (this.disabled()) {
       return;
@@ -163,7 +164,6 @@ export class SliderComponent {
     this.valueChange.emit(finalValue);
   }
 
-  @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
     if (this.disabled()) {
       return;
