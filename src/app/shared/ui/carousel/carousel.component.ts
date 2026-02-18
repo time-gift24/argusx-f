@@ -75,8 +75,7 @@ export class CarouselComponent {
       this.size() === 'default' && 'py-4',
       this.size() === 'lg' && 'py-6',
       this.size() === 'xl' && 'py-8',
-      this.variant() === 'overflow' && 'overflow-visible',
-      this.variant() === 'default' && 'overflow-hidden'
+      this.variant() === 'overflow' && 'overflow-visible'
     )
   );
 
