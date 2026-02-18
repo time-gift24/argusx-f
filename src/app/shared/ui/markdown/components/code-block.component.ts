@@ -58,18 +58,36 @@ const loadingLanguages = new Map<string, Promise<void>>();
   selector: 'sd-code-block',
   template: `
     <div class="my-4 w-full overflow-hidden rounded-xl border border-border bg-card">
-      @if (showHeader()) {
+      @if (showHeaderBar()) {
         <div class="flex items-center justify-between border-b bg-muted/80 p-3 text-xs">
-          <span class="ml-1 font-mono lowercase text-muted-foreground">{{
-            displayLanguage()
-          }}</span>
-          <button
-            type="button"
-            (click)="copy()"
-            class="text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            {{ copied() ? 'Copied!' : 'Copy' }}
-          </button>
+          @if (showLanguageLabel()) {
+            <span class="ml-1 font-mono lowercase text-muted-foreground">{{
+              displayLanguage()
+            }}</span>
+          } @else {
+            <span></span>
+          }
+
+          <div class="flex items-center gap-2">
+            @if (showDownload()) {
+              <button
+                type="button"
+                (click)="download()"
+                class="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Download
+              </button>
+            }
+            @if (showCopy()) {
+              <button
+                type="button"
+                (click)="copy()"
+                class="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {{ copied() ? 'Copied!' : 'Copy' }}
+              </button>
+            }
+          </div>
         </div>
       }
       <pre class="overflow-x-auto p-4">
@@ -87,6 +105,9 @@ export class CodeBlockComponent {
   readonly code = input.required<string>();
   readonly language = input<string>('');
   readonly showHeader = input<boolean>(true);
+  readonly showCopy = input<boolean>(true);
+  readonly showDownload = input<boolean>(false);
+  readonly showLanguageLabel = input<boolean>(true);
   readonly codeElement = viewChild<ElementRef<HTMLElement>>('codeElement');
 
   readonly copied = signal(false);
@@ -98,6 +119,12 @@ export class CodeBlockComponent {
   readonly displayLanguage = computed(() => this.normalizedLanguage() || 'text');
 
   readonly displayCode = computed(() => this.trimTrailingNewlines(this.code()));
+
+  readonly showHeaderBar = computed(
+    () =>
+      this.showHeader() &&
+      (this.showCopy() || this.showDownload() || this.showLanguageLabel())
+  );
 
   readonly languageClass = computed(() =>
     this.normalizedLanguage() ? `language-${this.normalizedLanguage()}` : null
@@ -144,6 +171,18 @@ export class CodeBlockComponent {
     } catch {
       this.copied.set(false);
     }
+  }
+
+  download(): void {
+    const blob = new Blob([this.displayCode()], {
+      type: 'text/plain;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `${this.displayLanguage()}.txt`;
+    anchor.click();
+    URL.revokeObjectURL(url);
   }
 
   private normalizeLanguage(rawLanguage: string): string {

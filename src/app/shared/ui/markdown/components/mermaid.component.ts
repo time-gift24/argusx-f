@@ -26,6 +26,23 @@ const loadMermaid = (): Promise<typeof import('mermaid')> => {
   selector: 'sd-mermaid',
   template: `
     <div #container>
+      @if (showControlsBar()) {
+        <div class="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+          @if (allowCopy()) {
+            <button type="button" (click)="copySource()">Copy</button>
+          }
+          @if (allowDownload()) {
+            <button type="button" (click)="downloadSource()">Download</button>
+          }
+          @if (allowFullscreen()) {
+            <button type="button" (click)="openFullscreen()">Fullscreen</button>
+          }
+          @if (showPanZoom()) {
+            <span>Pan/Zoom enabled</span>
+          }
+        </div>
+      }
+
       @if (error() && !lastValidSvg()) {
         <div class="my-4 rounded-lg border border-red-200 bg-red-50 p-4">
           <p class="font-mono text-sm text-red-700">Mermaid Error: {{ error() }}</p>
@@ -48,6 +65,11 @@ export class MermaidComponent {
   private readonly isVisible = signal(false);
 
   readonly chart = input.required<string>();
+  readonly showPanZoom = input<boolean>(true);
+  readonly showControlsBar = input<boolean>(true);
+  readonly allowFullscreen = input<boolean>(false);
+  readonly allowCopy = input<boolean>(true);
+  readonly allowDownload = input<boolean>(false);
 
   readonly svg = signal<SafeHtml>('');
   readonly error = signal<string | null>(null);
@@ -89,6 +111,33 @@ export class MermaidComponent {
 
       return () => cancel();
     });
+  }
+
+  async copySource(): Promise<void> {
+    if (typeof navigator === 'undefined' || !navigator.clipboard?.writeText) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(this.chart());
+  }
+
+  downloadSource(): void {
+    const blob = new Blob([this.chart()], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'diagram.mmd';
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
+  openFullscreen(): void {
+    const container = this.containerRef()?.nativeElement;
+    if (!container || typeof container.requestFullscreen !== 'function') {
+      return;
+    }
+
+    void container.requestFullscreen();
   }
 
   private async render(chart: string): Promise<void> {
