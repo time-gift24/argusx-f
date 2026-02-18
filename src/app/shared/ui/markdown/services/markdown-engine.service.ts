@@ -7,7 +7,7 @@ import rehypeRaw from 'rehype-raw';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import type { Parent } from 'unist';
-import type { PluggableList } from 'unified';
+import type { PluggableList, Processor } from 'unified';
 import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
 import type {
@@ -31,6 +31,7 @@ const DEFAULT_REMARK_REHYPE_OPTIONS: Readonly<RemarkRehypeOptions> = {
 };
 
 const DEFAULT_URL_TRANSFORM: UrlTransform = (value) => value;
+type CachedProcessor = Processor<any, any, any, any, any>;
 
 const hasRehypeRaw = (plugins: PluggableList): boolean =>
   plugins.some((plugin) =>
@@ -69,7 +70,7 @@ interface NormalizedOptions {
 export class MarkdownEngineService {
   private readonly parser = inject(MarkdownParserService);
   private readonly remend = inject(RemendService);
-  private readonly processorCache = new ProcessorCache<ReturnType<typeof unified>>();
+  private readonly processorCache = new ProcessorCache<CachedProcessor>();
 
   renderBlocks(markdown: string, options: RenderOptions = {}): RenderBlock[] {
     if (!markdown) {
@@ -134,7 +135,7 @@ export class MarkdownEngineService {
     };
   }
 
-  private getProcessor(options: NormalizedOptions): ReturnType<typeof unified> {
+  private getProcessor(options: NormalizedOptions): CachedProcessor {
     const cacheKey = this.processorCache.makeKey({
       remarkPlugins: options.remarkPlugins,
       rehypePlugins: options.rehypePlugins,
@@ -152,8 +153,8 @@ export class MarkdownEngineService {
       .use(remarkRehype, options.remarkRehypeOptions)
       .use(options.rehypePlugins);
 
-    this.processorCache.set(cacheKey, processor);
-    return processor as unknown as ReturnType<typeof unified>;
+    this.processorCache.set(cacheKey, processor as CachedProcessor);
+    return processor as CachedProcessor;
   }
 
   private postProcessTree(tree: Nodes, options: NormalizedOptions): Root {
