@@ -1,7 +1,5 @@
-import 'zone.js';
-import { ComponentFixture, TestBed, getTestBed } from '@angular/core/testing';
-import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SliderComponent } from './slider.component';
 
 const createRect = (left: number, top: number, width: number, height: number): DOMRect =>
@@ -22,16 +20,6 @@ describe('SliderComponent', () => {
   let component: SliderComponent;
   let sliderHost: HTMLElement;
 
-  beforeAll(() => {
-    getTestBed().initTestEnvironment(BrowserTestingModule, platformBrowserTesting(), {
-      teardown: { destroyAfterEach: true },
-    });
-  });
-
-  afterAll(() => {
-    getTestBed().resetTestEnvironment();
-  });
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SliderComponent],
@@ -45,7 +33,6 @@ describe('SliderComponent', () => {
 
   afterEach(() => {
     component?.ngOnDestroy();
-    TestBed.resetTestingModule();
   });
 
   const setInput = (key: 'min' | 'max' | 'step' | 'orientation' | 'disabled', value: unknown): void => {
