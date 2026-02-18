@@ -221,6 +221,7 @@ describe('CarouselComponent', () => {
 
       const carousel = fixture.nativeElement.querySelector('[role="region"]');
       expect(carousel).toBeTruthy();
+      expect(carousel.classList).toContain('overflow-visible');
     });
 
     it('should accept size input', () => {
@@ -229,6 +230,7 @@ describe('CarouselComponent', () => {
 
       const carousel = fixture.nativeElement.querySelector('[role="region"]');
       expect(carousel).toBeTruthy();
+      expect(carousel.classList).toContain('py-6');
     });
   });
 });
