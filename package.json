@@ -6,6 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "review:orchestrate": "node scripts/preview-review-orchestrator.mjs",
+    "test:review-orchestrator": "node --test scripts/preview-review-orchestrator.test.mjs",
     "test:markdown": "vitest run src/app/shared/ui/markdown/**/*.spec.ts",
     "bench:markdown": "vitest bench src/app/shared/ui/markdown/benchmarks/*.bench.ts --run",
     "perf:markdown": "npm run bench:markdown -- --outputJson=.tmp/markdown-bench.json && node scripts/check-markdown-perf.mjs .tmp/markdown-bench.json"

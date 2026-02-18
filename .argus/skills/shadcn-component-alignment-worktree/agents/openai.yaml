@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shadcn Preview Review Orchestrator"
+  short_description: "Parallel preview review with strict pixel-proof gate"
+  default_prompt: "Use $shadcn-component-alignment-worktree to dispatch up to 5 component review subagents and fail any success without 1:1 pixel evidence."
