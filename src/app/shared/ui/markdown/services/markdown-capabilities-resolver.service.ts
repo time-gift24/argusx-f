@@ -19,15 +19,19 @@ export class MarkdownCapabilitiesResolverService {
     const baseRehype =
       capabilities.pipeline?.rehypePlugins ??
       getDefaultRehypePlugins(capabilities.pipeline?.allowedTags);
+    const cjkBefore =
+      (capabilities.cjk?.remarkPluginsBefore as PluggableList | undefined) ?? [];
+    const cjkAfter =
+      (capabilities.cjk?.remarkPluginsAfter as PluggableList | undefined) ?? [];
 
     let remarkPlugins: PluggableList = [
-      ...(capabilities.cjk?.remarkPluginsBefore ?? []),
+      ...cjkBefore,
       ...baseRemark,
     ];
 
     remarkPlugins = [
       ...remarkPlugins,
-      ...(capabilities.cjk?.remarkPluginsAfter ?? []),
+      ...cjkAfter,
     ];
 
     if (capabilities.math?.remarkPlugin) {
