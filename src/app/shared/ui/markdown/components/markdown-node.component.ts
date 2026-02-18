@@ -4,6 +4,7 @@ import {
   computed,
   forwardRef,
   input,
+  signal,
 } from '@angular/core';
 import type {
   RenderElementNode,
@@ -12,6 +13,7 @@ import type {
 } from '../models/markdown.models';
 import type { MarkdownRenderCapabilities } from '../services/markdown-render-capabilities.service';
 import { CodeBlockComponent } from './code-block.component';
+import { LinkSafetyDialogComponent } from './link-safety-dialog.component';
 import { MermaidComponent } from './mermaid.component';
 import { TableControlsComponent } from './table-controls.component';
 
@@ -20,6 +22,7 @@ import { TableControlsComponent } from './table-controls.component';
   imports: [
     forwardRef(() => MarkdownNodeComponent),
     CodeBlockComponent,
+    LinkSafetyDialogComponent,
     MermaidComponent,
     TableControlsComponent,
   ],
@@ -120,22 +123,41 @@ import { TableControlsComponent } from './table-controls.component';
               [attr.style]="styleText()"
               [attr.target]="linkTarget()"
               [class]="className()"
+              (click)="onLinkClick($event)"
             >
               @for (child of children(); track $index) {
                 <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </a>
+            @if (showLinkSafetyDialog()) {
+              <sd-link-safety-dialog
+                [url]="pendingLinkUrl()"
+                (confirm)="confirmLinkNavigation()"
+                (cancel)="cancelLinkNavigation()">
+              </sd-link-safety-dialog>
+            }
           }
           @case ('img') {
-            <img
-              [attr.alt]="imgAlt()"
-              [attr.height]="attr('height')"
-              [attr.src]="attr('src')"
-              [attr.style]="styleText()"
-              [attr.title]="attr('title')"
-              [attr.width]="attr('width')"
-              [class]="className()"
-            />
+            <div class="relative inline-block">
+              <img
+                [attr.alt]="imgAlt()"
+                [attr.height]="attr('height')"
+                [attr.src]="attr('src')"
+                [attr.style]="styleText()"
+                [attr.title]="attr('title')"
+                [attr.width]="attr('width')"
+                [class]="className()"
+              />
+
+              @if (renderCapabilities().image.download) {
+                <button
+                  type="button"
+                  class="absolute right-2 top-2 rounded border bg-background/90 px-2 py-1 text-xs"
+                  (click)="downloadImage()">
+                  Download
+                </button>
+              }
+            </div>
           }
           @case ('pre') {
             @if (codeChild() && preCodeLanguage() === 'mermaid') {
@@ -274,6 +296,8 @@ import { TableControlsComponent } from './table-controls.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MarkdownNodeComponent {
+  private readonly pendingLinkHref = signal<string | null>(null);
+
   readonly node = input.required<RenderNode>();
   readonly renderCapabilities = input.required<MarkdownRenderCapabilities>();
 
@@ -389,7 +413,64 @@ export class MarkdownNodeComponent {
     return this.attr('rel') ?? 'noreferrer noopener';
   });
 
+  readonly showLinkSafetyDialog = computed(
+    () =>
+      this.tagName() === 'a' &&
+      this.renderCapabilities().linkSafety.enabled &&
+      this.pendingLinkHref() !== null
+  );
+  readonly pendingLinkUrl = computed(() => this.pendingLinkHref() ?? '');
+
   readonly imgAlt = computed(() => this.attr('alt') ?? '');
+
+  onLinkClick(event: MouseEvent): void {
+    const href = this.linkHref();
+    if (
+      this.tagName() !== 'a' ||
+      !href ||
+      !this.renderCapabilities().linkSafety.enabled ||
+      this.isTrustedLink(href)
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    this.pendingLinkHref.set(href);
+  }
+
+  confirmLinkNavigation(): void {
+    const href = this.pendingLinkHref();
+    if (!href) {
+      return;
+    }
+
+    const target = this.linkTarget() ?? '_blank';
+    const features = 'noopener,noreferrer';
+
+    if (typeof window === 'undefined' || typeof window.open !== 'function') {
+      this.pendingLinkHref.set(null);
+      return;
+    }
+
+    window.open(href, target, features);
+    this.pendingLinkHref.set(null);
+  }
+
+  cancelLinkNavigation(): void {
+    this.pendingLinkHref.set(null);
+  }
+
+  downloadImage(): void {
+    const src = this.attr('src');
+    if (!src) {
+      return;
+    }
+
+    const anchor = document.createElement('a');
+    anchor.href = src;
+    anchor.download = src.split('/').pop() || 'image';
+    anchor.click();
+  }
 
   attr(name: string): string | null {
     const properties = this.elementNode()?.properties;
@@ -398,6 +479,11 @@ export class MarkdownNodeComponent {
     }
 
     return this.stringifyAttribute(properties[name]);
+  }
+
+  private isTrustedLink(href: string): boolean {
+    const trustedPrefixes = this.renderCapabilities().linkSafety.trustedPrefixes;
+    return trustedPrefixes.some((prefix) => href.startsWith(prefix));
   }
 
   private collectText(nodes: RenderNode[]): string {
