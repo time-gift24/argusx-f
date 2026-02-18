@@ -41,6 +41,7 @@ export type CarouselSize = 'default' | 'sm' | 'lg' | 'xl';
     role: 'region',
     'aria-roledescription': 'carousel',
     '[attr.data-slot]': '"carousel"',
+    '[class]': 'componentClass()',
   },
   template: `
     <div
@@ -65,6 +66,19 @@ export class CarouselComponent {
 
   /** Size of the carousel */
   readonly size = input<CarouselSize>('default');
+
+  /** Component classes computed from variant and size */
+  protected readonly componentClass = computed(() =>
+    cn(
+      'relative',
+      this.size() === 'sm' && 'py-2',
+      this.size() === 'default' && 'py-4',
+      this.size() === 'lg' && 'py-6',
+      this.size() === 'xl' && 'py-8',
+      this.variant() === 'overflow' && 'overflow-visible',
+      this.variant() === 'default' && 'overflow-hidden'
+    )
+  );
 
   /** Callback when carousel API is ready */
   readonly api = output<CarouselService>();
