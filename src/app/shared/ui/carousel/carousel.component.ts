@@ -14,6 +14,9 @@ import { CarouselService, CarouselOrientation, CarouselOptions } from './carouse
 
 export type { CarouselOrientation, CarouselOptions } from './carousel.service';
 
+export type CarouselVariant = 'default' | 'overflow';
+export type CarouselSize = 'default' | 'sm' | 'lg' | 'xl';
+
 /**
  * Carousel component for displaying a sliding carousel of items.
  * Supports horizontal and vertical orientations, loop mode, and keyboard navigation.
@@ -56,6 +59,12 @@ export class CarouselComponent {
 
   /** Orientation of the carousel */
   readonly orientation = input<CarouselOrientation>('horizontal');
+
+  /** Variant of the carousel */
+  readonly variant = input<CarouselVariant>('default');
+
+  /** Size of the carousel */
+  readonly size = input<CarouselSize>('default');
 
   /** Callback when carousel API is ready */
   readonly api = output<CarouselService>();

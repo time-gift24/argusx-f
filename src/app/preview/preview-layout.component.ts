@@ -30,7 +30,7 @@ const PREVIEW_ITEMS = [
   { id: 'badge', label: 'Badge' },
   { id: 'breadcrumb', label: 'Breadcrumb' },
   { id: 'button-group', label: 'Button Group' },
-  { id: 'carousel', label: 'Carousel' },
+  { id: 'carousel', label: 'Carousel', manuallyReviewed: true },
   { id: 'chart', label: 'Chart' },
   { id: 'checkbox', label: 'Checkbox' },
   { id: 'collapsible', label: 'Collapsible' },

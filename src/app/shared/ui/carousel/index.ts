@@ -8,4 +8,9 @@ export {
 } from './carousel.component';
 
 export { CarouselService } from './carousel.service';
-export type { CarouselOrientation, CarouselOptions } from './carousel.service';
+export type {
+  CarouselOrientation,
+  CarouselOptions,
+  CarouselVariant,
+  CarouselSize,
+} from './carousel.component';
