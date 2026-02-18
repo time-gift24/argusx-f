@@ -18,10 +18,7 @@ import type {
   RenderRootNode,
   UrlTransform,
 } from '../models/markdown.models';
-import {
-  getDefaultRehypePlugins,
-  getDefaultRemarkPlugins,
-} from './default-markdown-plugins';
+import { MarkdownCapabilitiesResolverService } from './markdown-capabilities-resolver.service';
 import { MarkdownParserService } from './markdown-parser.service';
 import { ProcessorCache } from './processor-cache';
 import { RemendService } from './remend.service';
@@ -70,6 +67,9 @@ interface NormalizedOptions {
 export class MarkdownEngineService {
   private readonly parser = inject(MarkdownParserService);
   private readonly remend = inject(RemendService);
+  private readonly capabilitiesResolver =
+    inject(MarkdownCapabilitiesResolverService, { optional: true }) ??
+    new MarkdownCapabilitiesResolverService();
   private readonly processorCache = new ProcessorCache<CachedProcessor>();
 
   renderBlocks(markdown: string, options: RenderOptions = {}): RenderBlock[] {
@@ -108,14 +108,22 @@ export class MarkdownEngineService {
   }
 
   private normalizeOptions(options: RenderOptions): NormalizedOptions {
-    const rehypePlugins = options.rehypePlugins ?? getDefaultRehypePlugins(options.allowedTags);
-    const defaultRemarkPlugins = getDefaultRemarkPlugins();
+    const capabilities = options.capabilities ?? {
+      pipeline: {
+        remarkPlugins: options.remarkPlugins,
+        rehypePlugins: options.rehypePlugins,
+        allowedTags: options.allowedTags,
+      },
+    };
 
+    const resolvedCapabilities = this.capabilitiesResolver.resolve(capabilities);
+    const hasExplicitRemarkPlugins =
+      capabilities.pipeline?.remarkPlugins !== undefined;
     const remarkPlugins =
-      options.remarkPlugins ??
-      (hasRehypeRaw(rehypePlugins)
-        ? defaultRemarkPlugins
-        : [...defaultRemarkPlugins, remarkEscapeHtml]);
+      !hasExplicitRemarkPlugins && !hasRehypeRaw(resolvedCapabilities.rehypePlugins)
+        ? [...resolvedCapabilities.remarkPlugins, remarkEscapeHtml]
+        : resolvedCapabilities.remarkPlugins;
+    const rehypePlugins = resolvedCapabilities.rehypePlugins;
 
     return {
       mode: options.mode ?? 'streaming',
