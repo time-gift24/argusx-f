@@ -292,6 +292,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'switch',
+        loadComponent: () =>
+          import('./preview/switch-preview.component').then(
+            (m) => m.SwitchPreviewComponent
+          ),
+      },
+      {
         path: 'separator',
         loadComponent: () =>
           import('./preview/separator-preview.component').then(

@@ -54,6 +54,7 @@ const PREVIEW_ITEMS = [
   { id: 'resizable', label: 'Resizable' },
   { id: 'scroll-area', label: 'Scroll Area' },
   { id: 'select', label: 'Select', manuallyReviewed: true },
+  { id: 'switch', label: 'Switch', manuallyReviewed: true },
   { id: 'separator', label: 'Separator' },
   { id: 'sheet', label: 'Sheet' },
   { id: 'skeleton', label: 'Skeleton' },
