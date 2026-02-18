@@ -34,7 +34,14 @@ import {
     LucideAngularModule,
   ],
   template: `
-    <div class="bg-background w-full">
+    <div class="mx-auto max-w-6xl p-8">
+      <div class="mb-8">
+        <h1 class="mb-2 text-2xl font-semibold">Pagination</h1>
+        <p class="text-muted-foreground">
+          A list of pagination pages for navigation.
+        </p>
+      </div>
+
       <div
         class="mx-auto grid min-h-screen w-full max-w-5xl min-w-0 content-center items-start gap-8 p-4 pt-2 sm:gap-12 sm:p-6 md:grid-cols-2 md:gap-8"
       >

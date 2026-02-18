@@ -47,7 +47,7 @@ const PREVIEW_ITEMS = [
   { id: 'label', label: 'Label' },
   { id: 'menubar', label: 'Menubar' },
   { id: 'native-select', label: 'Native Select' },
-  { id: 'pagination', label: 'Pagination' },
+  { id: 'pagination', label: 'Pagination', manuallyReviewed: true },
   { id: 'popover', label: 'Popover' },
   { id: 'progress', label: 'Progress' },
   { id: 'radio-group', label: 'Radio Group' },
