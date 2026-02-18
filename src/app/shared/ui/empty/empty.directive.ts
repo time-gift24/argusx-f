@@ -4,17 +4,22 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 // Aligned with official shadcn preset (.vendor/aim/components/ui/empty.tsx)
 const emptyMediaVariants = cva(
-  'mb-2 flex shrink-0 items-center justify-center [&_svg]:pointer-events-none [&_svg]:shrink-0',
+  'flex shrink-0 items-center justify-center [&_svg]:pointer-events-none [&_svg]:shrink-0',
   {
     variants: {
       variant: {
         default: 'bg-transparent',
-        icon:
-          'bg-muted text-foreground flex size-8 shrink-0 items-center justify-center rounded-md [&_svg:not([class*=size-])]:size-4',
+        icon: 'bg-muted text-foreground flex size-10 shrink-0 items-center justify-center rounded-lg [&_svg:not([class*=size-])]:size-6',
+      },
+      size: {
+        default: 'mb-2',
+        sm: 'mb-1.5',
+        lg: 'mb-3',
       },
     },
     defaultVariants: {
       variant: 'default',
+      size: 'default',
     },
   }
 );
@@ -22,6 +27,30 @@ const emptyMediaVariants = cva(
 type EmptyMediaVariants = VariantProps<typeof emptyMediaVariants>;
 
 export type EmptyMediaVariant = NonNullable<EmptyMediaVariants['variant']>;
+export type EmptyMediaSize = NonNullable<EmptyMediaVariants['size']>;
+
+// Empty root variants
+const emptyVariants = cva('', {
+  variants: {
+    variant: {
+      default: 'border-border',
+      muted: 'border-muted',
+    },
+    size: {
+      default: 'p-6 gap-4',
+      sm: 'p-4 gap-3',
+      lg: 'p-8 gap-6',
+    },
+  },
+  defaultVariants: {
+    variant: 'default',
+    size: 'default',
+  },
+});
+
+type EmptyVariants = VariantProps<typeof emptyVariants>;
+export type EmptyVariant = NonNullable<EmptyVariants['variant']>;
+export type EmptySize = NonNullable<EmptyVariants['size']>;
 
 /**
  * Empty component root directive that provides a container for empty state content.
@@ -30,15 +59,15 @@ export type EmptyMediaVariant = NonNullable<EmptyMediaVariants['variant']>;
  * @example
  * ```html
  * <div appEmpty>
- *   <div appEmptyMedia>
- *     <lucide-icon name="inbox"></lucide-icon>
+ *   <div appEmptyMedia variant="icon">
+ *     <svg>...</svg>
  *   </div>
  *   <div appEmptyHeader>
- *     <div appEmptyTitle>No results found</div>
- *     <div appEmptyDescription>Try adjusting your search filters</div>
+ *     <h3 appEmptyTitle>No results found</h3>
+ *     <p appEmptyDescription>Try adjusting your search filters</p>
  *   </div>
  *   <div appEmptyContent>
- *     <button argusButton>Clear filters</button>
+ *     <button argus-button>Clear filters</button>
  *   </div>
  * </div>
  * ```
@@ -48,15 +77,21 @@ export type EmptyMediaVariant = NonNullable<EmptyMediaVariants['variant']>;
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"empty"',
+    '[attr.data-variant]': 'variant()',
+    '[attr.data-size]': 'size()',
     '[attr.aria-live]': '"polite"',
+    '[attr.role]': '"status"',
   },
 })
 export class EmptyDirective {
+  readonly variant = input<EmptyVariant>('default');
+  readonly size = input<EmptySize>('default');
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
     cn(
-      'gap-4 rounded-xl border-dashed p-6 flex w-full min-w-0 flex-1 flex-col items-center justify-center text-center text-balance',
+      'rounded-xl border border-dashed flex w-full min-w-0 flex-1 flex-col items-center justify-center text-center text-balance',
+      emptyVariants({ variant: this.variant(), size: this.size() }),
       this.class()
     )
   );
@@ -82,7 +117,8 @@ export class EmptyHeaderDirective {
 
 /**
  * EmptyMedia directive for the icon or illustration area.
- * Supports variant prop for different styling options.
+ * Supports variant and size props for different styling options.
+ * Icons are hidden from assistive tech by default since they're decorative.
  */
 @Directive({
   selector: '[appEmptyMedia]',
@@ -90,14 +126,17 @@ export class EmptyHeaderDirective {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"empty-icon"',
     '[attr.data-variant]': 'variant()',
+    '[attr.data-size]': 'size()',
+    '[attr.aria-hidden]': 'variant() === "icon" ? "true" : null',
   },
 })
 export class EmptyMediaDirective {
   readonly variant = input<EmptyMediaVariant>('default');
+  readonly size = input<EmptyMediaSize>('default');
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(emptyMediaVariants({ variant: this.variant(), className: this.class() }))
+    cn(emptyMediaVariants({ variant: this.variant(), size: this.size(), className: this.class() }))
   );
 }
 
