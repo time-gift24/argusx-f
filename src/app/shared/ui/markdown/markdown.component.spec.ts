@@ -14,4 +14,13 @@ describe('SdMarkdownComponent', () => {
     );
     expect(source).toContain('normalizeCapabilities({');
   });
+
+  it('accepts capabilities input from host template', () => {
+    const previewSource = readFileSync(
+      new URL('../../../preview/markdown-preview.component.ts', import.meta.url),
+      'utf8'
+    );
+
+    expect(previewSource).toContain('[capabilities]="markdownCapabilities()"');
+  });
 });

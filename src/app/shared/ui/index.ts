@@ -22,3 +22,4 @@ export * from './toggle';
 export * from './resizable';
 export * from './hover-card';
 export * from './accordion';
+export * from './markdown';
