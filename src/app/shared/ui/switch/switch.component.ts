@@ -17,12 +17,14 @@ import { cn } from '../../utils/cn';
   host: {
     '[class]': 'computedClass()',
     '[attr.id]': 'id() || null',
+    '[attr.name]': 'name() || null',
     '[attr.data-state]': 'checked() ? "checked" : "unchecked"',
     '[attr.data-disabled]': 'disabled() ? "" : null',
     role: 'switch',
     '[attr.aria-checked]': 'checked()',
     '[attr.aria-disabled]': 'disabled() ? true : null',
     '[attr.aria-required]': 'required() ? "true" : null',
+    '[attr.aria-label]': 'ariaLabel() || null',
     '[attr.tabindex]': 'disabled() ? -1 : 0',
     '(click)': 'onClick()',
     '(keydown)': 'onKeydown($event)',
@@ -37,9 +39,11 @@ import { cn } from '../../utils/cn';
 })
 export class SwitchComponent {
   readonly id = input<string>('');
+  readonly name = input<string>('');
   readonly checked = input<boolean>(false);
   readonly disabled = input<boolean>(false);
   readonly required = input<boolean>(false);
+  readonly ariaLabel = input<string>('');
   readonly class = input<string>('');
 
   readonly checkedChange = output<boolean>();
