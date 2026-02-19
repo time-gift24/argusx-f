@@ -1,5 +1,6 @@
 import {
   afterNextRender,
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -64,32 +65,35 @@ const RESIZABLE_GROUP = new InjectionToken<ResizableGroupContext>('RESIZABLE_GRO
 const DOCUMENT_POSITION_FOLLOWING = 4;
 
 /**
- * ResizablePanelGroupComponent - Container for resizable panels
+ * ArgusxResizablePanelGroupComponent - Container for resizable panels
  *
- * Aligned with shadcn/ui resizable pattern.
- * Reference: .vendor/aim/components/ui/resizable.tsx
+ * Aligned with shadcn/ui resizable pattern with ArgusX extensions.
+ * API decisions:
+ * - orientation: adopts shadcn naming (horizontal | vertical)
+ * - autoSaveId: ArgusX extension for localStorage persistence
+ * - sizesChange: ArgusX extension for reactive updates
  *
  * @example
  * ```html
- * <app-resizable-panel-group orientation="horizontal">
- *   <app-resizable-panel defaultSize="50">
+ * <argusx-resizable-panel-group orientation="horizontal">
+ *   <argusx-resizable-panel defaultSize="50">
  *     <div>Panel 1 Content</div>
- *   </app-resizable-panel>
- *   <app-resizable-handle withHandle />
- *   <app-resizable-panel defaultSize="50">
+ *   </argusx-resizable-panel>
+ *   <argusx-resizable-handle withHandle />
+ *   <argusx-resizable-panel defaultSize="50">
  *     <div>Panel 2 Content</div>
- *   </app-resizable-panel>
- * </app-resizable-panel-group>
+ *   </argusx-resizable-panel>
+ * </argusx-resizable-panel-group>
  * ```
  */
 @Component({
-  selector: 'app-resizable-panel-group',
+  selector: 'argusx-resizable-panel-group',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: '<ng-content></ng-content>',
   providers: [
     {
       provide: RESIZABLE_GROUP,
-      useExisting: forwardRef(() => ResizablePanelGroupComponent),
+      useExisting: forwardRef(() => ArgusxResizablePanelGroupComponent),
     },
   ],
   host: {
@@ -100,17 +104,17 @@ const DOCUMENT_POSITION_FOLLOWING = 4;
     role: 'group',
   },
 })
-export class ResizablePanelGroupComponent implements ResizableGroupContext {
-  /** Orientation of the panel group */
+export class ArgusxResizablePanelGroupComponent implements ResizableGroupContext {
+  /** Orientation of the panel group (shadcn-aligned: horizontal | vertical) */
   readonly orientation = input<ResizableOrientation>('horizontal');
 
   /** Additional CSS classes */
   readonly class = input<string>('');
 
-  /** Auto-save ID for persisting panel sizes */
+  /** Auto-save ID for persisting panel sizes to localStorage (ArgusX extension) */
   readonly autoSaveId = input<string>('');
 
-  /** Emitted when panel sizes change */
+  /** Emitted when panel sizes change (ArgusX extension) */
   readonly sizesChange = output<ReadonlyArray<number>>();
 
   /** Group size in pixels (set by resize observer) */
@@ -220,17 +224,22 @@ export class ResizablePanelGroupComponent implements ResizableGroupContext {
 }
 
 /**
- * ResizablePanelComponent - Individual resizable panel
+ * ArgusxResizablePanelComponent - Individual resizable panel
+ *
+ * API decisions:
+ * - defaultSize: shadcn-aligned
+ * - minSize/maxSize: ArgusX extension for constraints
+ * - collapsible: ArgusX extension from zardui
  *
  * @example
  * ```html
- * <app-resizable-panel defaultSize="50" minSize="10" maxSize="80">
+ * <argusx-resizable-panel defaultSize="50" minSize="10" maxSize="80">
  *   <div>Panel content</div>
- * </app-resizable-panel>
+ * </argusx-resizable-panel>
  * ```
  */
 @Component({
-  selector: 'app-resizable-panel',
+  selector: 'argusx-resizable-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: '<ng-content></ng-content>',
   host: {
@@ -242,20 +251,23 @@ export class ResizablePanelGroupComponent implements ResizableGroupContext {
     role: 'presentation',
   },
 })
-export class ResizablePanelComponent implements ResizablePanelApi, OnDestroy {
-  /** Default size as percentage (0-100) */
+export class ArgusxResizablePanelComponent implements ResizablePanelApi, OnDestroy {
+  /** Default size as percentage (0-100), shadcn-aligned */
   readonly defaultSize = input<number>(50);
 
-  /** Minimum size as percentage (0-100) */
+  /** Minimum size as percentage (0-100), ArgusX extension */
   readonly minSize = input<number>(0);
 
-  /** Maximum size as percentage (0-100) */
+  /** Maximum size as percentage (0-100), ArgusX extension */
   readonly maxSize = input<number>(100);
+
+  /** Whether panel can be collapsed, ArgusX extension from zardui */
+  readonly collapsible = input(false, { transform: booleanAttribute });
 
   /** Additional CSS classes */
   readonly class = input<string>('');
 
-  /** Panel ID for identification */
+  /** Panel ID for identification, ArgusX extension */
   readonly id = input<string>('');
 
   /** Current size percentage */
@@ -329,15 +341,19 @@ export class ResizablePanelComponent implements ResizablePanelApi, OnDestroy {
 }
 
 /**
- * ResizableHandleComponent - Draggable handle between panels
+ * ArgusxResizableHandleComponent - Draggable handle between panels
+ *
+ * API decisions:
+ * - withHandle: shadcn-aligned
+ * - disabled: ArgusX extension from zardui
  *
  * @example
  * ```html
- * <app-resizable-handle withHandle />
+ * <argusx-resizable-handle withHandle />
  * ```
  */
 @Component({
-  selector: 'app-resizable-handle',
+  selector: 'argusx-resizable-handle',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (withHandle()) {
@@ -348,16 +364,20 @@ export class ResizablePanelComponent implements ResizablePanelApi, OnDestroy {
     '[attr.data-slot]': '"resizable-handle"',
     '[attr.role]': '"separator"',
     '[attr.aria-orientation]': 'separatorOrientation()',
-    '[attr.tabindex]': '0',
+    '[attr.aria-disabled]': 'disabled()',
+    '[attr.tabindex]': 'disabled() ? null : 0',
     '[class]': 'computedClass()',
     '(mousedown)': 'onMouseDown($event)',
     '(touchstart)': 'onTouchStart($event)',
     '(keydown)': 'onKeyDown($event)',
   },
 })
-export class ResizableHandleComponent {
-  /** Show drag handle indicator */
+export class ArgusxResizableHandleComponent {
+  /** Show drag handle indicator, shadcn-aligned */
   readonly withHandle = input<boolean>(false);
+
+  /** Disable handle interaction, ArgusX extension from zardui */
+  readonly disabled = input<boolean>(false);
 
   /** Additional CSS classes */
   readonly class = input<string>('');
@@ -381,6 +401,7 @@ export class ResizableHandleComponent {
       this.orientation() === 'vertical' &&
         'h-px w-full after:left-0 after:h-1 after:w-full after:translate-x-0 after:-translate-y-1/2',
       '[&[aria-orientation=horizontal]>div]:rotate-90',
+      this.disabled() && 'cursor-default pointer-events-none opacity-50',
       this.class(),
     ),
   );
@@ -416,14 +437,14 @@ export class ResizableHandleComponent {
     let nextPanel: HTMLElement | null = null;
 
     for (let i = handleIndex - 1; i >= 0; i--) {
-      if (children[i].tagName === 'APP-RESIZABLE-PANEL') {
+      if (children[i].tagName === 'ARGUSX-RESIZABLE-PANEL') {
         prevPanel = children[i];
         break;
       }
     }
 
     for (let i = handleIndex + 1; i < children.length; i++) {
-      if (children[i].tagName === 'APP-RESIZABLE-PANEL') {
+      if (children[i].tagName === 'ARGUSX-RESIZABLE-PANEL') {
         nextPanel = children[i];
         break;
       }
@@ -444,6 +465,7 @@ export class ResizableHandleComponent {
   }
 
   private onMouseDown(event: MouseEvent): void {
+    if (this.disabled()) return;
     event.preventDefault();
     this.startDragging(event.clientX, event.clientY);
 
@@ -462,6 +484,7 @@ export class ResizableHandleComponent {
   }
 
   private onTouchStart(event: TouchEvent): void {
+    if (this.disabled()) return;
     if (event.touches.length === 1) {
       const touch = event.touches[0];
       this.startDragging(touch.clientX, touch.clientY);
@@ -542,6 +565,7 @@ export class ResizableHandleComponent {
   }
 
   private onKeyDown(event: KeyboardEvent): void {
+    if (this.disabled()) return;
     const step = event.shiftKey ? 10 : 1;
 
     switch (event.key) {
@@ -626,9 +650,11 @@ export class ResizableHandleComponent {
   }
 }
 
-// Export all components
-export const ResizableComponents = [
-  ResizablePanelGroupComponent,
-  ResizablePanelComponent,
-  ResizableHandleComponent,
+/**
+ * Export all resizable components
+ */
+export const ArgusxResizableComponents = [
+  ArgusxResizablePanelGroupComponent,
+  ArgusxResizablePanelComponent,
+  ArgusxResizableHandleComponent,
 ];
