@@ -28,22 +28,22 @@ import {
           <h2 class="text-sm font-medium text-muted-foreground">6-digit code</h2>
         </div>
         <div class="rounded-lg border border-dashed border-border p-6 space-y-3">
-          <app-input-otp
+          <argusx-input-otp
             [(value)]="otpCode"
-            [length]="6"
+            [maxLength]="6"
             [pattern]="digitsPattern"
             placeholder="------"
           >
-            <app-input-otp-group>
+            <argusx-input-otp-group>
               @for (index of leftSlots; track index) {
-                <app-input-otp-slot [index]="index" />
+                <argusx-input-otp-slot [index]="index" />
               }
-              <app-input-otp-separator />
+              <argusx-input-otp-separator />
               @for (index of rightSlots; track index) {
-                <app-input-otp-slot [index]="index" />
+                <argusx-input-otp-slot [index]="index" />
               }
-            </app-input-otp-group>
-          </app-input-otp>
+            </argusx-input-otp-group>
+          </argusx-input-otp>
           <p class="text-xs text-muted-foreground">
             Current value: <span class="font-medium text-foreground">{{ otpCode() || '—' }}</span>
           </p>

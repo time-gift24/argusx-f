@@ -41,40 +41,40 @@ export const REGEXP_ONLY_DIGITS_AND_CHARS = '^[a-zA-Z0-9]+$';
  *
  * @example
  * ```html
- * <app-input-otp [(ngModel)]="otp" [length]="6" (complete)="onComplete($event)" />
+ * <argusx-input-otp [(value)]="otp" [maxLength]="6" (complete)="onComplete($event)" />
  * ```
  *
  * @example
  * ```html
- * <app-input-otp [(ngModel)]="otp" [pattern]="REGEXP_ONLY_DIGITS">
- *   <app-input-otp-group>
+ * <argusx-input-otp [(value)]="otp" [pattern]="REGEXP_ONLY_DIGITS">
+ *   <argusx-input-otp-group>
  *     @for (i of [0,1,2]; track i) {
- *       <app-input-otp-slot [index]="i" />
+ *       <argusx-input-otp-slot [index]="i" />
  *     }
- *     <app-input-otp-separator />
+ *     <argusx-input-otp-separator />
  *     @for (i of [3,4,5]; track i) {
- *       <app-input-otp-slot [index]="i" />
+ *       <argusx-input-otp-slot [index]="i" />
  *     }
- *   </app-input-otp-group>
- * </app-input-otp>
+ *   </argusx-input-otp-group>
+ * </argusx-input-otp>
  * ```
  */
 @Component({
-  selector: 'app-input-otp',
+  selector: 'argusx-input-otp',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[attr.data-slot]': '"input-otp"',
     '[class]': 'computedClass()',
   },
   template: `
-    <div #container class="flex items-center has-disabled:opacity-50" [class]="containerClass()">
+    <div #container class="flex items-center has-disabled:opacity-50" [class]="class()">
       <ng-content />
     </div>
     <input
       #input
       type="text"
       [attr.data-input-otp]="true"
-      [attr.maxLength]="length()"
+      [attr.maxLength]="maxLength()"
       [attr.inputMode]="inputMode()"
       [attr.pattern]="patternSource()"
       [attr.data-input-otp-mss]="selectionStart() ?? undefined"
@@ -110,18 +110,19 @@ export class InputOtpComponent {
   private readonly elementRef = inject(ElementRef);
 
   readonly value = model<string>('');
-  readonly length = input<number>(6);
+  readonly maxLength = input<number>(6);
   readonly pattern = input<string | RegExp | null>(null);
   readonly placeholder = input<string>('');
   readonly inputMode = input<'numeric' | 'text' | 'tel'>('numeric');
   readonly textAlign = input<'left' | 'center' | 'right'>('left');
   readonly autoComplete = input<string>('one-time-code');
   readonly disabled = input<boolean>(false);
-  readonly containerClass = input<string>('');
+  readonly class = input<string>('');
   readonly ariaDescribedby = input<string>('');
   readonly ariaInvalidInput = input<boolean | 'false' | 'true'>('false');
 
   readonly complete = output<string>();
+  readonly valueChange = output<string>();
 
   @ViewChildren('container') containerRef!: QueryList<ElementRef<HTMLDivElement>>;
   @ViewChildren('input') inputRef!: QueryList<ElementRef<HTMLInputElement>>;
@@ -163,7 +164,7 @@ export class InputOtpComponent {
   });
 
   private readonly slots = computed<InputOtpSlot[]>(() => {
-    const currentLength = this.length();
+    const currentLength = this.maxLength();
     const currentValue = this.value() || '';
     const currentPlaceholder = this.placeholder() || '';
     const currentSelectionStart = this.internalState.selectionStart;
@@ -192,7 +193,10 @@ export class InputOtpComponent {
   constructor() {
     effect(() => {
       const value = this.value() || '';
-      const length = this.length();
+      const length = this.maxLength();
+
+      // Emit valueChange for Angular standard change notification
+      this.valueChange.emit(value);
 
       // Emit complete event when OTP is fully filled
       if (value.length === length) {
@@ -246,7 +250,7 @@ export class InputOtpComponent {
 
   private handleInput(event: InputEvent): void {
     const input = event.target as HTMLInputElement;
-    const newValue = input.value.slice(0, this.length());
+    const newValue = input.value.slice(0, this.maxLength());
     const pattern = this.compiledPattern();
 
     // Validate against pattern if provided
@@ -260,7 +264,7 @@ export class InputOtpComponent {
     this.value.set(newValue);
 
     // Update cursor position
-    const newPosition = Math.min(newValue.length, this.length() - 1);
+    const newPosition = Math.min(newValue.length, this.maxLength() - 1);
     input.setSelectionRange(newPosition, newValue.length);
     this.internalState.selectionStart = newPosition;
     this.internalState.selectionEnd = newValue.length;
@@ -283,7 +287,7 @@ export class InputOtpComponent {
         ? currentValue.slice(0, selectionStart) + pastedText + currentValue.slice(selectionEnd)
         : currentValue.slice(0, selectionStart) + pastedText + currentValue.slice(selectionStart);
 
-    const truncatedValue = newValue.slice(0, this.length());
+    const truncatedValue = newValue.slice(0, this.maxLength());
 
     // Validate against pattern if provided
     if (truncatedValue.length > 0 && pattern && !pattern.test(truncatedValue)) {
@@ -294,7 +298,7 @@ export class InputOtpComponent {
     input.value = truncatedValue;
     this.value.set(truncatedValue);
 
-    const newPosition = Math.min(truncatedValue.length, this.length() - 1);
+    const newPosition = Math.min(truncatedValue.length, this.maxLength() - 1);
     input.setSelectionRange(newPosition, truncatedValue.length);
     this.internalState.selectionStart = newPosition;
     this.internalState.selectionEnd = truncatedValue.length;
@@ -308,7 +312,7 @@ export class InputOtpComponent {
 
     // Set cursor to end or next empty position
     const currentValue = this.value() || '';
-    const newPosition = Math.min(currentValue.length, this.length() - 1);
+    const newPosition = Math.min(currentValue.length, this.maxLength() - 1);
     input.setSelectionRange(newPosition, currentValue.length);
     this.internalState.selectionStart = newPosition;
     this.internalState.selectionEnd = currentValue.length;
@@ -358,7 +362,7 @@ export class InputOtpComponent {
  * Container for grouping OTP slots
  */
 @Component({
-  selector: 'app-input-otp-group',
+  selector: 'argusx-input-otp-group',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[attr.data-slot]': '"input-otp-group"',
@@ -384,7 +388,7 @@ export class InputOtpGroupComponent {
  * Individual slot for displaying a single character of the OTP
  */
 @Component({
-  selector: 'app-input-otp-slot',
+  selector: 'argusx-input-otp-slot',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[attr.data-slot]': '"input-otp-slot"',
@@ -435,7 +439,7 @@ export class InputOtpSlotComponent {
  * Visual separator between OTP slot groups
  */
 @Component({
-  selector: 'app-input-otp-separator',
+  selector: 'argusx-input-otp-separator',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [LucideAngularModule],
   host: {
