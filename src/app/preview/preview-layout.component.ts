@@ -51,7 +51,7 @@ const PREVIEW_ITEMS = [
   { id: 'menubar', label: 'Menubar', reviewStatus: 'reviewed' },
   { id: 'native-select', label: 'Native Select', reviewStatus: 'not_processed' },
   { id: 'pagination', label: 'Pagination', reviewStatus: 'reviewed' },
-  { id: 'popover', label: 'Popover', reviewStatus: 'not_processed' },
+  { id: 'popover', label: 'Popover', reviewStatus: 'reviewed' },
   { id: 'progress', label: 'Progress', reviewStatus: 'not_processed' },
   { id: 'radio-group', label: 'Radio Group', reviewStatus: 'not_processed' },
   { id: 'resizable', label: 'Resizable', reviewStatus: 'not_processed' },
