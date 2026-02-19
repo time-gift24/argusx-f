@@ -1,10 +1,10 @@
 export {
-  AvatarComponent,
-  AvatarImageDirective,
-  AvatarFallbackDirective,
-  AvatarBadgeComponent,
-  AvatarGroupComponent,
-  AvatarGroupCountComponent,
-  AvatarComponents,
+  ArgusxAvatarComponent,
+  ArgusxAvatarImageDirective,
+  ArgusxAvatarFallbackDirective,
+  ArgusxAvatarBadgeComponent,
+  ArgusxAvatarGroupComponent,
+  ArgusxAvatarGroupCountComponent,
+  ArgusxAvatarComponents,
 } from './avatar.component';
-export type { AvatarRootToken } from './avatar.component';
+export type { ArgusxAvatarRootToken } from './avatar.component';

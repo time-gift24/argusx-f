@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -22,24 +23,24 @@ const PREVIEW_ITEMS = [
   { id: 'calendar', label: 'Calendar', reviewStatus: 'reviewed' },
   { id: 'accordion', label: 'Accordion', reviewStatus: 'reviewed' },
   { id: 'dialog', label: 'Dialog', reviewStatus: 'reviewed' },
-  { id: 'aspect-ratio', label: 'Aspect Ratio', reviewStatus: 'not_processed' },
+  { id: 'aspect-ratio', label: 'Aspect Ratio', reviewStatus: 'reviewed' },
   { id: 'alert', label: 'Alert', reviewStatus: 'not_processed' },
   { id: 'avatar', label: 'Avatar', reviewStatus: 'not_processed' },
   { id: 'liquid-glass', label: 'Liquid Glass', reviewStatus: 'not_processed' },
   { id: 'llm-chat', label: 'LLM Chat', reviewStatus: 'not_processed' },
   { id: 'markdown', label: 'Markdown', reviewStatus: 'not_processed' },
   { id: 'alert-dialog', label: 'Alert Dialog', reviewStatus: 'reviewed' },
-  { id: 'badge', label: 'Badge', reviewStatus: 'not_processed' },
-  { id: 'breadcrumb', label: 'Breadcrumb', reviewStatus: 'not_processed' },
+  { id: 'badge', label: 'Badge', reviewStatus: 'ready_to_review' },
+  { id: 'breadcrumb', label: 'Breadcrumb', reviewStatus: 'reviewed' },
   { id: 'button-group', label: 'Button Group', reviewStatus: 'not_processed' },
   { id: 'carousel', label: 'Carousel', reviewStatus: 'reviewed' },
-  { id: 'chart', label: 'Chart', reviewStatus: 'not_processed' },
-  { id: 'checkbox', label: 'Checkbox', reviewStatus: 'not_processed' },
+  { id: 'chart', label: 'Chart', reviewStatus: 'reviewed' },
+  { id: 'checkbox', label: 'Checkbox', reviewStatus: 'reviewed' },
   { id: 'collapsible', label: 'Collapsible', reviewStatus: 'not_processed' },
   { id: 'combobox', label: 'Combobox', reviewStatus: 'not_processed' },
   { id: 'command', label: 'Command', reviewStatus: 'not_processed' },
   { id: 'drawer', label: 'Drawer', reviewStatus: 'reviewed' },
-  { id: 'dropdown-menu', label: 'Dropdown Menu', reviewStatus: 'not_processed' },
+  { id: 'dropdown-menu', label: 'Dropdown Menu', reviewStatus: 'reviewed' },
   { id: 'empty', label: 'Empty', reviewStatus: 'not_processed' },
   { id: 'field', label: 'Field', reviewStatus: 'not_processed' },
   { id: 'hover-card', label: 'Hover Card', reviewStatus: 'not_processed' },
@@ -47,7 +48,7 @@ const PREVIEW_ITEMS = [
   { id: 'input-otp', label: 'Input OTP', reviewStatus: 'not_processed' },
   { id: 'kbd', label: 'Keyboard Key', reviewStatus: 'not_processed' },
   { id: 'label', label: 'Label', reviewStatus: 'not_processed' },
-  { id: 'menubar', label: 'Menubar', reviewStatus: 'not_processed' },
+  { id: 'menubar', label: 'Menubar', reviewStatus: 'reviewed' },
   { id: 'native-select', label: 'Native Select', reviewStatus: 'not_processed' },
   { id: 'pagination', label: 'Pagination', reviewStatus: 'reviewed' },
   { id: 'popover', label: 'Popover', reviewStatus: 'not_processed' },
@@ -102,6 +103,17 @@ function isPreviewItemId(id: string | null): id is PreviewItemId {
           <p class="mt-1 break-all text-[10px] text-muted-foreground">
             {{ currentRoute() }}
           </p>
+          <label
+            class="mt-2 flex cursor-pointer items-center gap-2 rounded-md border border-border/50 bg-background/50 px-2 py-1.5 text-[10px] text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          >
+            <input
+              type="checkbox"
+              [checked]="currentIsReviewed()"
+              (change)="toggleReviewed()"
+              class="size-3"
+            />
+            <span>人工审核通过</span>
+          </label>
         </div>
 
         <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-3">
@@ -118,7 +130,7 @@ function isPreviewItemId(id: string | null): id is PreviewItemId {
                 >
                   <span class="flex items-center justify-between gap-2">
                     <span class="truncate">{{ item.label }}</span>
-                    @if (item.reviewStatus === 'reviewed') {
+                    @if (reviewedComponents().has(item.id)) {
                       <lucide-icon
                         [img]="manualReviewIcon"
                         class="size-3.5 shrink-0 text-emerald-600"
@@ -153,6 +165,42 @@ export class PreviewLayoutComponent implements OnInit {
   readonly manualReviewIcon = UserCheck;
   readonly previewItems: readonly PreviewItem[] = PREVIEW_ITEMS;
   readonly currentPreview = signal<PreviewItemId>('button');
+
+  readonly reviewedComponents = signal<Set<PreviewItemId>>(new Set([
+    'button',
+    'input',
+    'card',
+    'context-menu',
+    'calendar',
+    'accordion',
+    'dialog',
+    'aspect-ratio',
+    'alert-dialog',
+    'breadcrumb',
+    'carousel',
+    'pagination',
+    'dropdown-menu',
+    'menubar',
+    'select',
+    'switch',
+    'slider',
+  ]));
+
+  readonly currentIsReviewed = computed(() =>
+    this.reviewedComponents().has(this.currentPreview())
+  );
+
+  toggleReviewed(): void {
+    this.reviewedComponents.update((set) => {
+      const newSet = new Set(set);
+      if (newSet.has(this.currentPreview())) {
+        newSet.delete(this.currentPreview());
+      } else {
+        newSet.add(this.currentPreview());
+      }
+      return newSet;
+    });
+  }
 
   readonly safeUrl = (): SafeResourceUrl => {
     const url = `/preview/${this.currentPreview()}?v=${this.iframeVersion()}`;

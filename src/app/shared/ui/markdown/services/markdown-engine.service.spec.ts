@@ -200,4 +200,20 @@ describe('MarkdownEngineService', () => {
     expect(rowValues(rows[0])).toEqual(['Parse', 'Done', 'Alice']);
     expect(rowValues(rows[1])).toEqual(['Render', 'Running', 'Bob']);
   });
+
+  it('keeps gfm task list checkbox and strikethrough nodes', () => {
+    const service = createService();
+    const markdown = ['- [x] done', '- [ ] todo', '', '~~strike~~'].join('\n');
+    const blocks = service.renderBlocks(markdown, { mode: 'static' });
+    const root = blocks[0].root;
+
+    const checkbox = findFirstElementByTag(root, 'input');
+    const strikethrough = findFirstElementByTag(root, 'del');
+
+    expect(checkbox).toBeTruthy();
+    expect(checkbox.properties['type']).toBe('checkbox');
+    expect(checkbox.properties['disabled']).toBe(true);
+    expect(strikethrough).toBeTruthy();
+    expect(collectText(strikethrough)).toBe('strike');
+  });
 });

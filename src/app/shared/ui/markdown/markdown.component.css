@@ -80,6 +80,29 @@ sd-markdown {
   display: inline;
 }
 
+.sd-root ul.contains-task-list {
+  padding-left: 0;
+  list-style: none;
+}
+
+.sd-root li.task-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.sd-root li.task-list-item > input[type='checkbox'] {
+  margin-top: 0.25rem;
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  accent-color: var(--primary);
+}
+
+.sd-root li.task-list-item > input[type='checkbox'][disabled] {
+  opacity: 1;
+}
+
 .sd-root blockquote {
   margin: 1rem 0;
   border-left: 4px solid color-mix(in oklab, currentColor 30%, transparent);
@@ -97,27 +120,75 @@ sd-markdown {
   font-size: 0.875rem;
 }
 
+.sd-root .sd-table-wrapper > .overflow-x-auto {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 7%, transparent);
+}
+
 .sd-root table {
   width: 100%;
-  border-collapse: collapse;
-  border: 1px solid color-mix(in oklab, currentColor 20%, transparent);
+  min-width: max-content;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--card-foreground);
 }
 
 .sd-root th {
-  padding: 0.5rem 1rem;
+  padding: 0.625rem 1rem;
   text-align: left;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  background: color-mix(in oklab, currentColor 8%, transparent);
+  letter-spacing: 0.015em;
+  color: var(--primary-foreground);
+  background: color-mix(in oklab, var(--primary) 70%, var(--card) 30%);
+  white-space: nowrap;
 }
 
 .sd-root td {
-  padding: 0.5rem 1rem;
+  padding: 0.625rem 1rem;
   font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--card-foreground);
+  vertical-align: top;
+  transition: background-color 0.2s ease;
 }
 
-.sd-root tr {
-  border-bottom: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+.sd-root th,
+.sd-root td {
+  border-bottom: 1px solid var(--border);
+}
+
+.sd-root tr:last-child td {
+  border-bottom: none;
+}
+
+.sd-root th + th,
+.sd-root td + td {
+  border-left: 1px solid var(--border);
+}
+
+.sd-root th + th {
+  border-left-color: color-mix(in oklab, var(--primary-foreground) 22%, transparent);
+}
+
+.sd-root tbody tr:nth-child(even) td {
+  background: color-mix(in oklab, var(--muted) 52%, var(--card) 48%);
+}
+
+.sd-root tbody tr:hover td {
+  background: color-mix(in oklab, var(--accent) 12%, var(--card) 88%);
+}
+
+.sd-root thead tr:last-child th {
+  border-bottom-color: color-mix(in oklab, var(--primary-foreground) 22%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sd-root td {
+    transition: none;
+  }
 }
 
 .sd-root a {

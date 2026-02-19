@@ -1,20 +1,20 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { LucideAngularModule, SquareIcon, CopyIcon, ScissorsIcon, ClipboardIcon, Trash2Icon, PencilIcon, Share2Icon, ArchiveIcon } from 'lucide-angular';
 import {
-  ContextMenuCheckboxItemComponent,
-  ContextMenuComponent,
-  ContextMenuContentComponent,
-  ContextMenuGroupComponent,
-  ContextMenuItemComponent,
-  ContextMenuLabelComponent,
-  ContextMenuRadioGroupComponent,
-  ContextMenuRadioItemComponent,
-  ContextMenuSeparatorComponent,
-  ContextMenuShortcutComponent,
-  ContextMenuSubComponent,
-  ContextMenuSubContentComponent,
-  ContextMenuSubTriggerComponent,
-  ContextMenuTriggerDirective,
+  ArgusxContextMenuCheckboxItemComponent,
+  ArgusxContextMenuComponent,
+  ArgusxContextMenuContentComponent,
+  ArgusxContextMenuGroupComponent,
+  ArgusxContextMenuItemComponent,
+  ArgusxContextMenuLabelComponent,
+  ArgusxContextMenuRadioGroupComponent,
+  ArgusxContextMenuRadioItemComponent,
+  ArgusxContextMenuSeparatorComponent,
+  ArgusxContextMenuShortcutComponent,
+  ArgusxContextMenuSubComponent,
+  ArgusxContextMenuSubContentComponent,
+  ArgusxContextMenuSubTriggerComponent,
+  ArgusxContextMenuTriggerDirective,
 } from '../shared/ui/context-menu';
 import {
   DialogComponent,
@@ -28,20 +28,20 @@ import {
   selector: 'app-context-menu-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    ContextMenuComponent,
-    ContextMenuTriggerDirective,
-    ContextMenuContentComponent,
-    ContextMenuGroupComponent,
-    ContextMenuItemComponent,
-    ContextMenuCheckboxItemComponent,
-    ContextMenuRadioGroupComponent,
-    ContextMenuRadioItemComponent,
-    ContextMenuLabelComponent,
-    ContextMenuSeparatorComponent,
-    ContextMenuShortcutComponent,
-    ContextMenuSubComponent,
-    ContextMenuSubTriggerComponent,
-    ContextMenuSubContentComponent,
+    ArgusxContextMenuComponent,
+    ArgusxContextMenuTriggerDirective,
+    ArgusxContextMenuContentComponent,
+    ArgusxContextMenuGroupComponent,
+    ArgusxContextMenuItemComponent,
+    ArgusxContextMenuCheckboxItemComponent,
+    ArgusxContextMenuRadioGroupComponent,
+    ArgusxContextMenuRadioItemComponent,
+    ArgusxContextMenuLabelComponent,
+    ArgusxContextMenuSeparatorComponent,
+    ArgusxContextMenuShortcutComponent,
+    ArgusxContextMenuSubComponent,
+    ArgusxContextMenuSubTriggerComponent,
+    ArgusxContextMenuSubContentComponent,
     DialogComponent,
     DialogContentComponent,
     DialogHeaderComponent,
@@ -55,20 +55,20 @@ import {
       <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
         <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">Basic</div>
         <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
-          <app-context-menu>
+          <argusx-context-menu>
             <div
-              appContextMenuTrigger
+              argusxContextMenuTrigger
               class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
-            <app-context-menu-content>
-              <app-context-menu-group>
-                <app-context-menu-item>Back</app-context-menu-item>
-                <app-context-menu-item [disabled]="true">Forward</app-context-menu-item>
-                <app-context-menu-item>Reload</app-context-menu-item>
-              </app-context-menu-group>
-            </app-context-menu-content>
-          </app-context-menu>
+            <argusx-context-menu-content>
+              <argusx-context-menu-group>
+                <argusx-context-menu-item>Back</argusx-context-menu-item>
+                <argusx-context-menu-item [disabled]="true">Forward</argusx-context-menu-item>
+                <argusx-context-menu-item>Reload</argusx-context-menu-item>
+              </argusx-context-menu-group>
+            </argusx-context-menu-content>
+          </argusx-context-menu>
         </div>
       </section>
 
@@ -77,65 +77,65 @@ import {
         <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
           <div
             class="grid grid-cols-2 gap-6">
-            <app-context-menu>
+            <argusx-context-menu>
               <div
-                appContextMenuTrigger
+                argusxContextMenuTrigger
                 class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
                 Right click (top)
               </div>
-              <app-context-menu-content side="top">
-                <app-context-menu-group>
-                  <app-context-menu-item>Back</app-context-menu-item>
-                  <app-context-menu-item>Forward</app-context-menu-item>
-                  <app-context-menu-item>Reload</app-context-menu-item>
-                </app-context-menu-group>
-              </app-context-menu-content>
-            </app-context-menu>
+              <argusx-context-menu-content side="top">
+                <argusx-context-menu-group>
+                  <argusx-context-menu-item>Back</argusx-context-menu-item>
+                  <argusx-context-menu-item>Forward</argusx-context-menu-item>
+                  <argusx-context-menu-item>Reload</argusx-context-menu-item>
+                </argusx-context-menu-group>
+              </argusx-context-menu-content>
+            </argusx-context-menu>
 
-            <app-context-menu>
+            <argusx-context-menu>
               <div
-                appContextMenuTrigger
+                argusxContextMenuTrigger
                 class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
                 Right click (right)
               </div>
-              <app-context-menu-content side="right">
-                <app-context-menu-group>
-                  <app-context-menu-item>Back</app-context-menu-item>
-                  <app-context-menu-item>Forward</app-context-menu-item>
-                  <app-context-menu-item>Reload</app-context-menu-item>
-                </app-context-menu-group>
-              </app-context-menu-content>
-            </app-context-menu>
+              <argusx-context-menu-content side="right">
+                <argusx-context-menu-group>
+                  <argusx-context-menu-item>Back</argusx-context-menu-item>
+                  <argusx-context-menu-item>Forward</argusx-context-menu-item>
+                  <argusx-context-menu-item>Reload</argusx-context-menu-item>
+                </argusx-context-menu-group>
+              </argusx-context-menu-content>
+            </argusx-context-menu>
 
-            <app-context-menu>
+            <argusx-context-menu>
               <div
-                appContextMenuTrigger
+                argusxContextMenuTrigger
                 class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
                 Right click (bottom)
               </div>
-              <app-context-menu-content side="bottom">
-                <app-context-menu-group>
-                  <app-context-menu-item>Back</app-context-menu-item>
-                  <app-context-menu-item>Forward</app-context-menu-item>
-                  <app-context-menu-item>Reload</app-context-menu-item>
-                </app-context-menu-group>
-              </app-context-menu-content>
-            </app-context-menu>
+              <argusx-context-menu-content side="bottom">
+                <argusx-context-menu-group>
+                  <argusx-context-menu-item>Back</argusx-context-menu-item>
+                  <argusx-context-menu-item>Forward</argusx-context-menu-item>
+                  <argusx-context-menu-item>Reload</argusx-context-menu-item>
+                </argusx-context-menu-group>
+              </argusx-context-menu-content>
+            </argusx-context-menu>
 
-            <app-context-menu>
+            <argusx-context-menu>
               <div
-                appContextMenuTrigger
+                argusxContextMenuTrigger
                 class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
                 Right click (left)
               </div>
-              <app-context-menu-content side="left">
-                <app-context-menu-group>
-                  <app-context-menu-item>Back</app-context-menu-item>
-                  <app-context-menu-item>Forward</app-context-menu-item>
-                  <app-context-menu-item>Reload</app-context-menu-item>
-                </app-context-menu-group>
-              </app-context-menu-content>
-            </app-context-menu>
+              <argusx-context-menu-content side="left">
+                <argusx-context-menu-group>
+                  <argusx-context-menu-item>Back</argusx-context-menu-item>
+                  <argusx-context-menu-item>Forward</argusx-context-menu-item>
+                  <argusx-context-menu-item>Reload</argusx-context-menu-item>
+                </argusx-context-menu-group>
+              </argusx-context-menu-content>
+            </argusx-context-menu>
           </div>
         </div>
       </section>
@@ -143,292 +143,292 @@ import {
       <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
         <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Icons</div>
         <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
-          <app-context-menu>
+          <argusx-context-menu>
             <div
-              appContextMenuTrigger
+              argusxContextMenuTrigger
               class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
-            <app-context-menu-content>
-              <app-context-menu-group>
-                <app-context-menu-item>
+            <argusx-context-menu-content>
+              <argusx-context-menu-group>
+                <argusx-context-menu-item>
                   <lucide-icon [img]="copyIcon" class="size-4" />
                   Copy
-                </app-context-menu-item>
-                <app-context-menu-item>
+                </argusx-context-menu-item>
+                <argusx-context-menu-item>
                   <lucide-icon [img]="scissorsIcon" class="size-4" />
                   Cut
-                </app-context-menu-item>
-                <app-context-menu-item>
+                </argusx-context-menu-item>
+                <argusx-context-menu-item>
                   <lucide-icon [img]="clipboardIcon" class="size-4" />
                   Paste
-                </app-context-menu-item>
-              </app-context-menu-group>
-              <app-context-menu-separator />
-              <app-context-menu-group>
-                <app-context-menu-item variant="destructive">
+                </argusx-context-menu-item>
+              </argusx-context-menu-group>
+              <argusx-context-menu-separator />
+              <argusx-context-menu-group>
+                <argusx-context-menu-item variant="destructive">
                   <lucide-icon [img]="trash2Icon" class="size-4" />
                   Delete
-                </app-context-menu-item>
-              </app-context-menu-group>
-            </app-context-menu-content>
-          </app-context-menu>
+                </argusx-context-menu-item>
+              </argusx-context-menu-group>
+            </argusx-context-menu-content>
+          </argusx-context-menu>
         </div>
       </section>
 
       <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
         <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Shortcuts</div>
         <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
-          <app-context-menu>
+          <argusx-context-menu>
             <div
-              appContextMenuTrigger
+              argusxContextMenuTrigger
               class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
-            <app-context-menu-content>
-              <app-context-menu-group>
-                <app-context-menu-item>
+            <argusx-context-menu-content>
+              <argusx-context-menu-group>
+                <argusx-context-menu-item>
                   Back
-                  <app-context-menu-shortcut>⌘[</app-context-menu-shortcut>
-                </app-context-menu-item>
-                <app-context-menu-item [disabled]="true">
+                  <argusx-context-menu-shortcut>⌘[</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+                <argusx-context-menu-item [disabled]="true">
                   Forward
-                  <app-context-menu-shortcut>⌘]</app-context-menu-shortcut>
-                </app-context-menu-item>
-                <app-context-menu-item>
+                  <argusx-context-menu-shortcut>⌘]</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+                <argusx-context-menu-item>
                   Reload
-                  <app-context-menu-shortcut>⌘R</app-context-menu-shortcut>
-                </app-context-menu-item>
-              </app-context-menu-group>
-              <app-context-menu-separator />
-              <app-context-menu-group>
-                <app-context-menu-item>
+                  <argusx-context-menu-shortcut>⌘R</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+              </argusx-context-menu-group>
+              <argusx-context-menu-separator />
+              <argusx-context-menu-group>
+                <argusx-context-menu-item>
                   Save
-                  <app-context-menu-shortcut>⌘S</app-context-menu-shortcut>
-                </app-context-menu-item>
-                <app-context-menu-item>
+                  <argusx-context-menu-shortcut>⌘S</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+                <argusx-context-menu-item>
                   Save As...
-                  <app-context-menu-shortcut>⇧⌘S</app-context-menu-shortcut>
-                </app-context-menu-item>
-              </app-context-menu-group>
-            </app-context-menu-content>
-          </app-context-menu>
+                  <argusx-context-menu-shortcut>⇧⌘S</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+              </argusx-context-menu-group>
+            </argusx-context-menu-content>
+          </argusx-context-menu>
         </div>
       </section>
 
       <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
         <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Submenu</div>
         <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
-          <app-context-menu>
+          <argusx-context-menu>
             <div
-              appContextMenuTrigger
+              argusxContextMenuTrigger
               class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
-            <app-context-menu-content>
-              <app-context-menu-group>
-                <app-context-menu-item>
+            <argusx-context-menu-content>
+              <argusx-context-menu-group>
+                <argusx-context-menu-item>
                   Copy
-                  <app-context-menu-shortcut>⌘C</app-context-menu-shortcut>
-                </app-context-menu-item>
-                <app-context-menu-item>
+                  <argusx-context-menu-shortcut>⌘C</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+                <argusx-context-menu-item>
                   Cut
-                  <app-context-menu-shortcut>⌘X</app-context-menu-shortcut>
-                </app-context-menu-item>
-              </app-context-menu-group>
-              <app-context-menu-sub>
-                <app-context-menu-sub-trigger>More Tools</app-context-menu-sub-trigger>
-                <app-context-menu-sub-content>
-                  <app-context-menu-group>
-                    <app-context-menu-item>Save Page...</app-context-menu-item>
-                    <app-context-menu-item>Create Shortcut...</app-context-menu-item>
-                    <app-context-menu-item>Name Window...</app-context-menu-item>
-                  </app-context-menu-group>
-                  <app-context-menu-separator />
-                  <app-context-menu-group>
-                    <app-context-menu-item>Developer Tools</app-context-menu-item>
-                  </app-context-menu-group>
-                  <app-context-menu-separator />
-                  <app-context-menu-group>
-                    <app-context-menu-item variant="destructive">
+                  <argusx-context-menu-shortcut>⌘X</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+              </argusx-context-menu-group>
+              <argusx-context-menu-sub>
+                <argusx-context-menu-sub-trigger>More Tools</argusx-context-menu-sub-trigger>
+                <argusx-context-menu-sub-content>
+                  <argusx-context-menu-group>
+                    <argusx-context-menu-item>Save Page...</argusx-context-menu-item>
+                    <argusx-context-menu-item>Create Shortcut...</argusx-context-menu-item>
+                    <argusx-context-menu-item>Name Window...</argusx-context-menu-item>
+                  </argusx-context-menu-group>
+                  <argusx-context-menu-separator />
+                  <argusx-context-menu-group>
+                    <argusx-context-menu-item>Developer Tools</argusx-context-menu-item>
+                  </argusx-context-menu-group>
+                  <argusx-context-menu-separator />
+                  <argusx-context-menu-group>
+                    <argusx-context-menu-item variant="destructive">
                       Delete
-                    </app-context-menu-item>
-                  </app-context-menu-group>
-                </app-context-menu-sub-content>
-              </app-context-menu-sub>
-            </app-context-menu-content>
-          </app-context-menu>
+                    </argusx-context-menu-item>
+                  </argusx-context-menu-group>
+                </argusx-context-menu-sub-content>
+              </argusx-context-menu-sub>
+            </argusx-context-menu-content>
+          </argusx-context-menu>
         </div>
       </section>
 
       <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
         <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Groups, Labels & Separators</div>
         <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
-          <app-context-menu>
+          <argusx-context-menu>
             <div
-              appContextMenuTrigger
+              argusxContextMenuTrigger
               class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
-            <app-context-menu-content>
-              <app-context-menu-group>
-                <app-context-menu-label>File</app-context-menu-label>
-                <app-context-menu-item>
+            <argusx-context-menu-content>
+              <argusx-context-menu-group>
+                <argusx-context-menu-label>File</argusx-context-menu-label>
+                <argusx-context-menu-item>
                   New File
-                  <app-context-menu-shortcut>⌘N</app-context-menu-shortcut>
-                </app-context-menu-item>
-                <app-context-menu-item>
+                  <argusx-context-menu-shortcut>⌘N</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+                <argusx-context-menu-item>
                   Open File
-                  <app-context-menu-shortcut>⌘O</app-context-menu-shortcut>
-                </app-context-menu-item>
-                <app-context-menu-item>
+                  <argusx-context-menu-shortcut>⌘O</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+                <argusx-context-menu-item>
                   Save
-                  <app-context-menu-shortcut>⌘S</app-context-menu-shortcut>
-                </app-context-menu-item>
-              </app-context-menu-group>
-              <app-context-menu-separator />
-              <app-context-menu-group>
-                <app-context-menu-label>Edit</app-context-menu-label>
-                <app-context-menu-item>
+                  <argusx-context-menu-shortcut>⌘S</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+              </argusx-context-menu-group>
+              <argusx-context-menu-separator />
+              <argusx-context-menu-group>
+                <argusx-context-menu-label>Edit</argusx-context-menu-label>
+                <argusx-context-menu-item>
                   Undo
-                  <app-context-menu-shortcut>⌘Z</app-context-menu-shortcut>
-                </app-context-menu-item>
-                <app-context-menu-item>
+                  <argusx-context-menu-shortcut>⌘Z</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+                <argusx-context-menu-item>
                   Redo
-                  <app-context-menu-shortcut>⇧⌘Z</app-context-menu-shortcut>
-                </app-context-menu-item>
-                <app-context-menu-separator />
-                <app-context-menu-item>
+                  <argusx-context-menu-shortcut>⇧⌘Z</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+                <argusx-context-menu-separator />
+                <argusx-context-menu-item>
                   Cut
-                  <app-context-menu-shortcut>⌘X</app-context-menu-shortcut>
-                </app-context-menu-item>
-                <app-context-menu-item>
+                  <argusx-context-menu-shortcut>⌘X</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+                <argusx-context-menu-item>
                   Copy
-                  <app-context-menu-shortcut>⌘C</app-context-menu-shortcut>
-                </app-context-menu-item>
-                <app-context-menu-item>
+                  <argusx-context-menu-shortcut>⌘C</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+                <argusx-context-menu-item>
                   Paste
-                  <app-context-menu-shortcut>⌘V</app-context-menu-shortcut>
-                </app-context-menu-item>
-              </app-context-menu-group>
-              <app-context-menu-separator />
-              <app-context-menu-group>
-                <app-context-menu-item variant="destructive">
+                  <argusx-context-menu-shortcut>⌘V</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+              </argusx-context-menu-group>
+              <argusx-context-menu-separator />
+              <argusx-context-menu-group>
+                <argusx-context-menu-item variant="destructive">
                   Delete
-                  <app-context-menu-shortcut>⌫</app-context-menu-shortcut>
-                </app-context-menu-item>
-              </app-context-menu-group>
-            </app-context-menu-content>
-          </app-context-menu>
+                  <argusx-context-menu-shortcut>⌫</argusx-context-menu-shortcut>
+                </argusx-context-menu-item>
+              </argusx-context-menu-group>
+            </argusx-context-menu-content>
+          </argusx-context-menu>
         </div>
       </section>
 
       <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
         <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Checkboxes</div>
         <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
-          <app-context-menu>
+          <argusx-context-menu>
             <div
-              appContextMenuTrigger
+              argusxContextMenuTrigger
               class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
-            <app-context-menu-content>
-              <app-context-menu-group>
-                <app-context-menu-checkbox-item
+            <argusx-context-menu-content>
+              <argusx-context-menu-group>
+                <argusx-context-menu-checkbox-item
                   [checked]="showBookmarksBar()"
                   (checkedChange)="showBookmarksBar.set($event)">
                   Show Bookmarks Bar
-                </app-context-menu-checkbox-item>
-                <app-context-menu-checkbox-item
+                </argusx-context-menu-checkbox-item>
+                <argusx-context-menu-checkbox-item
                   [checked]="showFullUrls()"
                   (checkedChange)="showFullUrls.set($event)">
                   Show Full URLs
-                </app-context-menu-checkbox-item>
-                <app-context-menu-checkbox-item
+                </argusx-context-menu-checkbox-item>
+                <argusx-context-menu-checkbox-item
                   [checked]="showDeveloperTools()"
                   (checkedChange)="showDeveloperTools.set($event)">
                   Show Developer Tools
-                </app-context-menu-checkbox-item>
-              </app-context-menu-group>
-            </app-context-menu-content>
-          </app-context-menu>
+                </argusx-context-menu-checkbox-item>
+              </argusx-context-menu-group>
+            </argusx-context-menu-content>
+          </argusx-context-menu>
         </div>
       </section>
 
       <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
         <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Radio Group</div>
         <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
-          <app-context-menu>
+          <argusx-context-menu>
             <div
-              appContextMenuTrigger
+              argusxContextMenuTrigger
               class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
-            <app-context-menu-content>
-              <app-context-menu-group>
-                <app-context-menu-label>People</app-context-menu-label>
-                <app-context-menu-radio-group [(value)]="user">
-                  <app-context-menu-radio-item value="pedro">
+            <argusx-context-menu-content>
+              <argusx-context-menu-group>
+                <argusx-context-menu-label>People</argusx-context-menu-label>
+                <argusx-context-menu-radio-group [(value)]="user">
+                  <argusx-context-menu-radio-item value="pedro">
                     Pedro Duarte
-                  </app-context-menu-radio-item>
-                  <app-context-menu-radio-item value="colm">
+                  </argusx-context-menu-radio-item>
+                  <argusx-context-menu-radio-item value="colm">
                     Colm Tuite
-                  </app-context-menu-radio-item>
-                </app-context-menu-radio-group>
-              </app-context-menu-group>
-              <app-context-menu-separator />
-              <app-context-menu-group>
-                <app-context-menu-label>Theme</app-context-menu-label>
-                <app-context-menu-radio-group [(value)]="radioTheme">
-                  <app-context-menu-radio-item value="light">
+                  </argusx-context-menu-radio-item>
+                </argusx-context-menu-radio-group>
+              </argusx-context-menu-group>
+              <argusx-context-menu-separator />
+              <argusx-context-menu-group>
+                <argusx-context-menu-label>Theme</argusx-context-menu-label>
+                <argusx-context-menu-radio-group [(value)]="radioTheme">
+                  <argusx-context-menu-radio-item value="light">
                     Light
-                  </app-context-menu-radio-item>
-                  <app-context-menu-radio-item value="dark">
+                  </argusx-context-menu-radio-item>
+                  <argusx-context-menu-radio-item value="dark">
                     Dark
-                  </app-context-menu-radio-item>
-                  <app-context-menu-radio-item value="system">
+                  </argusx-context-menu-radio-item>
+                  <argusx-context-menu-radio-item value="system">
                     System
-                  </app-context-menu-radio-item>
-                </app-context-menu-radio-group>
-              </app-context-menu-group>
-            </app-context-menu-content>
-          </app-context-menu>
+                  </argusx-context-menu-radio-item>
+                </argusx-context-menu-radio-group>
+              </argusx-context-menu-group>
+            </argusx-context-menu-content>
+          </argusx-context-menu>
         </div>
       </section>
 
       <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
         <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Destructive Items</div>
         <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
-          <app-context-menu>
+          <argusx-context-menu>
             <div
-              appContextMenuTrigger
+              argusxContextMenuTrigger
               class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
-            <app-context-menu-content>
-              <app-context-menu-group>
-                <app-context-menu-item>
+            <argusx-context-menu-content>
+              <argusx-context-menu-group>
+                <argusx-context-menu-item>
                   <lucide-icon [img]="pencilIcon" class="size-4" />
                   Edit
-                </app-context-menu-item>
-                <app-context-menu-item>
+                </argusx-context-menu-item>
+                <argusx-context-menu-item>
                   <lucide-icon [img]="share2Icon" class="size-4" />
                   Share
-                </app-context-menu-item>
-              </app-context-menu-group>
-              <app-context-menu-separator />
-              <app-context-menu-group>
-                <app-context-menu-item>
+                </argusx-context-menu-item>
+              </argusx-context-menu-group>
+              <argusx-context-menu-separator />
+              <argusx-context-menu-group>
+                <argusx-context-menu-item>
                   <lucide-icon [img]="archiveIcon" class="size-4" />
                   Archive
-                </app-context-menu-item>
-                <app-context-menu-item variant="destructive">
+                </argusx-context-menu-item>
+                <argusx-context-menu-item variant="destructive">
                   <lucide-icon [img]="trash2Icon" class="size-4" />
                   Delete
-                </app-context-menu-item>
-              </app-context-menu-group>
-            </app-context-menu-content>
-          </app-context-menu>
+                </argusx-context-menu-item>
+              </argusx-context-menu-group>
+            </argusx-context-menu-content>
+          </argusx-context-menu>
         </div>
       </section>
 
@@ -451,51 +451,51 @@ import {
                 </p>
               </div>
 
-            <app-context-menu>
+            <argusx-context-menu>
               <div
-                appContextMenuTrigger
+                argusxContextMenuTrigger
                 class="cn-context-menu-trigger mt-4 select-none flex h-20 w-full items-center justify-center rounded-lg border text-sm">
                 Right click here
               </div>
-              <app-context-menu-content>
-                <app-context-menu-group>
-                  <app-context-menu-item>
+              <argusx-context-menu-content>
+                <argusx-context-menu-group>
+                  <argusx-context-menu-item>
                     <lucide-icon [img]="copyIcon" class="size-4" />
                     Copy
-                  </app-context-menu-item>
-                  <app-context-menu-item>
+                  </argusx-context-menu-item>
+                  <argusx-context-menu-item>
                     <lucide-icon [img]="scissorsIcon" class="size-4" />
                     Cut
-                  </app-context-menu-item>
-                  <app-context-menu-item>
+                  </argusx-context-menu-item>
+                  <argusx-context-menu-item>
                     <lucide-icon [img]="clipboardIcon" class="size-4" />
                     Paste
-                  </app-context-menu-item>
-                </app-context-menu-group>
-                <app-context-menu-separator />
-                <app-context-menu-sub>
-                  <app-context-menu-sub-trigger>More Options</app-context-menu-sub-trigger>
-                  <app-context-menu-sub-content>
-                    <app-context-menu-group>
-                      <app-context-menu-item>Save Page...</app-context-menu-item>
-                      <app-context-menu-item>Create Shortcut...</app-context-menu-item>
-                      <app-context-menu-item>Name Window...</app-context-menu-item>
-                    </app-context-menu-group>
-                    <app-context-menu-separator />
-                    <app-context-menu-group>
-                      <app-context-menu-item>Developer Tools</app-context-menu-item>
-                    </app-context-menu-group>
-                  </app-context-menu-sub-content>
-                </app-context-menu-sub>
-                <app-context-menu-separator />
-                <app-context-menu-group>
-                  <app-context-menu-item variant="destructive">
+                  </argusx-context-menu-item>
+                </argusx-context-menu-group>
+                <argusx-context-menu-separator />
+                <argusx-context-menu-sub>
+                  <argusx-context-menu-sub-trigger>More Options</argusx-context-menu-sub-trigger>
+                  <argusx-context-menu-sub-content>
+                    <argusx-context-menu-group>
+                      <argusx-context-menu-item>Save Page...</argusx-context-menu-item>
+                      <argusx-context-menu-item>Create Shortcut...</argusx-context-menu-item>
+                      <argusx-context-menu-item>Name Window...</argusx-context-menu-item>
+                    </argusx-context-menu-group>
+                    <argusx-context-menu-separator />
+                    <argusx-context-menu-group>
+                      <argusx-context-menu-item>Developer Tools</argusx-context-menu-item>
+                    </argusx-context-menu-group>
+                  </argusx-context-menu-sub-content>
+                </argusx-context-menu-sub>
+                <argusx-context-menu-separator />
+                <argusx-context-menu-group>
+                  <argusx-context-menu-item variant="destructive">
                     <lucide-icon [img]="trash2Icon" class="size-4" />
                     Delete
-                  </app-context-menu-item>
-                </app-context-menu-group>
-              </app-context-menu-content>
-            </app-context-menu>
+                  </argusx-context-menu-item>
+                </argusx-context-menu-group>
+              </argusx-context-menu-content>
+            </argusx-context-menu>
             </div>
           </div>
         </div>
@@ -504,70 +504,70 @@ import {
       <section class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
         <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Inset</div>
         <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full">
-          <app-context-menu>
+          <argusx-context-menu>
             <div
-              appContextMenuTrigger
+              argusxContextMenuTrigger
               class="cn-context-menu-trigger select-none flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
               Right click here
             </div>
-            <app-context-menu-content class="w-44">
-              <app-context-menu-group>
-                <app-context-menu-label>Actions</app-context-menu-label>
-                <app-context-menu-item>
+            <argusx-context-menu-content class="w-44">
+              <argusx-context-menu-group>
+                <argusx-context-menu-label>Actions</argusx-context-menu-label>
+                <argusx-context-menu-item>
                   <lucide-icon [img]="copyIcon" class="size-4" />
                   Copy
-                </app-context-menu-item>
-                <app-context-menu-item>
+                </argusx-context-menu-item>
+                <argusx-context-menu-item>
                   <lucide-icon [img]="scissorsIcon" class="size-4" />
                   Cut
-                </app-context-menu-item>
-                <app-context-menu-item [inset]="true">Paste</app-context-menu-item>
-              </app-context-menu-group>
-              <app-context-menu-separator />
-              <app-context-menu-group>
-                <app-context-menu-label [inset]="true">Appearance</app-context-menu-label>
-                <app-context-menu-checkbox-item
+                </argusx-context-menu-item>
+                <argusx-context-menu-item [inset]="true">Paste</argusx-context-menu-item>
+              </argusx-context-menu-group>
+              <argusx-context-menu-separator />
+              <argusx-context-menu-group>
+                <argusx-context-menu-label [inset]="true">Appearance</argusx-context-menu-label>
+                <argusx-context-menu-checkbox-item
                   [inset]="true"
                   [checked]="insetShowBookmarks()"
                   (checkedChange)="insetShowBookmarks.set($event)">
                   Bookmarks
-                </app-context-menu-checkbox-item>
-                <app-context-menu-checkbox-item
+                </argusx-context-menu-checkbox-item>
+                <argusx-context-menu-checkbox-item
                   [inset]="true"
                   [checked]="insetShowUrls()"
                   (checkedChange)="insetShowUrls.set($event)">
                   Full URLs
-                </app-context-menu-checkbox-item>
-              </app-context-menu-group>
-              <app-context-menu-separator />
-              <app-context-menu-group>
-                <app-context-menu-label [inset]="true">Theme</app-context-menu-label>
-                <app-context-menu-radio-group [(value)]="insetTheme">
-                  <app-context-menu-radio-item [inset]="true" value="light">
+                </argusx-context-menu-checkbox-item>
+              </argusx-context-menu-group>
+              <argusx-context-menu-separator />
+              <argusx-context-menu-group>
+                <argusx-context-menu-label [inset]="true">Theme</argusx-context-menu-label>
+                <argusx-context-menu-radio-group [(value)]="insetTheme">
+                  <argusx-context-menu-radio-item [inset]="true" value="light">
                     Light
-                  </app-context-menu-radio-item>
-                  <app-context-menu-radio-item [inset]="true" value="dark">
+                  </argusx-context-menu-radio-item>
+                  <argusx-context-menu-radio-item [inset]="true" value="dark">
                     Dark
-                  </app-context-menu-radio-item>
-                  <app-context-menu-radio-item [inset]="true" value="system">
+                  </argusx-context-menu-radio-item>
+                  <argusx-context-menu-radio-item [inset]="true" value="system">
                     System
-                  </app-context-menu-radio-item>
-                </app-context-menu-radio-group>
-              </app-context-menu-group>
-              <app-context-menu-separator />
-              <app-context-menu-sub>
-                <app-context-menu-sub-trigger [inset]="true">
+                  </argusx-context-menu-radio-item>
+                </argusx-context-menu-radio-group>
+              </argusx-context-menu-group>
+              <argusx-context-menu-separator />
+              <argusx-context-menu-sub>
+                <argusx-context-menu-sub-trigger [inset]="true">
                   More Options
-                </app-context-menu-sub-trigger>
-                <app-context-menu-sub-content>
-                  <app-context-menu-group>
-                    <app-context-menu-item>Save Page...</app-context-menu-item>
-                    <app-context-menu-item>Create Shortcut...</app-context-menu-item>
-                  </app-context-menu-group>
-                </app-context-menu-sub-content>
-              </app-context-menu-sub>
-            </app-context-menu-content>
-          </app-context-menu>
+                </argusx-context-menu-sub-trigger>
+                <argusx-context-menu-sub-content>
+                  <argusx-context-menu-group>
+                    <argusx-context-menu-item>Save Page...</argusx-context-menu-item>
+                    <argusx-context-menu-item>Create Shortcut...</argusx-context-menu-item>
+                  </argusx-context-menu-group>
+                </argusx-context-menu-sub-content>
+              </argusx-context-menu-sub>
+            </argusx-context-menu-content>
+          </argusx-context-menu>
         </div>
       </section>
       </div>

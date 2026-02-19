@@ -29,7 +29,7 @@ import {
  *
  * @example
  * ```html
- * <app-chart-container
+ * <argusx-chart
  *   [config]="chartConfig"
  *   [series]="chartSeries"
  *   type="line"
@@ -38,7 +38,7 @@ import {
  * ```
  */
 @Component({
-  selector: 'app-chart-container',
+  selector: 'argusx-chart',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div

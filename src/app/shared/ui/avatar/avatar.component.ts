@@ -15,7 +15,7 @@ import { cn } from '../../utils/cn';
 // Avatar Root Token for DI
 // ============================================================================
 
-export abstract class AvatarRootToken {
+export abstract class ArgusxAvatarRootToken {
   abstract size: () => 'default' | 'sm' | 'lg';
   abstract imageLoadingState: () => 'loading' | 'loaded' | 'error';
   abstract setImageLoadingState: (state: 'loading' | 'loaded' | 'error') => void;
@@ -32,21 +32,21 @@ export abstract class AvatarRootToken {
  *
  * @example
  * ```html
- * <app-avatar>
- *   <img appAvatarImage src="/avatar.png" alt="User" />
- *   <span appAvatarFallback>UN</span>
- * </app-avatar>
+ * <argusx-avatar>
+ *   <img argusxAvatarImage src="/avatar.png" alt="User" />
+ *   <span argusxAvatarFallback>UN</span>
+ * </argusx-avatar>
  *
- * <app-avatar size="lg">
- *   <img appAvatarImage src="/avatar.png" alt="User" />
- *   <span appAvatarFallback>UN</span>
- * </app-avatar>
+ * <argusx-avatar size="lg">
+ *   <img argusxAvatarImage src="/avatar.png" alt="User" />
+ *   <span argusxAvatarFallback>UN</span>
+ * </argusx-avatar>
  * ```
  *
- * Reference: .vendor/aim/components/ui/avatar.tsx
+ * Reference: https://ui.shadcn.com/preview/radix/avatar
  */
 @Component({
-  selector: 'app-avatar',
+  selector: 'argusx-avatar',
   imports: [CommonModule],
   template: `
     <ng-content />
@@ -58,13 +58,13 @@ export abstract class AvatarRootToken {
   },
   providers: [
     {
-      provide: AvatarRootToken,
-      useExisting: AvatarComponent,
+      provide: ArgusxAvatarRootToken,
+      useExisting: ArgusxAvatarComponent,
     },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AvatarComponent implements AvatarRootToken {
+export class ArgusxAvatarComponent implements ArgusxAvatarRootToken {
   // ============================================================================
   // Inputs
   // ============================================================================
@@ -121,11 +121,11 @@ export class AvatarComponent implements AvatarRootToken {
  *
  * @example
  * ```html
- * <img appAvatarImage src="/avatar.png" alt="User Name" />
+ * <img argusxAvatarImage src="/avatar.png" alt="User Name" />
  * ```
  */
 @Directive({
-  selector: 'img[appAvatarImage]',
+  selector: 'img[argusxAvatarImage]',
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"avatar-image"',
@@ -133,8 +133,8 @@ export class AvatarComponent implements AvatarRootToken {
     '(error)': 'onError()',
   },
 })
-export class AvatarImageDirective {
-  private readonly avatarRoot = inject(AvatarRootToken, { optional: true });
+export class ArgusxAvatarImageDirective {
+  private readonly avatarRoot = inject(ArgusxAvatarRootToken, { optional: true });
   private readonly elementRef = inject(ElementRef<HTMLImageElement>);
 
   readonly class = input<string>('');
@@ -181,18 +181,18 @@ export class AvatarImageDirective {
  *
  * @example
  * ```html
- * <span appAvatarFallback>UN</span>
+ * <span argusxAvatarFallback>UN</span>
  * ```
  */
 @Directive({
-  selector: '[appAvatarFallback]',
+  selector: '[argusxAvatarFallback]',
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"avatar-fallback"',
   },
 })
-export class AvatarFallbackDirective {
-  private readonly avatarRoot = inject(AvatarRootToken, { optional: true });
+export class ArgusxAvatarFallbackDirective {
+  private readonly avatarRoot = inject(ArgusxAvatarRootToken, { optional: true });
 
   readonly class = input<string>('');
 
@@ -227,17 +227,17 @@ export class AvatarFallbackDirective {
  *
  * @example
  * ```html
- * <app-avatar>
- *   <img appAvatarImage src="/avatar.png" alt="User" />
- *   <span appAvatarFallback>UN</span>
- *   <app-avatar-badge>
+ * <argusx-avatar>
+ *   <img argusxAvatarImage src="/avatar.png" alt="User" />
+ *   <span argusxAvatarFallback>UN</span>
+ *   <argusx-avatar-badge>
  *     <div class="size-2 rounded-full bg-green-500"></div>
- *   </app-avatar-badge>
- * </app-avatar>
+ *   </argusx-avatar-badge>
+ * </argusx-avatar>
  * ```
  */
 @Component({
-  selector: 'app-avatar-badge',
+  selector: 'argusx-avatar-badge',
   imports: [CommonModule],
   template: `
     <ng-content />
@@ -248,8 +248,8 @@ export class AvatarFallbackDirective {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AvatarBadgeComponent {
-  private readonly avatarRoot = inject(AvatarRootToken, { optional: true });
+export class ArgusxAvatarBadgeComponent {
+  private readonly avatarRoot = inject(ArgusxAvatarRootToken, { optional: true });
 
   readonly class = input<string>('');
 
@@ -281,15 +281,15 @@ export class AvatarBadgeComponent {
  *
  * @example
  * ```html
- * <app-avatar-group>
- *   <app-avatar><img appAvatarImage src="/1.png" /></app-avatar>
- *   <app-avatar><img appAvatarImage src="/2.png" /></app-avatar>
- *   <app-avatar-group-count>+5</app-avatar-group-count>
- * </app-avatar-group>
+ * <argusx-avatar-group>
+ *   <argusx-avatar><img argusxAvatarImage src="/1.png" /></argusx-avatar>
+ *   <argusx-avatar><img argusxAvatarImage src="/2.png" /></argusx-avatar>
+ *   <argusx-avatar-group-count>+5</argusx-avatar-group-count>
+ * </argusx-avatar-group>
  * ```
  */
 @Component({
-  selector: 'app-avatar-group',
+  selector: 'argusx-avatar-group',
   imports: [CommonModule],
   template: `
     <ng-content />
@@ -300,7 +300,7 @@ export class AvatarBadgeComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AvatarGroupComponent {
+export class ArgusxAvatarGroupComponent {
   readonly class = input<string>('');
 
   /**
@@ -328,15 +328,15 @@ export class AvatarGroupComponent {
  *
  * @example
  * ```html
- * <app-avatar-group>
- *   <app-avatar>...</app-avatar>
- *   <app-avatar>...</app-avatar>
- *   <app-avatar-group-count>+5</app-avatar-group-count>
- * </app-avatar-group>
+ * <argusx-avatar-group>
+ *   <argusx-avatar>...</argusx-avatar>
+ *   <argusx-avatar>...</argusx-avatar>
+ *   <argusx-avatar-group-count>+5</argusx-avatar-group-count>
+ * </argusx-avatar-group>
  * ```
  */
 @Component({
-  selector: 'app-avatar-group-count',
+  selector: 'argusx-avatar-group-count',
   imports: [CommonModule],
   template: `
     <ng-content />
@@ -347,7 +347,7 @@ export class AvatarGroupComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AvatarGroupCountComponent {
+export class ArgusxAvatarGroupCountComponent {
   readonly class = input<string>('');
 
   /**
@@ -370,11 +370,11 @@ export class AvatarGroupCountComponent {
 // Exports
 // ============================================================================
 
-export const AvatarComponents = [
-  AvatarComponent,
-  AvatarImageDirective,
-  AvatarFallbackDirective,
-  AvatarBadgeComponent,
-  AvatarGroupComponent,
-  AvatarGroupCountComponent,
+export const ArgusxAvatarComponents = [
+  ArgusxAvatarComponent,
+  ArgusxAvatarImageDirective,
+  ArgusxAvatarFallbackDirective,
+  ArgusxAvatarBadgeComponent,
+  ArgusxAvatarGroupComponent,
+  ArgusxAvatarGroupCountComponent,
 ];
