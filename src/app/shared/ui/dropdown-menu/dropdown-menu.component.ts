@@ -133,7 +133,7 @@ export class ArgusxDropdownMenuLabelComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'text-muted-foreground px-2 py-1.5 text-xs',
+      'text-muted-foreground flex w-full items-center px-2 py-1.5 text-xs',
       this.inset() ? 'pl-7.5' : '',
       this.class()
     )
@@ -399,7 +399,7 @@ export class ArgusxDropdownMenuSeparatorComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('bg-border/50 -mx-1 my-1 h-px', this.class())
+    cn('bg-border/50 -mx-1 my-1 block h-px w-full shrink-0', this.class())
   );
 }
 

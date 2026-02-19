@@ -22,6 +22,8 @@ function waitForRender() {
     <argusx-dropdown-menu>
       <button type="button" id="trigger" argusxDropdownMenuTrigger>Open</button>
       <argusx-dropdown-menu-content>
+        <argusx-dropdown-menu-label>My Account</argusx-dropdown-menu-label>
+        <argusx-dropdown-menu-separator />
         <argusx-dropdown-menu-checkbox-item>
           Bookmarked
         </argusx-dropdown-menu-checkbox-item>
@@ -110,5 +112,27 @@ describe('ArgusxDropdownMenuComponent', () => {
     fixture.detectChanges();
 
     expect(host.menu.open()).toBe(false);
+  });
+
+  it('uses block layout classes for labels and separators', async () => {
+    host.menu.open.set(true);
+    fixture.detectChanges();
+    await waitForRender();
+
+    const label = document.querySelector('[data-slot="dropdown-menu-label"]') as HTMLElement | null;
+    const separator = document.querySelector(
+      '[data-slot="dropdown-menu-separator"]'
+    ) as HTMLElement | null;
+
+    expect(label).toBeTruthy();
+    expect(separator).toBeTruthy();
+
+    expect(label?.classList.contains('flex')).toBe(true);
+    expect(label?.classList.contains('w-full')).toBe(true);
+
+    expect(separator?.classList.contains('block')).toBe(true);
+    expect(separator?.classList.contains('w-full')).toBe(true);
+    expect(separator?.classList.contains('h-px')).toBe(true);
+    expect(separator?.classList.contains('my-1')).toBe(true);
   });
 });
