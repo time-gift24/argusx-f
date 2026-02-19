@@ -6,24 +6,6 @@ import {
 } from '@angular/core';
 import { cn } from '../../utils/cn';
 
-/**
- * AlertAction component for displaying action buttons in an alert.
- * Typically used for close buttons or other actions.
- * Should be used as a child of AlertComponent.
- *
- * @example
- * ```html
- * <app-alert (close)="handleClose()">
- *   <app-alert-title>Update available</app-alert-title>
- *   <app-alert-description>A new version is ready to install.</app-alert-description>
- *   <app-alert-action>
- *     <button argusx-button variant="ghost" size="icon" (click)="handleClose()">
- *       <lucide-icon [img]="xIcon"></lucide-icon>
- *     </button>
- *   </app-alert-action>
- * </app-alert>
- * ```
- */
 @Component({
   selector: 'argusx-alert-action',
   changeDetection: ChangeDetectionStrategy.OnPush,

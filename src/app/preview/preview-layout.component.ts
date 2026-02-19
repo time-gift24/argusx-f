@@ -24,7 +24,7 @@ const PREVIEW_ITEMS = [
   { id: 'accordion', label: 'Accordion', reviewStatus: 'reviewed' },
   { id: 'dialog', label: 'Dialog', reviewStatus: 'reviewed' },
   { id: 'aspect-ratio', label: 'Aspect Ratio', reviewStatus: 'reviewed' },
-  { id: 'alert', label: 'Alert', reviewStatus: 'not_processed' },
+  { id: 'alert', label: 'Alert', reviewStatus: 'reviewed' },
   { id: 'avatar', label: 'Avatar', reviewStatus: 'not_processed' },
   { id: 'liquid-glass', label: 'Liquid Glass', reviewStatus: 'not_processed' },
   { id: 'llm-chat', label: 'LLM Chat', reviewStatus: 'not_processed' },
