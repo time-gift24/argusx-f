@@ -1,1 +1,5 @@
-export { BadgeDirective, badgeVariants, type BadgeVariant } from './badge.directive';
+export {
+  ArgusxBadgeDirective,
+  argusxBadgeVariants,
+  type ArgusxBadgeVariant,
+} from './badge.directive';

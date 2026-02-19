@@ -23,4 +23,14 @@ describe('SdMarkdownComponent', () => {
 
     expect(previewSource).toContain('[capabilities]="markdownCapabilities()"');
   });
+
+  it('styles gfm task list checkboxes', () => {
+    const styleSource = readFileSync(
+      new URL('./markdown.component.css', import.meta.url),
+      'utf8'
+    );
+
+    expect(styleSource).toContain('.sd-root ul.contains-task-list');
+    expect(styleSource).toContain(".sd-root li.task-list-item > input[type='checkbox']");
+  });
 });

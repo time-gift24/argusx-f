@@ -181,6 +181,19 @@ const HTML_VOID_TAGS = new Set([
               }
             </div>
           }
+          @case ('input') {
+            <input
+              [attr.checked]="attr('checked')"
+              [attr.disabled]="attr('disabled')"
+              [attr.name]="attr('name')"
+              [attr.placeholder]="attr('placeholder')"
+              [attr.readonly]="attr('readonly')"
+              [attr.style]="styleText()"
+              [attr.type]="attr('type')"
+              [attr.value]="attr('value')"
+              [class]="className()"
+            />
+          }
           @case ('pre') {
             @if (codeChild() && preCodeLanguage() === 'mermaid' && renderCapabilities().mermaid.enabled) {
               @defer (when true) {
@@ -286,6 +299,13 @@ const HTML_VOID_TAGS = new Set([
                 <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
               }
             </em>
+          }
+          @case ('del') {
+            <del [attr.style]="styleText()" [class]="className()">
+              @for (child of children(); track $index) {
+                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
+              }
+            </del>
           }
           @case ('sup') {
             <sup [attr.style]="styleText()" [class]="className()">

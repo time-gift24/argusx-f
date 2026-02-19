@@ -13,7 +13,7 @@ import {
   LucideAngularModule,
 } from 'lucide-angular';
 import { ArgusxButtonDirective } from '../shared/ui/button';
-import { BadgeDirective } from '../shared/ui/badge';
+import { ArgusxBadgeDirective } from '../shared/ui/badge';
 
 @Component({
   selector: 'app-alert-preview',
@@ -25,7 +25,7 @@ import { BadgeDirective } from '../shared/ui/badge';
     AlertDescriptionComponent,
     LucideAngularModule,
     ArgusxButtonDirective,
-    BadgeDirective,
+    ArgusxBadgeDirective,
   ],
   template: `
     <div class="mx-auto max-w-6xl p-8">
@@ -183,7 +183,7 @@ import { BadgeDirective } from '../shared/ui/badge';
                 text content.
               </argusx-alert-description>
               <argusx-alert-action>
-                <span appBadge variant="secondary">Badge</span>
+                <span argusx-badge variant="secondary">Badge</span>
               </argusx-alert-action>
             </argusx-alert>
           </div>

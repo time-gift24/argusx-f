@@ -25,3 +25,15 @@ it('renders table subtree as semantic html without recursive host wrappers', () 
   expect(source).toContain('[innerHTML]="tableInnerSafeHtml()"');
   expect(source).toContain('bypassSecurityTrustHtml');
 });
+
+it('renders gfm strikethrough and task checkbox tags semantically', () => {
+  const source = readFileSync(
+    `${process.cwd()}/src/app/shared/ui/markdown/components/markdown-node.component.ts`,
+    'utf8'
+  );
+
+  expect(source).toContain("@case ('del')");
+  expect(source).toContain("@case ('input')");
+  expect(source).toContain("[attr.type]=\"attr('type')\"");
+  expect(source).toContain("[attr.checked]=\"attr('checked')\"");
+});
