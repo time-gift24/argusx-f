@@ -1,90 +1,111 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {
+  AfterContentChecked,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Input,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { ChevronRight, LucideAngularModule, MoreHorizontal } from 'lucide-angular';
+
 import { cn } from '../../utils/cn';
-import { LucideAngularModule, ChevronRight, MoreHorizontal } from 'lucide-angular';
+import {
+  type ArgusxBreadcrumbAlign,
+  type ArgusxBreadcrumbEllipsisColor,
+  type ArgusxBreadcrumbSize,
+  type ArgusxBreadcrumbWrap,
+  argusxBreadcrumbEllipsisVariants,
+  argusxBreadcrumbItemVariants,
+  argusxBreadcrumbListVariants,
+  argusxBreadcrumbVariants,
+} from './breadcrumb.variants';
 
-// ============================================================================
-// Breadcrumb Component
-// ============================================================================
-
-/**
- * Breadcrumb navigation container.
- * Aligned with official shadcn preset (.vendor/aim/components/ui/breadcrumb.tsx)
- *
- * @example
- * ```html
- * <app-breadcrumb>
- *   <app-breadcrumb-list>
- *     <app-breadcrumb-item>
- *       <app-breadcrumb-link href="/">Home</app-breadcrumb-link>
- *     </app-breadcrumb-item>
- *     <app-breadcrumb-separator />
- *     <app-breadcrumb-item>
- *       <app-breadcrumb-link href="/products">Products</app-breadcrumb-link>
- *     </app-breadcrumb-item>
- *     <app-breadcrumb-separator />
- *     <app-breadcrumb-item>
- *       <app-breadcrumb-page>Current Page</app-breadcrumb-page>
- *     </app-breadcrumb-item>
- *   </app-breadcrumb-list>
- * </app-breadcrumb>
- * ```
- */
 @Component({
-  selector: 'app-breadcrumb',
+  selector: 'argusx-breadcrumb, nav[argusxBreadcrumb]',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
     '[attr.data-slot]': '"breadcrumb"',
     '[attr.aria-label]': '"breadcrumb"',
-  },
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class BreadcrumbComponent {
-  readonly class = input<string>('');
-
-  protected readonly computedClass = computed(() =>
-    cn(this.class())
-  );
-}
-
-// ============================================================================
-// Breadcrumb List
-// ============================================================================
-
-/**
- * Ordered list container for breadcrumb items.
- */
-@Component({
-  selector: 'app-breadcrumb-list',
-  imports: [CommonModule],
-  template: `<ng-content />`,
-  host: {
-    '[attr.data-slot]': '"breadcrumb-list"',
+    '[attr.data-size]': 'size()',
     '[class]': 'computedClass()',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BreadcrumbListComponent {
-  readonly class = input<string>('');
+export class ArgusxBreadcrumbComponent {
+  private readonly classValue = signal('');
+  private readonly sizeValue = signal<ArgusxBreadcrumbSize>('md');
+
+  protected readonly class = this.classValue.asReadonly();
+  protected readonly size = this.sizeValue.asReadonly();
+
+  @Input('class')
+  set hostClass(value: string | null | undefined) {
+    this.classValue.set(value ?? '');
+  }
+
+  @Input({ alias: 'size' })
+  set sizeInput(value: ArgusxBreadcrumbSize | null | undefined) {
+    this.sizeValue.set(value ?? 'md');
+  }
+
+  protected readonly computedClass = computed(() =>
+    cn(argusxBreadcrumbVariants({ size: this.size() }), this.class())
+  );
+}
+
+@Component({
+  selector: 'argusx-breadcrumb-list, ol[argusxBreadcrumbList]',
+  imports: [CommonModule],
+  template: `<ng-content />`,
+  host: {
+    '[attr.data-slot]': '"breadcrumb-list"',
+    '[attr.data-align]': 'align()',
+    '[attr.data-wrap]': 'wrap()',
+    '[class]': 'computedClass()',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ArgusxBreadcrumbListComponent {
+  private readonly classValue = signal('');
+  private readonly alignValue = signal<ArgusxBreadcrumbAlign>('start');
+  private readonly wrapValue = signal<ArgusxBreadcrumbWrap>('wrap');
+
+  protected readonly class = this.classValue.asReadonly();
+  protected readonly align = this.alignValue.asReadonly();
+  protected readonly wrap = this.wrapValue.asReadonly();
+
+  @Input('class')
+  set hostClass(value: string | null | undefined) {
+    this.classValue.set(value ?? '');
+  }
+
+  @Input({ alias: 'align' })
+  set alignInput(value: ArgusxBreadcrumbAlign | null | undefined) {
+    this.alignValue.set(value ?? 'start');
+  }
+
+  @Input({ alias: 'wrap' })
+  set wrapInput(value: ArgusxBreadcrumbWrap | null | undefined) {
+    this.wrapValue.set(value ?? 'wrap');
+  }
 
   protected readonly computedClass = computed(() =>
     cn(
-      'text-muted-foreground gap-1.5 text-xs/relaxed flex flex-wrap items-center wrap-break-word',
+      argusxBreadcrumbListVariants({
+        align: this.align(),
+        wrap: this.wrap(),
+      }),
       this.class()
     )
   );
 }
 
-// ============================================================================
-// Breadcrumb Item
-// ============================================================================
-
-/**
- * List item container for breadcrumb elements.
- */
 @Component({
-  selector: 'app-breadcrumb-item',
+  selector: 'argusx-breadcrumb-item, li[argusxBreadcrumbItem]',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -93,24 +114,23 @@ export class BreadcrumbListComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BreadcrumbItemComponent {
-  readonly class = input<string>('');
+export class ArgusxBreadcrumbItemComponent {
+  private readonly classValue = signal('');
+
+  protected readonly class = this.classValue.asReadonly();
+
+  @Input('class')
+  set hostClass(value: string | null | undefined) {
+    this.classValue.set(value ?? '');
+  }
 
   protected readonly computedClass = computed(() =>
-    cn('gap-1 inline-flex items-center', this.class())
+    cn(argusxBreadcrumbItemVariants(), this.class())
   );
 }
 
-// ============================================================================
-// Breadcrumb Link
-// ============================================================================
-
-/**
- * Clickable link for navigation in breadcrumb.
- * Supports both RouterLink and native anchor elements.
- */
 @Component({
-  selector: 'a[app-breadcrumb-link], app-breadcrumb-link',
+  selector: 'argusx-breadcrumb-link, a[argusxBreadcrumbLink]',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -119,24 +139,23 @@ export class BreadcrumbItemComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BreadcrumbLinkComponent {
-  readonly class = input<string>('');
-  readonly href = input<string>('');
+export class ArgusxBreadcrumbLinkComponent {
+  private readonly classValue = signal('');
+
+  protected readonly class = this.classValue.asReadonly();
+
+  @Input('class')
+  set hostClass(value: string | null | undefined) {
+    this.classValue.set(value ?? '');
+  }
 
   protected readonly computedClass = computed(() =>
     cn('hover:text-foreground transition-colors', this.class())
   );
 }
 
-// ============================================================================
-// Breadcrumb Page
-// ============================================================================
-
-/**
- * Current page indicator (non-clickable).
- */
 @Component({
-  selector: 'app-breadcrumb-page',
+  selector: 'argusx-breadcrumb-page, span[argusxBreadcrumbPage]',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -148,29 +167,28 @@ export class BreadcrumbLinkComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BreadcrumbPageComponent {
-  readonly class = input<string>('');
+export class ArgusxBreadcrumbPageComponent {
+  private readonly classValue = signal('');
+
+  protected readonly class = this.classValue.asReadonly();
+
+  @Input('class')
+  set hostClass(value: string | null | undefined) {
+    this.classValue.set(value ?? '');
+  }
 
   protected readonly computedClass = computed(() =>
     cn('text-foreground font-normal', this.class())
   );
 }
 
-// ============================================================================
-// Breadcrumb Separator
-// ============================================================================
-
-/**
- * Visual separator between breadcrumb items.
- */
 @Component({
-  selector: 'app-breadcrumb-separator',
+  selector: 'argusx-breadcrumb-separator, li[argusxBreadcrumbSeparator]',
   imports: [CommonModule, LucideAngularModule],
   template: `
-    @if (customContent()) {
-      <ng-content />
-    } @else {
-      <lucide-icon [img]="chevronRightIcon" class="size-3.5"></lucide-icon>
+    <ng-content />
+    @if (!hasProjectedContent()) {
+      <lucide-icon data-default-separator-icon [img]="chevronRightIcon" />
     }
   `,
   host: {
@@ -181,65 +199,100 @@ export class BreadcrumbPageComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BreadcrumbSeparatorComponent {
-  readonly class = input<string>('');
+export class ArgusxBreadcrumbSeparatorComponent implements AfterContentChecked {
+  private readonly hostElement = inject(ElementRef<HTMLElement>);
+  private readonly hasProjectedContentValue = signal(false);
+  private readonly classValue = signal('');
+
   readonly chevronRightIcon = ChevronRight;
 
-  /**
-   * Whether custom content is provided via ng-content.
-   * Used to determine whether to render default icon or custom content.
-   */
-  readonly customContent = input<boolean>(false);
+  protected readonly class = this.classValue.asReadonly();
+  protected readonly hasProjectedContent = this.hasProjectedContentValue.asReadonly();
+
+  @Input('class')
+  set hostClass(value: string | null | undefined) {
+    this.classValue.set(value ?? '');
+  }
 
   protected readonly computedClass = computed(() =>
-    cn('[&>svg]:size-3.5', this.class())
+    cn('[&_svg]:size-[1em] [&_svg]:shrink-0', this.class())
   );
+
+  ngAfterContentChecked(): void {
+    const childNodes = this.hostElement.nativeElement.childNodes as NodeListOf<ChildNode>;
+    const nextValue = Array.from(childNodes).some((node: ChildNode) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return (node.textContent ?? '').trim().length > 0;
+      }
+
+      if (node.nodeType !== Node.ELEMENT_NODE) {
+        return false;
+      }
+
+      const element = node as HTMLElement;
+      return !(
+        element.tagName.toLowerCase() === 'lucide-icon' &&
+        element.hasAttribute('data-default-separator-icon')
+      );
+    });
+
+    if (nextValue !== this.hasProjectedContentValue()) {
+      this.hasProjectedContentValue.set(nextValue);
+    }
+  }
 }
 
-// ============================================================================
-// Breadcrumb Ellipsis
-// ============================================================================
-
-/**
- * Ellipsis indicator for collapsed breadcrumb items.
- */
 @Component({
-  selector: 'app-breadcrumb-ellipsis',
+  selector: 'argusx-breadcrumb-ellipsis, span[argusxBreadcrumbEllipsis]',
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <lucide-icon [img]="moreHorizontalIcon" class="size-3.5"></lucide-icon>
+    <lucide-icon [img]="moreHorizontalIcon" class="size-4" />
     <span class="sr-only">More</span>
   `,
   host: {
     '[attr.data-slot]': '"breadcrumb-ellipsis"',
+    '[attr.data-color]': 'ellipsisColor()',
     '[attr.role]': '"presentation"',
     '[attr.aria-hidden]': 'true',
     '[class]': 'computedClass()',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BreadcrumbEllipsisComponent {
-  readonly class = input<string>('');
+export class ArgusxBreadcrumbEllipsisComponent {
+  private readonly classValue = signal('');
+  private readonly ellipsisColorValue = signal<ArgusxBreadcrumbEllipsisColor>('muted');
+
   readonly moreHorizontalIcon = MoreHorizontal;
+
+  protected readonly class = this.classValue.asReadonly();
+  protected readonly ellipsisColor = this.ellipsisColorValue.asReadonly();
+
+  @Input('class')
+  set hostClass(value: string | null | undefined) {
+    this.classValue.set(value ?? '');
+  }
+
+  @Input({ alias: 'ellipsisColor' })
+  set ellipsisColorInput(value: ArgusxBreadcrumbEllipsisColor | null | undefined) {
+    this.ellipsisColorValue.set(value ?? 'muted');
+  }
 
   protected readonly computedClass = computed(() =>
     cn(
-      'size-4 [&>svg]:size-3.5 flex items-center justify-center',
+      argusxBreadcrumbEllipsisVariants({
+        color: this.ellipsisColor(),
+      }),
       this.class()
     )
   );
 }
 
-// ============================================================================
-// Exports
-// ============================================================================
-
-export const BreadcrumbComponents = [
-  BreadcrumbComponent,
-  BreadcrumbListComponent,
-  BreadcrumbItemComponent,
-  BreadcrumbLinkComponent,
-  BreadcrumbPageComponent,
-  BreadcrumbSeparatorComponent,
-  BreadcrumbEllipsisComponent,
+export const ArgusxBreadcrumbComponents = [
+  ArgusxBreadcrumbComponent,
+  ArgusxBreadcrumbListComponent,
+  ArgusxBreadcrumbItemComponent,
+  ArgusxBreadcrumbLinkComponent,
+  ArgusxBreadcrumbPageComponent,
+  ArgusxBreadcrumbSeparatorComponent,
+  ArgusxBreadcrumbEllipsisComponent,
 ];
