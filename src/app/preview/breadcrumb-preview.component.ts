@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 
-import { ButtonDirective } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { ArgusxBreadcrumbComponents } from '@app/shared/ui/breadcrumb';
 import { DrawerComponents } from '@app/shared/ui/drawer';
 import { DropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
@@ -23,7 +23,7 @@ const DESKTOP_MEDIA_QUERY = '(min-width: 768px)';
     ArgusxBreadcrumbComponents,
     DropdownMenuComponents,
     DrawerComponents,
-    ButtonDirective,
+    ArgusxButtonDirective,
     LucideAngularModule,
   ],
   template: `
