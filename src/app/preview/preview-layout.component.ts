@@ -30,7 +30,7 @@ const PREVIEW_ITEMS = [
   { id: 'llm-chat', label: 'LLM Chat', reviewStatus: 'not_processed' },
   { id: 'markdown', label: 'Markdown', reviewStatus: 'not_processed' },
   { id: 'alert-dialog', label: 'Alert Dialog', reviewStatus: 'reviewed' },
-  { id: 'badge', label: 'Badge', reviewStatus: 'ready_to_review' },
+  { id: 'badge', label: 'Badge', reviewStatus: 'reviewed' },
   { id: 'breadcrumb', label: 'Breadcrumb', reviewStatus: 'reviewed' },
   { id: 'button-group', label: 'Button Group', reviewStatus: 'reviewed' },
   { id: 'carousel', label: 'Carousel', reviewStatus: 'reviewed' },
