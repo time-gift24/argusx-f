@@ -87,6 +87,22 @@ import { ProgressComponent } from '@app/shared/ui/progress';
           <app-progress [indeterminate]="true" />
         </div>
       </section>
+
+      <section>
+        <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">Shapes</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6 space-y-4">
+          <div class="space-y-2">
+            <span class="text-xs text-muted-foreground">Default (rounded)</span>
+            <app-progress [value]="75" shape="default" />
+          </div>
+          <div class="space-y-2">
+            <span class="text-xs text-muted-foreground">Square</span>
+            <app-progress [value]="75" shape="square" />
+          </div>
+        </div>
+      </section>
     </div>
   `,
 })

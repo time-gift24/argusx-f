@@ -12,6 +12,11 @@ export type ProgressSize = 'sm' | 'default' | 'lg';
 export type ProgressVariant = 'default' | 'success' | 'warning' | 'danger';
 
 /**
+ * Progress shape variants
+ */
+export type ProgressShape = 'default' | 'square';
+
+/**
  * Progress component that displays a horizontal progress bar.
  * Supports determinate values, indeterminate state, and multiple size/color variants.
  * Aligned with shadcn/ui progress component.
@@ -31,6 +36,7 @@ export type ProgressVariant = 'default' | 'success' | 'warning' | 'danger';
     '[attr.data-slot]': '"progress"',
     '[attr.data-size]': 'size()',
     '[attr.data-variant]': 'variant()',
+    '[attr.data-shape]': 'shape()',
     role: 'progressbar',
     '[attr.aria-valuemin]': '0',
     '[attr.aria-valuemax]': 'max()',
@@ -54,6 +60,7 @@ export class ProgressComponent {
   readonly indeterminate = input<boolean>(false);
   readonly size = input<ProgressSize>('default');
   readonly variant = input<ProgressVariant>('default');
+  readonly shape = input<ProgressShape>('default');
 
   protected readonly percentage = computed(() => {
     const val = this.value();
@@ -65,7 +72,9 @@ export class ProgressComponent {
   protected readonly computedClass = computed(() =>
     cn(
       // Base styles aligned with shadcn/ui
-      'bg-primary/20 relative w-full overflow-hidden rounded-full',
+      'bg-primary/20 relative w-full overflow-hidden',
+      // Shape variants
+      this.shapeClass(),
       // Size variants
       this.sizeClass(),
       this.class()
@@ -83,10 +92,20 @@ export class ProgressComponent {
     }
   });
 
+  protected readonly shapeClass = computed(() => {
+    switch (this.shape()) {
+      case 'square':
+        return 'rounded-none';
+      default:
+        return 'rounded-full';
+    }
+  });
+
   protected readonly indicatorClass = computed(() =>
     cn(
       'size-full flex-1 transition-transform',
-      this.variantClass()
+      this.variantClass(),
+      this.indicatorShapeClass()
     )
   );
 
@@ -100,6 +119,15 @@ export class ProgressComponent {
         return 'bg-red-500';
       default:
         return 'bg-primary';
+    }
+  });
+
+  protected readonly indicatorShapeClass = computed(() => {
+    switch (this.shape()) {
+      case 'square':
+        return 'rounded-none';
+      default:
+        return 'rounded-full';
     }
   });
 
