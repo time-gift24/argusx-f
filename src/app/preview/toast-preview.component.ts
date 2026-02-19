@@ -39,7 +39,7 @@ import { ToastComponents, ToastService, type ToastPosition } from '@app/shared/u
         </div>
       </section>
 
-      <app-toaster />
+      <argusx-toaster />
     </div>
   `,
 })

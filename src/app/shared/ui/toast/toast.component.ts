@@ -12,7 +12,7 @@ import { ToastService, type Toast, type ToastPosition } from './toast.service';
  * Individual Toast Item Component
  */
 @Component({
-  selector: 'app-toast-item',
+  selector: 'argusx-toast-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <div
@@ -124,7 +124,7 @@ export class ToastItemComponent {
  * Displays all active toasts
  */
 @Component({
-  selector: 'app-toast-container',
+  selector: 'argusx-toast-container',
   imports: [CommonModule, LucideAngularModule, ToastItemComponent],
   template: `
     <div
@@ -132,7 +132,7 @@ export class ToastItemComponent {
       aria-live="polite"
       aria-atomic="true">
       @for (toast of toastService.toasts(); track toast.id) {
-        <app-toast-item [toast]="toast" [position]="toastService.position()" />
+        <argusx-toast-item [toast]="toast" [position]="toastService.position()" />
       }
     </div>
   `,
@@ -174,9 +174,9 @@ export class ToastContainerComponent {
  * Placeholder for sonner-style toast container
  */
 @Component({
-  selector: 'app-toaster',
+  selector: 'argusx-toaster',
   imports: [ToastContainerComponent],
-  template: `<app-toast-container />`,
+  template: `<argusx-toast-container />`,
   host: {
     '[attr.data-slot]': '"toaster"',
   },
