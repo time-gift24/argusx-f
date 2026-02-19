@@ -4,6 +4,13 @@ import { By } from '@angular/platform-browser';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  argusxMenuCheckboxItemVariants,
+  argusxMenuItemVariants,
+  argusxMenuLabelVariants,
+  argusxMenuRadioItemVariants,
+  argusxMenuSubTriggerVariants,
+} from '../menu-core/menu.variants';
+import {
   ArgusxContextMenuComponent,
   ArgusxContextMenuComponents,
   type ArgusxContextMenuSide,
@@ -17,7 +24,22 @@ import {
     <argusx-context-menu>
       <div argusxContextMenuTrigger id="target" tabindex="0">Right click here</div>
       <argusx-context-menu-content>
-        <argusx-context-menu-item>Rename</argusx-context-menu-item>
+        <argusx-context-menu-label inset>Actions</argusx-context-menu-label>
+        <argusx-context-menu-item inset>Rename</argusx-context-menu-item>
+        <argusx-context-menu-checkbox-item inset checked>
+          Keep Open
+        </argusx-context-menu-checkbox-item>
+        <argusx-context-menu-radio-group value="default">
+          <argusx-context-menu-radio-item inset value="default">
+            Default
+          </argusx-context-menu-radio-item>
+        </argusx-context-menu-radio-group>
+        <argusx-context-menu-sub>
+          <argusx-context-menu-sub-trigger inset>More</argusx-context-menu-sub-trigger>
+          <argusx-context-menu-sub-content>
+            <argusx-context-menu-item>Nested</argusx-context-menu-item>
+          </argusx-context-menu-sub-content>
+        </argusx-context-menu-sub>
       </argusx-context-menu-content>
     </argusx-context-menu>
   `,
@@ -101,5 +123,22 @@ describe('ArgusxContextMenuComponent', () => {
     host.menu.closeMenu();
     fixture.detectChanges();
     expect(host.menu.open()).toBe(false);
+  });
+
+  it('uses shared inset and left-alignment classes for context menu rows', () => {
+    const labelClasses = argusxMenuLabelVariants({ inset: true });
+    const itemClasses = argusxMenuItemVariants({ inset: true, variant: 'default' });
+    const checkboxClasses = argusxMenuCheckboxItemVariants();
+    const radioClasses = argusxMenuRadioItemVariants();
+    const subTriggerClasses = argusxMenuSubTriggerVariants({ inset: true });
+
+    expect(labelClasses).toContain('data-[inset]:pl-8');
+    expect(itemClasses).toContain('data-[inset]:pl-8');
+    expect(itemClasses).toContain('w-full');
+    expect(itemClasses).toContain('text-left');
+    expect(itemClasses).toContain('justify-start');
+    expect(checkboxClasses).toContain('data-[inset]:pl-8');
+    expect(radioClasses).toContain('data-[inset]:pl-8');
+    expect(subTriggerClasses).toContain('data-[inset]:pl-8');
   });
 });

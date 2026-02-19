@@ -29,7 +29,17 @@ import {
   getMenuFocusableItems,
   runAfterRender,
 } from '../menu-core/focus';
-import { cva } from 'class-variance-authority';
+import {
+  argusxMenuCheckboxItemVariants,
+  argusxMenuContentVariants,
+  argusxMenuItemVariants,
+  argusxMenuLabelVariants,
+  argusxMenuRadioItemVariants,
+  argusxMenuSeparatorVariants,
+  argusxMenuShortcutVariants,
+  argusxMenuSubContentVariants,
+  argusxMenuSubTriggerVariants,
+} from '../menu-core/menu.variants';
 import {
   LucideAngularModule,
   CheckIcon,
@@ -186,32 +196,13 @@ export class ArgusxContextMenuLabelComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'text-foreground px-2 py-1.5 text-xs leading-4 font-medium',
-      this.inset() ? 'pl-8' : '',
-      this.class()
-    )
+    cn(argusxMenuLabelVariants({ inset: this.inset() }), this.class())
   );
 }
 
 // ============================================================================
 // Context Menu Item
 // ============================================================================
-
-const contextMenuItemVariants = cva(
-  "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:[&_svg]:!text-destructive data-[variant=default]:[&_svg:not([class*='text-'])]:text-muted-foreground group/context-menu-item relative flex cursor-default items-center gap-2 rounded-md px-2 py-1 text-xs leading-[19.5px] outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-  {
-    variants: {
-      variant: {
-        default: '',
-        destructive: '',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-    },
-  }
-);
 
 /**
  * Context Menu Item Component
@@ -248,8 +239,10 @@ export class ArgusxContextMenuItemComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      contextMenuItemVariants({ variant: this.variant() }),
-      'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
+      argusxMenuItemVariants({
+        inset: this.inset(),
+        variant: this.variant(),
+      }),
       this.class()
     )
   );
@@ -313,11 +306,7 @@ export class ArgusxContextMenuCheckboxItemComponent {
   protected readonly checkIcon = CheckIcon;
 
   protected readonly computedClass = computed(() =>
-    cn(
-      "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-md py-1 pr-2 pl-8 text-xs leading-[19.5px] outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-      'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
-      this.class()
-    )
+    cn(argusxMenuCheckboxItemVariants(), this.class())
   );
 
   onClick(): void {
@@ -407,11 +396,7 @@ export class ArgusxContextMenuRadioItemComponent {
   );
 
   protected readonly computedClass = computed(() =>
-    cn(
-      "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-md py-1 pr-2 pl-8 text-xs leading-[19.5px] outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-      'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
-      this.class()
-    )
+    cn(argusxMenuRadioItemVariants(), this.class())
   );
 
   onClick(): void {
@@ -454,7 +439,7 @@ export class ArgusxContextMenuSeparatorComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('bg-border -mx-1 my-1 h-px block', this.class())
+    cn(argusxMenuSeparatorVariants(), this.class())
   );
 }
 
@@ -480,11 +465,7 @@ export class ArgusxContextMenuShortcutComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'text-muted-foreground ml-auto text-[10px] leading-[16.25px] tracking-[1px]',
-      'group-focus/context-menu-item:text-accent-foreground group-hover/context-menu-item:text-accent-foreground',
-      this.class()
-    )
+    cn(argusxMenuShortcutVariants(), this.class())
   );
 }
 
@@ -602,11 +583,7 @@ export class ArgusxContextMenuSubTriggerComponent {
   protected readonly subTriggerIcon = ChevronRightIcon;
 
   protected readonly computedClass = computed(() =>
-    cn(
-      "focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground flex min-h-7 cursor-default items-center rounded-md px-2 py-1 text-xs leading-4 outline-hidden select-none data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-      'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
-      this.class()
-    )
+    cn(argusxMenuSubTriggerVariants({ inset: this.inset() }), this.class())
   );
 
   onClick(): void {
@@ -715,7 +692,7 @@ export class ArgusxContextMenuSubContentComponent {
 
   protected readonly contentClass = computed(() =>
     cn(
-      'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-[var(--radix-context-menu-content-transform-origin)] overflow-hidden rounded-[10px] border p-1 shadow-lg',
+      argusxMenuSubContentVariants(),
       this.class()
     )
   );
@@ -821,7 +798,7 @@ export class ArgusxContextMenuComponent {
 
   protected readonly contentClass = computed(() =>
     cn(
-      'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-[var(--radix-context-menu-content-available-height)] min-w-[8rem] origin-[var(--radix-context-menu-content-transform-origin)] overflow-x-hidden overflow-y-auto rounded-[10px] border p-1 shadow-md',
+      argusxMenuContentVariants(),
       this.class(),
       this.contentClassOverride()
     )

@@ -31,6 +31,10 @@ import {
           [alignOffset]="2"
           [sideOffset]="10"
           class="custom-file-menu">
+          <argusx-menubar-item>
+            Email link
+            <argusx-menubar-shortcut>⌘E</argusx-menubar-shortcut>
+          </argusx-menubar-item>
           <argusx-menubar-checkbox-item>
             Show Sidebar
           </argusx-menubar-checkbox-item>
@@ -41,7 +45,7 @@ import {
           <argusx-menubar-sub>
             <argusx-menubar-sub-trigger>Share</argusx-menubar-sub-trigger>
             <argusx-menubar-sub-content>
-              <argusx-menubar-item>Email link</argusx-menubar-item>
+              <argusx-menubar-item>Copy link</argusx-menubar-item>
             </argusx-menubar-sub-content>
           </argusx-menubar-sub>
         </argusx-menubar-content>
@@ -108,6 +112,42 @@ describe('ArgusxMenubarComponent', () => {
     expect(editMenu?.open()).toBe(true);
   });
 
+  it('switches top-level menu on trigger hover after opening one by click', () => {
+    const triggers = fixture.debugElement.queryAll(By.css('[data-slot="menubar-trigger"]'));
+    const [fileMenu, editMenu] = host.menus.toArray();
+
+    triggers[0]?.triggerEventHandler(
+      'click',
+      new MouseEvent('click', { bubbles: true })
+    );
+    fixture.detectChanges();
+    expect(fileMenu?.open()).toBe(true);
+    expect(editMenu?.open()).toBe(false);
+
+    triggers[1]?.triggerEventHandler(
+      'mouseenter',
+      new MouseEvent('mouseenter', { bubbles: true })
+    );
+    fixture.detectChanges();
+
+    expect(fileMenu?.open()).toBe(false);
+    expect(editMenu?.open()).toBe(true);
+  });
+
+  it('does not open a top-level menu on hover before any menu is open', () => {
+    const triggers = fixture.debugElement.queryAll(By.css('[data-slot="menubar-trigger"]'));
+    const [fileMenu, editMenu] = host.menus.toArray();
+
+    triggers[1]?.triggerEventHandler(
+      'mouseenter',
+      new MouseEvent('mouseenter', { bubbles: true })
+    );
+    fixture.detectChanges();
+
+    expect(fileMenu?.open()).toBe(false);
+    expect(editMenu?.open()).toBe(false);
+  });
+
   it('keeps menu open when checkbox item is clicked', () => {
     host.menus.toArray()[0]?.openMenu();
     fixture.detectChanges();
@@ -162,5 +202,64 @@ describe('ArgusxMenubarComponent', () => {
     expect(positions[0]?.offsetX).toBe(2);
     expect(positions[0]?.offsetY).toBe(10);
     expect(fileMenu.contentClass()).toContain('custom-file-menu');
+  });
+
+  it('applies hover highlight tokens across interactive menubar rows', () => {
+    host.menus.toArray()[0]?.openMenu();
+    fixture.detectChanges();
+
+    const item = document.querySelector('[data-slot="menubar-item"]') as HTMLElement | null;
+    const checkbox = document.querySelector(
+      '[data-slot="menubar-checkbox-item"]'
+    ) as HTMLElement | null;
+    const radio = document.querySelector('[data-slot="menubar-radio-item"]') as HTMLElement | null;
+    const subTrigger = document.querySelector(
+      '[data-slot="menubar-sub-trigger"]'
+    ) as HTMLElement | null;
+
+    expect(item?.className).toContain('hover:bg-accent');
+    expect(item?.className).toContain('hover:text-accent-foreground');
+    expect(checkbox?.className).toContain('hover:bg-accent');
+    expect(radio?.className).toContain('hover:bg-accent');
+    expect(subTrigger?.className).toContain('hover:bg-accent');
+  });
+
+  it('uses dropdown-aligned inset tokens for menubar interactive rows', () => {
+    host.menus.toArray()[0]?.openMenu();
+    fixture.detectChanges();
+
+    const item = document.querySelector('[data-slot="menubar-item"]') as HTMLElement | null;
+    const checkbox = document.querySelector(
+      '[data-slot="menubar-checkbox-item"]'
+    ) as HTMLElement | null;
+    const radio = document.querySelector('[data-slot="menubar-radio-item"]') as HTMLElement | null;
+    const subTrigger = document.querySelector(
+      '[data-slot="menubar-sub-trigger"]'
+    ) as HTMLElement | null;
+
+    expect(item?.className).toContain('data-[inset]:pl-8');
+    expect(item?.className).toContain('w-full');
+    expect(item?.className).toContain('text-left');
+    expect(checkbox?.className).toContain('pl-8');
+    expect(checkbox?.className).toContain('data-[inset]:pl-8');
+    expect(radio?.className).toContain('pl-8');
+    expect(radio?.className).toContain('data-[inset]:pl-8');
+    expect(subTrigger?.className).toContain('data-[inset]:pl-8');
+  });
+
+  it('keeps menubar shortcut color in sync on hover and focus', () => {
+    host.menus.toArray()[0]?.openMenu();
+    fixture.detectChanges();
+
+    const shortcut = document.querySelector(
+      '[data-slot="menubar-shortcut"]'
+    ) as HTMLElement | null;
+
+    expect(shortcut?.className).toContain(
+      'group-focus/argusx-menu-item:text-accent-foreground'
+    );
+    expect(shortcut?.className).toContain(
+      'group-hover/argusx-menu-item:text-accent-foreground'
+    );
   });
 });

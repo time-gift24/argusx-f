@@ -29,10 +29,21 @@ import {
   getMenuFocusableItems,
   runAfterRender,
 } from '../menu-core/focus';
-import { cva, type VariantProps } from 'class-variance-authority';
+import {
+  argusxMenuCheckboxItemVariants,
+  argusxMenuContentVariants,
+  argusxMenuItemVariants,
+  argusxMenuLabelVariants,
+  argusxMenuRadioItemVariants,
+  argusxMenuSeparatorVariants,
+  argusxMenuShortcutVariants,
+  argusxMenuSubContentVariants,
+  argusxMenuSubTriggerVariants,
+} from '../menu-core/menu.variants';
 import {
   LucideAngularModule,
   CheckIcon,
+  CircleIcon,
   ChevronRightIcon,
 } from 'lucide-angular';
 
@@ -96,6 +107,10 @@ export class ArgusxMenubarComponent {
     menu.setOpenFromRoot(false);
   }
 
+  hasOpenMenu(exclude?: ArgusxMenubarMenuComponent): boolean {
+    return this.menus.some((entry) => entry !== exclude && entry.open());
+  }
+
   moveFocus(menu: ArgusxMenubarMenuComponent, direction: 1 | -1, openTarget = false): void {
     if (!this.menus.length) return;
     const currentIndex = this.menus.indexOf(menu);
@@ -139,6 +154,7 @@ export class ArgusxMenubarComponent {
           [attr.aria-haspopup]="'menu'"
           [attr.data-state]="open() ? 'open' : 'closed'"
           (click)="toggleMenu()"
+          (mouseenter)="onTriggerMouseEnter()"
           (keydown)="onTriggerKeydown($event)">
           <ng-content select="[argusxMenubarTrigger], argusx-menubar-trigger" />
         </button>
@@ -234,14 +250,8 @@ export class ArgusxMenubarMenuComponent implements OnInit, OnDestroy {
 
   protected readonly contentClass = computed(() =>
     cn(
-      'bg-popover text-popover-foreground ring-foreground/10 min-w-32 rounded-lg p-1 shadow-md ring-1 duration-100 z-50',
-      'data-[state=open]:animate-in data-[state=closed]:animate-out',
-      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-      'data-[side=bottom]:slide-in-from-top-2',
-      'data-[side=left]:slide-in-from-right-2',
-      'data-[side=right]:slide-in-from-left-2',
-      'data-[side=top]:slide-in-from-bottom-2',
+      argusxMenuContentVariants(),
+      'min-w-[12rem]',
       'overflow-hidden',
       this.class(),
       this.contentClassOverride()
@@ -331,6 +341,13 @@ export class ArgusxMenubarMenuComponent implements OnInit, OnDestroy {
       event.preventDefault();
       this.menubar?.moveFocus(this, -1, this.open());
     }
+  }
+
+  protected onTriggerMouseEnter(): void {
+    if (!this.menubar?.hasOpenMenu(this) || this.open()) {
+      return;
+    }
+    this.openMenu();
   }
 
   protected onContentKeydown(event: KeyboardEvent): void {
@@ -501,32 +518,13 @@ export class ArgusxMenubarLabelComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'text-muted-foreground px-2 py-1.5 text-xs',
-      this.inset() ? 'pl-7.5' : '',
-      this.class()
-    )
+    cn(argusxMenuLabelVariants({ inset: this.inset() }), this.class())
   );
 }
 
 // ============================================================================
 // ArgusxMenubar Item
 // ============================================================================
-
-const menubarItemVariants = cva(
-  "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:text-destructive! not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-disabled:opacity-50 data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5 group/menubar-item relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
-  {
-    variants: {
-      variant: {
-        default: '',
-        destructive: '',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-    },
-  }
-);
 
 /**
  * ArgusxMenubar Item Component
@@ -562,7 +560,13 @@ export class ArgusxMenubarItemComponent {
   readonly select = output<void>();
 
   protected readonly computedClass = computed(() =>
-    cn(menubarItemVariants({ variant: this.variant() }), this.class())
+    cn(
+      argusxMenuItemVariants({
+        inset: this.inset(),
+        variant: this.variant(),
+      }),
+      this.class()
+    )
   );
 
   onClick(): void {
@@ -592,9 +596,10 @@ export class ArgusxMenubarItemComponent {
   selector: 'argusx-menubar-checkbox-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <span class="absolute left-2 size-4 flex items-center justify-center pointer-events-none">
+    <span
+      class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
       @if (checked()) {
-        <lucide-icon [img]="checkIcon" class="size-3.5" />
+        <lucide-icon [img]="checkIcon" class="size-4" />
       }
     </span>
     <ng-content />
@@ -623,10 +628,7 @@ export class ArgusxMenubarCheckboxItemComponent {
   protected readonly checkIcon = CheckIcon;
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-7.5 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
-      this.class()
-    )
+    cn(argusxMenuCheckboxItemVariants(), this.class())
   );
 
   onClick(): void {
@@ -678,9 +680,10 @@ export class ArgusxMenubarRadioGroupComponent {
   selector: 'argusx-menubar-radio-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <span class="absolute left-2 size-4 flex items-center justify-center pointer-events-none">
+    <span
+      class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
       @if (isSelected()) {
-        <lucide-icon [img]="checkIcon" class="size-3.5" />
+        <lucide-icon [img]="circleIcon" class="size-2 fill-current" />
       }
     </span>
     <ng-content />
@@ -707,17 +710,14 @@ export class ArgusxMenubarRadioItemComponent {
   readonly disabled = input<boolean>(false);
   readonly class = input<string>('');
 
-  protected readonly checkIcon = CheckIcon;
+  protected readonly circleIcon = CircleIcon;
 
   protected readonly isSelected = computed(
     () => this.radioGroup?.value() === this.value()
   );
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-7.5 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
-      this.class()
-    )
+    cn(argusxMenuRadioItemVariants(), this.class())
   );
 
   onClick(): void {
@@ -760,7 +760,7 @@ export class ArgusxMenubarSeparatorComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('bg-border/50 -mx-1 my-1 h-px', this.class())
+    cn(argusxMenuSeparatorVariants(), this.class())
   );
 }
 
@@ -786,10 +786,7 @@ export class ArgusxMenubarShortcutComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'text-muted-foreground group-focus/menubar-item:text-accent-foreground text-[0.625rem] tracking-widest ml-auto',
-      this.class()
-    )
+    cn(argusxMenuShortcutVariants(), this.class())
   );
 }
 
@@ -880,7 +877,7 @@ export class ArgusxMenubarSubComponent {
   imports: [CommonModule, LucideAngularModule],
   template: `
     <ng-content />
-    <lucide-icon [img]="chevronRightIcon" class="ml-auto size-4" />
+    <lucide-icon [img]="chevronRightIcon" class="ml-auto size-3.5" />
   `,
   host: {
     '[class]': 'computedClass()',
@@ -906,10 +903,7 @@ export class ArgusxMenubarSubTriggerComponent {
   protected readonly chevronRightIcon = ChevronRightIcon;
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 flex cursor-default items-center outline-none select-none',
-      this.class()
-    )
+    cn(argusxMenuSubTriggerVariants({ inset: this.inset() }), this.class())
   );
 
   onClick(): void {
@@ -1008,13 +1002,8 @@ export class ArgusxMenubarSubContentComponent {
 
   protected readonly contentClass = computed(() =>
     cn(
-      'bg-popover text-popover-foreground ring-foreground/10 min-w-32 rounded-lg p-1 shadow-md ring-1 duration-100 z-50',
-      'data-[state=open]:animate-in data-[state=closed]:animate-out',
-      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-      'data-[side=right]:slide-in-from-left-2',
+      argusxMenuSubContentVariants(),
       'origin-top-left',
-      'overflow-hidden',
       this.class()
     )
   );

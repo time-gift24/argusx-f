@@ -26,10 +26,21 @@ import {
   getMenuFocusableItems,
   runAfterRender,
 } from '../menu-core/focus';
-import { cva, type VariantProps } from 'class-variance-authority';
+import {
+  argusxMenuCheckboxItemVariants,
+  argusxMenuContentVariants,
+  argusxMenuItemVariants,
+  argusxMenuLabelVariants,
+  argusxMenuRadioItemVariants,
+  argusxMenuSeparatorVariants,
+  argusxMenuShortcutVariants,
+  argusxMenuSubContentVariants,
+  argusxMenuSubTriggerVariants,
+} from '../menu-core/menu.variants';
 import {
   LucideAngularModule,
   CheckIcon,
+  CircleIcon,
   ChevronRightIcon,
 } from 'lucide-angular';
 
@@ -132,32 +143,13 @@ export class ArgusxDropdownMenuLabelComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'text-muted-foreground flex w-full items-center px-2 py-1.5 text-xs',
-      this.inset() ? 'pl-7.5' : '',
-      this.class()
-    )
+    cn(argusxMenuLabelVariants({ inset: this.inset() }), this.class())
   );
 }
 
 // ============================================================================
 // Dropdown Menu Item
 // ============================================================================
-
-const dropdownMenuItemVariants = cva(
-  "focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:hover:bg-destructive/10 dark:data-[variant=destructive]:hover:bg-destructive/20 data-[variant=destructive]:hover:text-destructive data-[variant=destructive]:*:[svg]:text-destructive not-data-[variant=destructive]:focus:**:text-accent-foreground not-data-[variant=destructive]:hover:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5 group/dropdown-menu-item relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
-  {
-    variants: {
-      variant: {
-        default: '',
-        destructive: '',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-    },
-  }
-);
 
 /**
  * Dropdown Menu Item Component
@@ -193,7 +185,13 @@ export class ArgusxDropdownMenuItemComponent {
   readonly select = output<void>();
 
   protected readonly computedClass = computed(() =>
-    cn(dropdownMenuItemVariants({ variant: this.variant() }), this.class())
+    cn(
+      argusxMenuItemVariants({
+        inset: this.inset(),
+        variant: this.variant(),
+      }),
+      this.class()
+    )
   );
 
   onClick(): void {
@@ -223,9 +221,10 @@ export class ArgusxDropdownMenuItemComponent {
   selector: 'argusx-dropdown-menu-checkbox-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <span class="absolute right-2 flex items-center justify-center pointer-events-none">
+    <span
+      class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
       @if (checked()) {
-        <lucide-icon [img]="checkIcon" class="size-3.5" />
+        <lucide-icon [img]="checkIcon" class="size-4" />
       }
     </span>
     <ng-content />
@@ -256,13 +255,7 @@ export class ArgusxDropdownMenuCheckboxItemComponent {
   protected readonly checkIcon = CheckIcon;
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
-      'pr-8',
-      'py-1',
-      'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
-      this.class()
-    )
+    cn(argusxMenuCheckboxItemVariants(), this.class())
   );
 
   onClick(): void {
@@ -314,9 +307,10 @@ export class ArgusxDropdownMenuRadioGroupComponent {
   selector: 'argusx-dropdown-menu-radio-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <span class="absolute right-2 flex items-center justify-center pointer-events-none">
+    <span
+      class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
       @if (isSelected()) {
-        <lucide-icon [img]="checkIcon" class="size-3.5" />
+        <lucide-icon [img]="circleIcon" class="size-2 fill-current" />
       }
     </span>
     <ng-content />
@@ -343,20 +337,14 @@ export class ArgusxDropdownMenuRadioItemComponent {
   readonly disabled = input<boolean>(false);
   readonly class = input<string>('');
 
-  protected readonly checkIcon = CheckIcon;
+  protected readonly circleIcon = CircleIcon;
 
   protected readonly isSelected = computed(
     () => this.radioGroup?.value() === this.value()
   );
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
-      'pr-8',
-      'py-1',
-      'hover:bg-accent hover:text-accent-foreground hover:**:text-accent-foreground',
-      this.class()
-    )
+    cn(argusxMenuRadioItemVariants(), this.class())
   );
 
   onClick(): void {
@@ -399,7 +387,7 @@ export class ArgusxDropdownMenuSeparatorComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('bg-border/50 -mx-1 my-1 block h-px w-full shrink-0', this.class())
+    cn(argusxMenuSeparatorVariants(), this.class())
   );
 }
 
@@ -425,11 +413,7 @@ export class ArgusxDropdownMenuShortcutComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'text-muted-foreground group-focus/dropdown-menu-item:text-accent-foreground ml-auto text-[0.625rem] tracking-widest',
-      'group-hover/dropdown-menu-item:text-accent-foreground',
-      this.class()
-    )
+    cn(argusxMenuShortcutVariants(), this.class())
   );
 }
 
@@ -546,11 +530,7 @@ export class ArgusxDropdownMenuSubTriggerComponent {
   protected readonly chevronRightIcon = ChevronRightIcon;
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*=\'size-\'])]:size-3.5 flex cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
-      'hover:bg-accent hover:text-accent-foreground not-data-[variant=destructive]:hover:**:text-accent-foreground',
-      this.class()
-    )
+    cn(argusxMenuSubTriggerVariants({ inset: this.inset() }), this.class())
   );
 
   onClick(): void {
@@ -648,12 +628,9 @@ export class ArgusxDropdownMenuSubContentComponent {
 
   protected readonly contentClass = computed(() =>
     cn(
-      'bg-popover text-popover-foreground ring-foreground/10 min-w-32 rounded-lg p-1 shadow-md ring-1 duration-100',
+      argusxMenuSubContentVariants(),
       'animate-in fade-in-0 zoom-in-95',
-      'data-[side=right]:slide-in-from-left-2',
       'origin-top-left',
-      'overflow-hidden',
-      'z-50',
       this.class()
     )
   );
@@ -775,14 +752,7 @@ export class ArgusxDropdownMenuComponent {
 
   protected readonly contentClass = computed(() =>
     cn(
-      'bg-popover text-popover-foreground ring-foreground/10 min-w-32 rounded-lg p-1 shadow-md ring-1 duration-100 z-50',
-      'data-[state=open]:animate-in data-[state=closed]:animate-out',
-      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-      'data-[side=bottom]:slide-in-from-top-2',
-      'data-[side=left]:slide-in-from-right-2',
-      'data-[side=right]:slide-in-from-left-2',
-      'data-[side=top]:slide-in-from-bottom-2',
+      argusxMenuContentVariants(),
       'max-h-96',
       'max-w-[calc(100vw-1rem)]',
       'w-auto',

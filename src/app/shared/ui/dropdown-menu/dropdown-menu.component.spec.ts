@@ -22,20 +22,26 @@ function waitForRender() {
     <argusx-dropdown-menu>
       <button type="button" id="trigger" argusxDropdownMenuTrigger>Open</button>
       <argusx-dropdown-menu-content>
-        <argusx-dropdown-menu-label>My Account</argusx-dropdown-menu-label>
+        <argusx-dropdown-menu-label inset>My Account</argusx-dropdown-menu-label>
         <argusx-dropdown-menu-separator />
-        <argusx-dropdown-menu-checkbox-item>
+        <argusx-dropdown-menu-checkbox-item inset>
           Bookmarked
         </argusx-dropdown-menu-checkbox-item>
         <argusx-dropdown-menu-radio-group>
-          <argusx-dropdown-menu-radio-item value="compact">
+          <argusx-dropdown-menu-radio-item inset value="compact">
             Compact
           </argusx-dropdown-menu-radio-item>
           <argusx-dropdown-menu-radio-item value="comfortable">
             Comfortable
           </argusx-dropdown-menu-radio-item>
         </argusx-dropdown-menu-radio-group>
-        <argusx-dropdown-menu-item>Profile</argusx-dropdown-menu-item>
+        <argusx-dropdown-menu-item inset>Profile</argusx-dropdown-menu-item>
+        <argusx-dropdown-menu-sub>
+          <argusx-dropdown-menu-sub-trigger inset>More</argusx-dropdown-menu-sub-trigger>
+          <argusx-dropdown-menu-sub-content>
+            <argusx-dropdown-menu-item>Nested</argusx-dropdown-menu-item>
+          </argusx-dropdown-menu-sub-content>
+        </argusx-dropdown-menu-sub>
       </argusx-dropdown-menu-content>
     </argusx-dropdown-menu>
   `,
@@ -134,5 +140,30 @@ describe('ArgusxDropdownMenuComponent', () => {
     expect(separator?.classList.contains('w-full')).toBe(true);
     expect(separator?.classList.contains('h-px')).toBe(true);
     expect(separator?.classList.contains('my-1')).toBe(true);
+  });
+
+  it('uses shared inset and left-alignment classes across menu rows', async () => {
+    host.menu.open.set(true);
+    fixture.detectChanges();
+    await waitForRender();
+
+    const label = document.querySelector('[data-slot="dropdown-menu-label"]') as HTMLElement | null;
+    const item = document.querySelector('[data-slot="dropdown-menu-item"]') as HTMLElement | null;
+    const checkbox = document.querySelector(
+      '[data-slot="dropdown-menu-checkbox-item"]'
+    ) as HTMLElement | null;
+    const radio = document.querySelector('[data-slot="dropdown-menu-radio-item"]') as HTMLElement | null;
+    const subTrigger = document.querySelector(
+      '[data-slot="dropdown-menu-sub-trigger"]'
+    ) as HTMLElement | null;
+
+    expect(label?.className).toContain('data-[inset]:pl-8');
+    expect(item?.className).toContain('data-[inset]:pl-8');
+    expect(item?.className).toContain('w-full');
+    expect(item?.className).toContain('text-left');
+    expect(item?.className).toContain('justify-start');
+    expect(checkbox?.className).toContain('data-[inset]:pl-8');
+    expect(radio?.className).toContain('data-[inset]:pl-8');
+    expect(subTrigger?.className).toContain('data-[inset]:pl-8');
   });
 });
