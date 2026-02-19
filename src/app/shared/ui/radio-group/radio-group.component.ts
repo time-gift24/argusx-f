@@ -65,7 +65,7 @@ let radioGroupIdCounter = 0;
  * Reference: .vendor/aim/components/ui/radio-group.tsx
  */
 @Component({
-  selector: 'app-radio-group',
+  selector: 'argusx-radio-group',
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div
@@ -179,7 +179,7 @@ let radioItemIdCounter = 0;
  * ```
  */
 @Component({
-  selector: 'app-radio-item',
+  selector: 'argusx-radio-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <button
@@ -287,4 +287,4 @@ export class RadioItemComponent {
 // Exports
 // ============================================================================
 
-export const RadioGroupComponents = [RadioGroupComponent, RadioItemComponent];
+export const ArgusxRadioGroupComponents = [RadioGroupComponent, RadioItemComponent];
