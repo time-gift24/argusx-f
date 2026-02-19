@@ -1,15 +1,17 @@
 /**
- * Checkbox Component
+ * ArgusX Checkbox
  *
- * A checkbox component that supports three states: checked, unchecked, and indeterminate.
- * Integrates with Angular Reactive Forms.
- *
- * @example
- * ```html
- * <app-checkbox [(checked)]="rememberMe">Remember me</app-checkbox>
- * ```
- *
- * Reference: .vendor/aim/components/ui/checkbox.tsx
+ * Shadcn-aligned checkbox API with ArgusX plain extensions.
  */
 
-export { CheckboxComponent, CheckboxComponents } from './checkbox.component';
+export {
+  ARGUSX_CHECKBOX_ROOT_TOKEN,
+  ArgusxCheckboxComponent,
+  type ArgusxCheckboxCheckedState,
+} from './checkbox.component';
+export {
+  argusxCheckboxVariants,
+  type ArgusxCheckboxShape,
+  type ArgusxCheckboxSize,
+  type ArgusxCheckboxVariant,
+} from './checkbox.variants';
