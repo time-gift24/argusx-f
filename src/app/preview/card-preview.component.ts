@@ -2,10 +2,10 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Captions, LucideAngularModule, Plus } from 'lucide-angular';
 
 import {
-  AvatarComponent,
-  AvatarGroupComponent,
-  AvatarGroupCountComponent,
-  AvatarImageDirective,
+  ArgusxAvatarComponent,
+  ArgusxAvatarGroupComponent,
+  ArgusxAvatarGroupCountComponent,
+  ArgusxAvatarImageDirective,
 } from '../shared/ui/avatar';
 import { ArgusxButtonDirective } from '../shared/ui/button';
 import { ArgusxCardActionDirective, ArgusxCardComponent } from '../shared/ui/card';
@@ -21,10 +21,10 @@ import { LabelDirective } from '../shared/ui/label';
     ArgusxButtonDirective,
     ArgusxInputDirective,
     LabelDirective,
-    AvatarComponent,
-    AvatarGroupComponent,
-    AvatarGroupCountComponent,
-    AvatarImageDirective,
+    ArgusxAvatarComponent,
+    ArgusxAvatarGroupComponent,
+    ArgusxAvatarGroupCountComponent,
+    ArgusxAvatarImageDirective,
     LucideAngularModule,
   ],
   template: `
@@ -245,18 +245,18 @@ import { LabelDirective } from '../shared/ui/label';
               <li>Follow-up meeting scheduled for next Tuesday</li>
             </ol>
             <div card-footer class="w-full items-start">
-              <app-avatar-group>
-                <app-avatar>
-                  <img appAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                </app-avatar>
-                <app-avatar>
-                  <img appAvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
-                </app-avatar>
-                <app-avatar>
-                  <img appAvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
-                </app-avatar>
-                <app-avatar-group-count>+8</app-avatar-group-count>
-              </app-avatar-group>
+              <argusx-avatar-group>
+                <argusx-avatar>
+                  <img argusxAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                </argusx-avatar>
+                <argusx-avatar>
+                  <img argusxAvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
+                </argusx-avatar>
+                <argusx-avatar>
+                  <img argusxAvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
+                </argusx-avatar>
+                <argusx-avatar-group-count>+8</argusx-avatar-group-count>
+              </argusx-avatar-group>
             </div>
           </argusx-card>
         </div>
