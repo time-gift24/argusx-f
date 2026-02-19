@@ -40,22 +40,22 @@ import { BadgeDirective } from '../shared/ui/badge';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
           <div class="grid w-full max-w-xl items-start gap-4">
-            <app-alert>
-              <app-alert-title>Success! Your changes have been saved.</app-alert-title>
-            </app-alert>
+            <argusx-alert>
+              <argusx-alert-title>Success! Your changes have been saved.</argusx-alert-title>
+            </argusx-alert>
 
-            <app-alert>
-              <app-alert-title>Success! Your changes have been saved.</app-alert-title>
-              <app-alert-description>
+            <argusx-alert>
+              <argusx-alert-title>Success! Your changes have been saved.</argusx-alert-title>
+              <argusx-alert-description>
                 This is an alert with title and description.
-              </app-alert-description>
-            </app-alert>
+              </argusx-alert-description>
+            </argusx-alert>
 
-            <app-alert>
-              <app-alert-description>
+            <argusx-alert>
+              <argusx-alert-description>
                 This one has a description only. No title. No icon.
-              </app-alert-description>
-            </app-alert>
+              </argusx-alert-description>
+            </argusx-alert>
           </div>
         </div>
       </section>
@@ -66,65 +66,65 @@ import { BadgeDirective } from '../shared/ui/badge';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
           <div class="grid w-full max-w-xl items-start gap-4">
-            <app-alert>
+            <argusx-alert>
               <lucide-icon [img]="alertCircleIcon" />
-              <app-alert-title>
+              <argusx-alert-title>
                 Let's try one with icon, title and a
                 <a href="#" (click)="$event.preventDefault()">link</a>.
-              </app-alert-title>
-            </app-alert>
+              </argusx-alert-title>
+            </argusx-alert>
 
-            <app-alert>
+            <argusx-alert>
               <lucide-icon [img]="alertCircleIcon" />
-              <app-alert-description>
+              <argusx-alert-description>
                 <p>
                   This one has an icon and a description only. No title.
                   <a href="#" (click)="$event.preventDefault()">But it has a link</a>
                   and a
                   <a href="#" (click)="$event.preventDefault()">second link</a>.
                 </p>
-              </app-alert-description>
-            </app-alert>
+              </argusx-alert-description>
+            </argusx-alert>
 
-            <app-alert>
+            <argusx-alert>
               <lucide-icon [img]="alertCircleIcon" />
-              <app-alert-title>Success! Your changes have been saved</app-alert-title>
-              <app-alert-description>
+              <argusx-alert-title>Success! Your changes have been saved</argusx-alert-title>
+              <argusx-alert-description>
                 This is an alert with icon, title and description.
-              </app-alert-description>
-            </app-alert>
+              </argusx-alert-description>
+            </argusx-alert>
 
-            <app-alert>
+            <argusx-alert>
               <lucide-icon [img]="alertCircleIcon" />
-              <app-alert-title>
+              <argusx-alert-title>
                 This is a very long alert title that demonstrates how the component handles extended
                 text content and potentially wraps across multiple lines
-              </app-alert-title>
-            </app-alert>
+              </argusx-alert-title>
+            </argusx-alert>
 
-            <app-alert>
+            <argusx-alert>
               <lucide-icon [img]="alertCircleIcon" />
-              <app-alert-description>
+              <argusx-alert-description>
                 This is a very long alert description that demonstrates how the component handles
                 extended text content and potentially wraps across multiple lines
-              </app-alert-description>
-            </app-alert>
+              </argusx-alert-description>
+            </argusx-alert>
 
-            <app-alert>
+            <argusx-alert>
               <lucide-icon [img]="alertCircleIcon" />
-              <app-alert-title>
+              <argusx-alert-title>
                 This is an extremely long alert title that spans multiple lines to demonstrate how
                 the component handles very lengthy headings while maintaining readability and proper
                 text wrapping behavior
-              </app-alert-title>
-              <app-alert-description>
+              </argusx-alert-title>
+              <argusx-alert-description>
                 This is an equally long description that contains detailed information about the
                 alert. It shows how the component can accommodate extensive content while preserving
                 proper spacing, alignment, and readability across different screen sizes and viewport
                 widths. This helps ensure the user experience remains consistent regardless of the
                 content length.
-              </app-alert-description>
-            </app-alert>
+              </argusx-alert-description>
+            </argusx-alert>
           </div>
         </div>
       </section>
@@ -135,18 +135,18 @@ import { BadgeDirective } from '../shared/ui/badge';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
           <div class="grid w-full max-w-xl items-start gap-4">
-            <app-alert variant="destructive">
+            <argusx-alert variant="destructive">
               <lucide-icon [img]="alertCircleIcon" />
-              <app-alert-title>Something went wrong!</app-alert-title>
-              <app-alert-description>
+              <argusx-alert-title>Something went wrong!</argusx-alert-title>
+              <argusx-alert-description>
                 Your session has expired. Please log in again.
-              </app-alert-description>
-            </app-alert>
+              </argusx-alert-description>
+            </argusx-alert>
 
-            <app-alert variant="destructive">
+            <argusx-alert variant="destructive">
               <lucide-icon [img]="alertCircleIcon" />
-              <app-alert-title>Unable to process your payment.</app-alert-title>
-              <app-alert-description>
+              <argusx-alert-title>Unable to process your payment.</argusx-alert-title>
+              <argusx-alert-description>
                 <p>
                   Please verify your
                   <a href="#" (click)="$event.preventDefault()">billing information</a>
@@ -157,8 +157,8 @@ import { BadgeDirective } from '../shared/ui/badge';
                   <li>Ensure sufficient funds</li>
                   <li>Verify billing address</li>
                 </ul>
-              </app-alert-description>
-            </app-alert>
+              </argusx-alert-description>
+            </argusx-alert>
           </div>
         </div>
       </section>
@@ -169,23 +169,23 @@ import { BadgeDirective } from '../shared/ui/badge';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
           <div class="grid w-full max-w-xl items-start gap-4">
-            <app-alert>
-              <app-alert-title>The selected emails have been marked as spam.</app-alert-title>
-              <app-alert-action>
+            <argusx-alert>
+              <argusx-alert-title>The selected emails have been marked as spam.</argusx-alert-title>
+              <argusx-alert-action>
                 <button argusx-button variant="outline" size="sm">Undo</button>
-              </app-alert-action>
-            </app-alert>
+              </argusx-alert-action>
+            </argusx-alert>
 
-            <app-alert>
-              <app-alert-title>The selected emails have been marked as spam.</app-alert-title>
-              <app-alert-description>
+            <argusx-alert>
+              <argusx-alert-title>The selected emails have been marked as spam.</argusx-alert-title>
+              <argusx-alert-description>
                 This is a very long alert title that demonstrates how the component handles extended
                 text content.
-              </app-alert-description>
-              <app-alert-action>
+              </argusx-alert-description>
+              <argusx-alert-action>
                 <span appBadge variant="secondary">Badge</span>
-              </app-alert-action>
-            </app-alert>
+              </argusx-alert-action>
+            </argusx-alert>
           </div>
         </div>
       </section>
@@ -196,29 +196,29 @@ import { BadgeDirective } from '../shared/ui/badge';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
           <div class="grid w-full max-w-xl items-start gap-4">
-            <app-alert variant="info" class="border-info/30 bg-info/20">
+            <argusx-alert variant="info" class="border-info/30 bg-info/20">
               <lucide-icon [img]="infoIcon" class="text-blue-600" />
-              <app-alert-title class="text-blue-700">Informational update</app-alert-title>
-              <app-alert-description class="text-blue-700/80">
+              <argusx-alert-title class="text-blue-700">Informational update</argusx-alert-title>
+              <argusx-alert-description class="text-blue-700/80">
                 Local implementation supports additional semantic variants.
-              </app-alert-description>
-            </app-alert>
+              </argusx-alert-description>
+            </argusx-alert>
 
-            <app-alert variant="warning" class="border-warning/30 bg-warning/20">
+            <argusx-alert variant="warning" class="border-warning/30 bg-warning/20">
               <lucide-icon [img]="alertTriangleIcon" class="text-amber-600" />
-              <app-alert-title class="text-amber-700">Warning: review required</app-alert-title>
-              <app-alert-description class="text-amber-700/80">
+              <argusx-alert-title class="text-amber-700">Warning: review required</argusx-alert-title>
+              <argusx-alert-description class="text-amber-700/80">
                 Please verify these changes before continuing.
-              </app-alert-description>
-            </app-alert>
+              </argusx-alert-description>
+            </argusx-alert>
 
-            <app-alert variant="success" class="border-success/30 bg-success/20">
+            <argusx-alert variant="success" class="border-success/30 bg-success/20">
               <lucide-icon [img]="checkCircleIcon" class="text-emerald-600" />
-              <app-alert-title class="text-emerald-700">Operation completed successfully</app-alert-title>
-              <app-alert-description class="text-emerald-700/80">
+              <argusx-alert-title class="text-emerald-700">Operation completed successfully</argusx-alert-title>
+              <argusx-alert-description class="text-emerald-700/80">
                 This variant is available in the local implementation.
-              </app-alert-description>
-            </app-alert>
+              </argusx-alert-description>
+            </argusx-alert>
           </div>
         </div>
       </section>

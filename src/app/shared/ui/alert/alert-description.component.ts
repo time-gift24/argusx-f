@@ -19,7 +19,7 @@ import { cn } from '../../utils/cn';
  * ```
  */
 @Component({
-  selector: 'app-alert-description',
+  selector: 'argusx-alert-description',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: '<ng-content></ng-content>',
   host: {
@@ -27,7 +27,7 @@ import { cn } from '../../utils/cn';
     '[class]': 'computedClass()',
   },
 })
-export class AlertDescriptionComponent {
+export class ArgusxAlertDescriptionComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
