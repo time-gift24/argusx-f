@@ -1,12 +1,91 @@
+import { cva, type VariantProps } from 'class-variance-authority';
 import { computed, Directive, input } from '@angular/core';
 import { cn } from '../../utils/cn';
+
+// Table variants - plain style defaults
+export const tableContainerVariants = cva('relative w-full overflow-x-auto', {
+  variants: {},
+  defaultVariants: {},
+});
+
+export const tableVariants = cva(
+  'w-full caption-bottom text-xs',
+  {
+    variants: {
+      argusxType: {
+        default: '',
+        striped: '[&_tbody_tr:nth-child(odd)]:bg-muted/50',
+        bordered: 'border border-border',
+      },
+      argusxSize: {
+        default: '',
+        compact: '[&_td]:py-1 [&_th]:py-1',
+        comfortable: '[&_td]:py-4 [&_th]:py-4',
+      },
+    },
+    defaultVariants: {
+      argusxType: 'default',
+      argusxSize: 'default',
+    },
+  }
+);
+
+export const tableHeaderVariants = cva('[&_tr]:border-b', {
+  variants: {},
+  defaultVariants: {},
+});
+
+export const tableBodyVariants = cva('[&_tr:last-child]:border-0', {
+  variants: {},
+  defaultVariants: {},
+});
+
+export const tableFooterVariants = cva('bg-muted/50 border-t font-medium [&>tr]:last:border-b-0', {
+  variants: {},
+  defaultVariants: {},
+});
+
+export const tableRowVariants = cva(
+  'hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors',
+  {
+    variants: {},
+    defaultVariants: {},
+  }
+);
+
+export const tableHeadVariants = cva(
+  'text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0',
+  {
+    variants: {},
+    defaultVariants: {},
+  }
+);
+
+export const tableCellVariants = cva(
+  'p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0',
+  {
+    variants: {},
+    defaultVariants: {},
+  }
+);
+
+export const tableCaptionVariants = cva('text-muted-foreground mt-4 text-xs', {
+  variants: {},
+  defaultVariants: {},
+});
+
+// Type exports
+export type TableContainerVariants = VariantProps<typeof tableContainerVariants>;
+export type TableVariants = VariantProps<typeof tableVariants>;
+export type TableTypeVariants = TableVariants['argusxType'];
+export type TableSizeVariants = TableVariants['argusxSize'];
 
 /**
  * Table Container Directive
  * Wraps the table element for overflow handling
  */
 @Directive({
-  selector: '[appTableContainer]',
+  selector: '[argusxTableContainer]',
   host: {
     '[attr.data-slot]': '"table-container"',
     '[class]': 'computedClass()',
@@ -16,7 +95,7 @@ export class TableContainerDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('relative w-full overflow-x-auto', this.class())
+    cn(tableContainerVariants(), this.class())
   );
 }
 
@@ -25,7 +104,7 @@ export class TableContainerDirective {
  * Applies table styles to a table element
  */
 @Directive({
-  selector: 'table[appTable]',
+  selector: 'table[argusxTable]',
   host: {
     '[attr.data-slot]': '"table"',
     '[class]': 'computedClass()',
@@ -33,9 +112,17 @@ export class TableContainerDirective {
 })
 export class TableDirective {
   readonly class = input<string>('');
+  readonly argusxType = input<TableTypeVariants>('default');
+  readonly argusxSize = input<TableSizeVariants>('default');
 
   protected readonly computedClass = computed(() =>
-    cn('w-full caption-bottom text-xs', this.class())
+    cn(
+      tableVariants({
+        argusxType: this.argusxType(),
+        argusxSize: this.argusxSize(),
+      }),
+      this.class()
+    )
   );
 }
 
@@ -44,7 +131,7 @@ export class TableDirective {
  * Applies header styles to thead element
  */
 @Directive({
-  selector: 'thead[appTableHeader]',
+  selector: 'thead[argusxTableHeader]',
   host: {
     '[attr.data-slot]': '"table-header"',
     '[class]': 'computedClass()',
@@ -54,7 +141,7 @@ export class TableHeaderDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('[&_tr]:border-b', this.class())
+    cn(tableHeaderVariants(), this.class())
   );
 }
 
@@ -63,7 +150,7 @@ export class TableHeaderDirective {
  * Applies body styles to tbody element
  */
 @Directive({
-  selector: 'tbody[appTableBody]',
+  selector: 'tbody[argusxTableBody]',
   host: {
     '[attr.data-slot]': '"table-body"',
     '[class]': 'computedClass()',
@@ -73,7 +160,7 @@ export class TableBodyDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('[&_tr:last-child]:border-0', this.class())
+    cn(tableBodyVariants(), this.class())
   );
 }
 
@@ -82,7 +169,7 @@ export class TableBodyDirective {
  * Applies footer styles to tfoot element
  */
 @Directive({
-  selector: 'tfoot[appTableFooter]',
+  selector: 'tfoot[argusxTableFooter]',
   host: {
     '[attr.data-slot]': '"table-footer"',
     '[class]': 'computedClass()',
@@ -92,7 +179,7 @@ export class TableFooterDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('bg-muted/50 border-t font-medium [&>tr]:last:border-b-0', this.class())
+    cn(tableFooterVariants(), this.class())
   );
 }
 
@@ -101,7 +188,7 @@ export class TableFooterDirective {
  * Applies row styles to tr element
  */
 @Directive({
-  selector: 'tr[appTableRow]',
+  selector: 'tr[argusxTableRow]',
   host: {
     '[attr.data-slot]': '"table-row"',
     '[class]': 'computedClass()',
@@ -111,10 +198,7 @@ export class TableRowDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors',
-      this.class()
-    )
+    cn(tableRowVariants(), this.class())
   );
 }
 
@@ -123,7 +207,7 @@ export class TableRowDirective {
  * Applies header cell styles to th element
  */
 @Directive({
-  selector: 'th[appTableHead]',
+  selector: 'th[argusxTableHead]',
   host: {
     '[attr.data-slot]': '"table-head"',
     '[class]': 'computedClass()',
@@ -133,10 +217,7 @@ export class TableHeadDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0',
-      this.class()
-    )
+    cn(tableHeadVariants(), this.class())
   );
 }
 
@@ -145,7 +226,7 @@ export class TableHeadDirective {
  * Applies cell styles to td element
  */
 @Directive({
-  selector: 'td[appTableCell]',
+  selector: 'td[argusxTableCell]',
   host: {
     '[attr.data-slot]': '"table-cell"',
     '[class]': 'computedClass()',
@@ -155,7 +236,7 @@ export class TableCellDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0', this.class())
+    cn(tableCellVariants(), this.class())
   );
 }
 
@@ -164,7 +245,7 @@ export class TableCellDirective {
  * Applies caption styles to caption element
  */
 @Directive({
-  selector: 'caption[appTableCaption]',
+  selector: 'caption[argusxTableCaption]',
   host: {
     '[attr.data-slot]': '"table-caption"',
     '[class]': 'computedClass()',
@@ -174,7 +255,7 @@ export class TableCaptionDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('text-muted-foreground mt-4 text-xs', this.class())
+    cn(tableCaptionVariants(), this.class())
   );
 }
 

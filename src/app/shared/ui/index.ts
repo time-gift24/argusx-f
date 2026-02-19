@@ -26,3 +26,4 @@ export * from './hover-card';
 export * from './accordion';
 export * from './markdown';
 export * from './aspect-ratio';
+export * from './table';
