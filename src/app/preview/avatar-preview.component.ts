@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { AvatarComponent, AvatarImageDirective, AvatarFallbackDirective, AvatarBadgeComponent, AvatarGroupComponent, AvatarGroupCountComponent } from '../shared/ui/avatar';
+import { ArgusxAvatarComponent, ArgusxAvatarImageDirective, ArgusxAvatarFallbackDirective, ArgusxAvatarBadgeComponent, ArgusxAvatarGroupComponent, ArgusxAvatarGroupCountComponent } from '../shared/ui/avatar';
 
 @Component({
   selector: 'app-avatar-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    AvatarComponent,
-    AvatarImageDirective,
-    AvatarFallbackDirective,
-    AvatarBadgeComponent,
-    AvatarGroupComponent,
-    AvatarGroupCountComponent,
+    ArgusxAvatarComponent,
+    ArgusxAvatarImageDirective,
+    ArgusxAvatarFallbackDirective,
+    ArgusxAvatarBadgeComponent,
+    ArgusxAvatarGroupComponent,
+    ArgusxAvatarGroupCountComponent,
   ],
   template: `
     <div class="mx-auto max-w-6xl p-8">
@@ -27,14 +27,14 @@ import { AvatarComponent, AvatarImageDirective, AvatarFallbackDirective, AvatarB
           </div>
           <div class="rounded-lg border border-dashed border-border p-6">
             <div class="flex flex-wrap items-center gap-4">
-              <app-avatar>
-                <img appAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                <span appAvatarFallback>CN</span>
-              </app-avatar>
-              <app-avatar>
-                <img appAvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
-                <span appAvatarFallback>ER</span>
-              </app-avatar>
+              <argusx-avatar>
+                <img argusxAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                <span argusxAvatarFallback>CN</span>
+              </argusx-avatar>
+              <argusx-avatar>
+                <img argusxAvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
+                <span argusxAvatarFallback>ER</span>
+              </argusx-avatar>
             </div>
           </div>
         </section>
@@ -46,18 +46,18 @@ import { AvatarComponent, AvatarImageDirective, AvatarFallbackDirective, AvatarB
           </div>
           <div class="rounded-lg border border-dashed border-border p-6">
             <div class="flex flex-wrap items-center gap-4">
-              <app-avatar size="sm">
-                <img appAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                <span appAvatarFallback>CN</span>
-              </app-avatar>
-              <app-avatar size="default">
-                <img appAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                <span appAvatarFallback>CN</span>
-              </app-avatar>
-              <app-avatar size="lg">
-                <img appAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                <span appAvatarFallback>CN</span>
-              </app-avatar>
+              <argusx-avatar size="sm">
+                <img argusxAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                <span argusxAvatarFallback>CN</span>
+              </argusx-avatar>
+              <argusx-avatar size="default">
+                <img argusxAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                <span argusxAvatarFallback>CN</span>
+              </argusx-avatar>
+              <argusx-avatar size="lg">
+                <img argusxAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                <span argusxAvatarFallback>CN</span>
+              </argusx-avatar>
             </div>
           </div>
         </section>
@@ -69,20 +69,20 @@ import { AvatarComponent, AvatarImageDirective, AvatarFallbackDirective, AvatarB
           </div>
           <div class="rounded-lg border border-dashed border-border p-6">
             <div class="flex flex-wrap items-center gap-4">
-              <app-avatar>
-                <img appAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                <span appAvatarFallback>CN</span>
-                <app-avatar-badge>
+              <argusx-avatar>
+                <img argusxAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                <span argusxAvatarFallback>CN</span>
+                <argusx-avatar-badge>
                   <div class="size-2.5 rounded-full bg-green-500"></div>
-                </app-avatar-badge>
-              </app-avatar>
-              <app-avatar size="lg">
-                <img appAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                <span appAvatarFallback>CN</span>
-                <app-avatar-badge>
+                </argusx-avatar-badge>
+              </argusx-avatar>
+              <argusx-avatar size="lg">
+                <img argusxAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                <span argusxAvatarFallback>CN</span>
+                <argusx-avatar-badge>
                   <div class="size-3 rounded-full bg-red-500"></div>
-                </app-avatar-badge>
-              </app-avatar>
+                </argusx-avatar-badge>
+              </argusx-avatar>
             </div>
           </div>
         </section>
@@ -93,21 +93,21 @@ import { AvatarComponent, AvatarImageDirective, AvatarFallbackDirective, AvatarB
             <h2 class="text-sm font-medium text-muted-foreground">Avatar Group</h2>
           </div>
           <div class="rounded-lg border border-dashed border-border p-6">
-            <app-avatar-group>
-              <app-avatar>
-                <img appAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                <span appAvatarFallback>CN</span>
-              </app-avatar>
-              <app-avatar>
-                <img appAvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
-                <span appAvatarFallback>LR</span>
-              </app-avatar>
-              <app-avatar>
-                <img appAvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
-                <span appAvatarFallback>ER</span>
-              </app-avatar>
-              <app-avatar-group-count>+5</app-avatar-group-count>
-            </app-avatar-group>
+            <argusx-avatar-group>
+              <argusx-avatar>
+                <img argusxAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                <span argusxAvatarFallback>CN</span>
+              </argusx-avatar>
+              <argusx-avatar>
+                <img argusxAvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
+                <span argusxAvatarFallback>LR</span>
+              </argusx-avatar>
+              <argusx-avatar>
+                <img argusxAvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
+                <span argusxAvatarFallback>ER</span>
+              </argusx-avatar>
+              <argusx-avatar-group-count>+5</argusx-avatar-group-count>
+            </argusx-avatar-group>
           </div>
         </section>
 
@@ -117,20 +117,20 @@ import { AvatarComponent, AvatarImageDirective, AvatarFallbackDirective, AvatarB
             <h2 class="text-sm font-medium text-muted-foreground">Avatar Group with Badges</h2>
           </div>
           <div class="rounded-lg border border-dashed border-border p-6">
-            <app-avatar-group>
-              <app-avatar>
-                <img appAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                <span appAvatarFallback>CN</span>
-                <app-avatar-badge>
+            <argusx-avatar-group>
+              <argusx-avatar>
+                <img argusxAvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                <span argusxAvatarFallback>CN</span>
+                <argusx-avatar-badge>
                   <div class="size-2.5 rounded-full bg-green-500"></div>
-                </app-avatar-badge>
-              </app-avatar>
-              <app-avatar>
-                <img appAvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
-                <span appAvatarFallback>LR</span>
-              </app-avatar>
-              <app-avatar-group-count>+3</app-avatar-group-count>
-            </app-avatar-group>
+                </argusx-avatar-badge>
+              </argusx-avatar>
+              <argusx-avatar>
+                <img argusxAvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
+                <span argusxAvatarFallback>LR</span>
+              </argusx-avatar>
+              <argusx-avatar-group-count>+3</argusx-avatar-group-count>
+            </argusx-avatar-group>
           </div>
         </section>
       </div>
