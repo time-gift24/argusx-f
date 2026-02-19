@@ -7,7 +7,7 @@ import {
   AvatarGroupCountComponent,
   AvatarImageDirective,
 } from '../shared/ui/avatar';
-import { ButtonDirective } from '../shared/ui/button';
+import { ArgusxButtonDirective } from '../shared/ui/button';
 import { ArgusxCardActionDirective, ArgusxCardComponent } from '../shared/ui/card';
 import { InputDirective } from '../shared/ui/input';
 import { LabelDirective } from '../shared/ui/label';
@@ -18,7 +18,7 @@ import { LabelDirective } from '../shared/ui/label';
   imports: [
     ArgusxCardComponent,
     ArgusxCardActionDirective,
-    ButtonDirective,
+    ArgusxButtonDirective,
     InputDirective,
     LabelDirective,
     AvatarComponent,
@@ -35,7 +35,7 @@ import { LabelDirective } from '../shared/ui/label';
           <argusx-card class="w-full" title="Default Card" description="This card uses the default size variant.">
             <p>The card component supports a size prop that defaults to "default" for standard spacing and sizing.</p>
             <div card-footer class="w-full">
-              <button argusButton variant="outline" size="default" class="w-full">Action</button>
+              <button argusx-button variant="outline" size="default" class="w-full">Action</button>
             </div>
           </argusx-card>
         </div>
@@ -52,7 +52,7 @@ import { LabelDirective } from '../shared/ui/label';
           >
             <p>The card component supports a size prop that can be set to "sm" for a more compact appearance.</p>
             <div card-footer class="w-full">
-              <button argusButton variant="outline" size="sm" class="w-full">Action</button>
+              <button argusx-button variant="outline" size="sm" class="w-full">Action</button>
             </div>
           </argusx-card>
         </div>
@@ -69,7 +69,7 @@ import { LabelDirective } from '../shared/ui/label';
           >
             <p>The card component supports a size prop that can be set to "lg" for a spacious appearance.</p>
             <div card-footer class="w-full">
-              <button argusButton variant="outline" size="default" class="w-full">Action</button>
+              <button argusx-button variant="outline" size="default" class="w-full">Action</button>
             </div>
           </argusx-card>
         </div>
@@ -95,7 +95,7 @@ import { LabelDirective } from '../shared/ui/label';
           <argusx-card class="w-full" [footerBorder]="true">
             <p>The footer border creates a visual separation between the content and footer sections.</p>
             <div card-footer class="w-full">
-              <button argusButton variant="outline" size="default" class="w-full">Footer with Border</button>
+              <button argusx-button variant="outline" size="default" class="w-full">Footer with Border</button>
             </div>
           </argusx-card>
         </div>
@@ -122,7 +122,7 @@ import { LabelDirective } from '../shared/ui/label';
           <argusx-card class="w-full" size="sm" [footerBorder]="true">
             <p>The footer border creates a visual separation between the content and footer sections.</p>
             <div card-footer class="w-full">
-              <button argusButton variant="outline" size="sm" class="w-full">Footer with Border</button>
+              <button argusx-button variant="outline" size="sm" class="w-full">Footer with Border</button>
             </div>
           </argusx-card>
         </div>
@@ -146,7 +146,7 @@ import { LabelDirective } from '../shared/ui/label';
               />
             </div>
             <div card-footer class="w-full">
-              <button argusButton variant="default" size="default" class="w-full">
+              <button argusx-button variant="default" size="default" class="w-full">
                 <lucide-icon [img]="plusIcon" class="size-3.5" data-icon="inline-start"></lucide-icon>
                 Button
               </button>
@@ -174,7 +174,7 @@ import { LabelDirective } from '../shared/ui/label';
               />
             </div>
             <div card-footer class="w-full">
-              <button argusButton variant="default" size="sm" class="w-full">
+              <button argusx-button variant="default" size="sm" class="w-full">
                 <lucide-icon [img]="plusIcon" class="size-3" data-icon="inline-start"></lucide-icon>
                 Button
               </button>
@@ -220,8 +220,8 @@ import { LabelDirective } from '../shared/ui/label';
               </div>
             </form>
             <div card-footer class="mt-2 w-full items-stretch gap-2">
-              <button argusButton variant="default" size="default" class="w-full" type="submit">Login</button>
-              <button argusButton variant="outline" size="default" class="w-full">Login with Google</button>
+              <button argusx-button variant="default" size="default" class="w-full" type="submit">Login</button>
+              <button argusx-button variant="outline" size="default" class="w-full">Login with Google</button>
               <div class="mt-4 text-center">Don't have an account? <a href="#" class="underline underline-offset-4">Sign up</a></div>
             </div>
           </argusx-card>
@@ -232,7 +232,7 @@ import { LabelDirective } from '../shared/ui/label';
         <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">Meeting Notes</div>
         <div data-slot="example-content" class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6">
           <argusx-card class="w-full" title="Meeting Notes" description="Transcript from the meeting with the client." size="lg">
-            <button card-action argusButton variant="outline" size="sm">
+            <button card-action argusx-button variant="outline" size="sm">
               <lucide-icon [img]="captionsIcon" class="size-3" data-icon="inline-start"></lucide-icon>
               Transcribe
             </button>

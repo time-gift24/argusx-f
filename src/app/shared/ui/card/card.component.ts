@@ -14,7 +14,7 @@ import {
 } from '@angular/core';
 import type { ClassValue } from 'clsx';
 
-import { ButtonDirective } from '../button/button.directive';
+import { ArgusxButtonDirective } from '../button/button.directive';
 import { cn } from '../../utils/cn';
 
 import {
@@ -45,7 +45,7 @@ export class ArgusxCardActionDirective {}
 @Component({
   selector: 'argusx-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, ButtonDirective],
+  imports: [NgTemplateOutlet, ArgusxButtonDirective],
   host: {
     'data-slot': 'card',
     '[attr.data-size]': 'size()',
@@ -80,7 +80,7 @@ export class ArgusxCardActionDirective {}
           </div>
         } @else if (action()) {
           <button
-            argusButton
+            argusx-button
             type="button"
             variant="link"
             class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"

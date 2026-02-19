@@ -17,7 +17,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { cn } from '../../utils/cn';
 import { cva } from 'class-variance-authority';
-import { buttonVariants } from '../button';
+import { argusxButtonVariants } from '../button';
 
 // ============================================================================
 // Types
@@ -528,7 +528,7 @@ export class AlertDialogActionComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      buttonVariants({ variant: this.variant(), size: this.size() }),
+      argusxButtonVariants({ variant: this.variant(), size: this.size() }),
       this.class()
     )
   );
@@ -569,7 +569,7 @@ export class AlertDialogCancelComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      buttonVariants({ variant: 'outline', size: this.size() }),
+      argusxButtonVariants({ variant: 'outline', size: this.size() }),
       'mt-2 sm:mt-0 group-data-[size=sm]/alert-dialog-content:mt-0',
       this.class()
     )

@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ButtonGroupComponent, ButtonGroupTextComponent, ButtonGroupSeparatorComponent } from '@app/shared/ui/button-group';
-import { ButtonComponent } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 
 @Component({
   selector: 'app-button-group-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonGroupComponent, ButtonGroupTextComponent, ButtonGroupSeparatorComponent, ButtonComponent],
+  imports: [ButtonGroupComponent, ButtonGroupTextComponent, ButtonGroupSeparatorComponent, ArgusxButtonDirective],
   template: `
     <div class="mx-auto max-w-3xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Button Group</h1>
@@ -19,9 +19,9 @@ import { ButtonComponent } from '@app/shared/ui/button';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
           <app-button-group>
-            <button argus-button>Save</button>
-            <button argus-button variant="outline">Cancel</button>
-            <button argus-button variant="ghost">Delete</button>
+            <button argusx-button>Save</button>
+            <button argusx-button variant="outline">Cancel</button>
+            <button argusx-button variant="ghost">Delete</button>
           </app-button-group>
         </div>
       </section>
@@ -32,9 +32,9 @@ import { ButtonComponent } from '@app/shared/ui/button';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
           <app-button-group orientation="vertical">
-            <button argus-button>Save</button>
-            <button argus-button variant="outline">Cancel</button>
-            <button argus-button variant="ghost">Delete</button>
+            <button argusx-button>Save</button>
+            <button argusx-button variant="outline">Cancel</button>
+            <button argusx-button variant="ghost">Delete</button>
           </app-button-group>
         </div>
       </section>
@@ -45,9 +45,9 @@ import { ButtonComponent } from '@app/shared/ui/button';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
           <app-button-group>
-            <button argus-button>Save</button>
+            <button argusx-button>Save</button>
             <app-button-group-text>or</app-button-group-text>
-            <button argus-button variant="outline">Cancel</button>
+            <button argusx-button variant="outline">Cancel</button>
           </app-button-group>
         </div>
       </section>
@@ -58,9 +58,9 @@ import { ButtonComponent } from '@app/shared/ui/button';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
           <app-button-group>
-            <button argus-button>Save</button>
+            <button argusx-button>Save</button>
             <app-button-group-separator />
-            <button argus-button variant="outline">Cancel</button>
+            <button argusx-button variant="outline">Cancel</button>
           </app-button-group>
         </div>
       </section>

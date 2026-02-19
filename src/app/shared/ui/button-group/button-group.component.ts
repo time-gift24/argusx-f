@@ -10,16 +10,16 @@ import { cva, type VariantProps } from 'class-variance-authority';
  * ```html
  * <!-- Horizontal button group (default) -->
  * <app-button-group>
- *   <button argusButton>Button 1</button>
- *   <button argusButton>Button 2</button>
- *   <button argusButton>Button 3</button>
+ *   <button argusx-button>Button 1</button>
+ *   <button argusx-button>Button 2</button>
+ *   <button argusx-button>Button 3</button>
  * </app-button-group>
  *
  * <!-- Vertical button group -->
  * <app-button-group orientation="vertical">
- *   <button argusButton>Button 1</button>
- *   <button argusButton>Button 2</button>
- *   <button argusButton>Button 3</button>
+ *   <button argusx-button>Button 1</button>
+ *   <button argusx-button>Button 2</button>
+ *   <button argusx-button>Button 3</button>
  * </app-button-group>
  * ```
  */
@@ -91,9 +91,9 @@ export class ButtonGroupComponent {
  * @example
  * ```html
  * <app-button-group>
- *   <button argusButton>Save</button>
+ *   <button argusx-button>Save</button>
  *   <app-button-group-text>or</app-button-group-text>
- *   <button argusButton>Cancel</button>
+ *   <button argusx-button>Cancel</button>
  * </app-button-group>
  * ```
  */
@@ -131,9 +131,9 @@ export class ButtonGroupTextComponent {
  * @example
  * ```html
  * <app-button-group>
- *   <button argusButton>Save</button>
+ *   <button argusx-button>Save</button>
  *   <app-button-group-separator />
- *   <button argusButton>Cancel</button>
+ *   <button argusx-button>Cancel</button>
  * </app-button-group>
  * ```
  */

@@ -8,7 +8,7 @@ import {
   DialogHeaderComponent,
   DialogTitleComponent,
 } from '@app/shared/ui/dialog';
-import { ButtonComponent } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { InputDirective } from '@app/shared/ui/input';
 import { LabelDirective } from '@app/shared/ui/label';
 
@@ -25,7 +25,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
     DialogDescriptionComponent,
     DialogFooterComponent,
     DialogCloseDirective,
-    ButtonComponent,
+    ArgusxButtonDirective,
     InputDirective,
     LabelDirective,
   ],
@@ -43,7 +43,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
               <h2 class="text-sm font-medium">With Form</h2>
               <p class="text-xs text-muted-foreground">Basic profile form with actions.</p>
             </div>
-            <button argus-button variant="outline" (click)="formOpen.set(true)">Edit Profile</button>
+            <button argusx-button variant="outline" (click)="formOpen.set(true)">Edit Profile</button>
           </div>
         </section>
 
@@ -53,7 +53,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
               <h2 class="text-sm font-medium">Scrollable Content</h2>
               <p class="text-xs text-muted-foreground">Long content area with internal scroll.</p>
             </div>
-            <button argus-button variant="outline" (click)="scrollableOpen.set(true)">Scrollable Content</button>
+            <button argusx-button variant="outline" (click)="scrollableOpen.set(true)">Scrollable Content</button>
           </div>
         </section>
 
@@ -63,7 +63,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
               <h2 class="text-sm font-medium">With Sticky Footer</h2>
               <p class="text-xs text-muted-foreground">Scrollable body with pinned action row.</p>
             </div>
-            <button argus-button variant="outline" (click)="stickyFooterOpen.set(true)">Sticky Footer</button>
+            <button argusx-button variant="outline" (click)="stickyFooterOpen.set(true)">Sticky Footer</button>
           </div>
         </section>
 
@@ -73,7 +73,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
               <h2 class="text-sm font-medium">No Close Button</h2>
               <p class="text-xs text-muted-foreground">Top-right close button is intentionally hidden.</p>
             </div>
-            <button argus-button variant="outline" (click)="noCloseOpen.set(true)">No Close Button</button>
+            <button argusx-button variant="outline" (click)="noCloseOpen.set(true)">No Close Button</button>
           </div>
         </section>
 
@@ -83,7 +83,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
               <h2 class="text-sm font-medium">Chat Settings</h2>
               <p class="text-xs text-muted-foreground">Advanced configuration layout inside dialog.</p>
             </div>
-            <button argus-button variant="outline" (click)="chatSettingsOpen.set(true)">Chat Settings</button>
+            <button argusx-button variant="outline" (click)="chatSettingsOpen.set(true)">Chat Settings</button>
           </div>
         </section>
       </div>
@@ -110,8 +110,8 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
             </div>
 
             <div argus-dialog-footer>
-              <button argus-button variant="outline" argus-dialog-close>Cancel</button>
-              <button argus-button (click)="formOpen.set(false)">Save changes</button>
+              <button argusx-button variant="outline" argus-dialog-close>Cancel</button>
+              <button argusx-button (click)="formOpen.set(false)">Save changes</button>
             </div>
           </div>
         </div>
@@ -134,7 +134,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
             </div>
 
             <div argus-dialog-footer>
-              <button argus-button variant="outline" argus-dialog-close>Close</button>
+              <button argusx-button variant="outline" argus-dialog-close>Close</button>
             </div>
           </div>
         </div>
@@ -159,7 +159,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
 
               <div class="sticky bottom-0 -mx-4 border-t border-border bg-popover/95 px-4 pt-3 pb-1 backdrop-blur">
                 <div class="flex justify-end">
-                  <button argus-button variant="outline" argus-dialog-close>Close</button>
+                  <button argusx-button variant="outline" argus-dialog-close>Close</button>
                 </div>
               </div>
             </div>
@@ -178,7 +178,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
             </div>
 
             <div argus-dialog-footer>
-              <button argus-button variant="outline" argus-dialog-close>Close</button>
+              <button argusx-button variant="outline" argus-dialog-close>Close</button>
             </div>
           </div>
         </div>
@@ -198,7 +198,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
               <div class="grid grid-cols-2 gap-1 md:grid-cols-1">
                 @for (tab of chatTabs; track tab.id) {
                   <button
-                    argus-button
+                    argusx-button
                     size="sm"
                     [variant]="chatTab() === tab.id ? 'secondary' : 'ghost'"
                     class="justify-start"
@@ -258,7 +258,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
             </div>
 
             <div argus-dialog-footer>
-              <button argus-button variant="outline" argus-dialog-close>Close</button>
+              <button argusx-button variant="outline" argus-dialog-close>Close</button>
             </div>
           </div>
         </div>

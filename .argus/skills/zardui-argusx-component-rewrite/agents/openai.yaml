@@ -1,4 +1,4 @@
 interface:
-  display_name: "ZardUI Rewrite"
-  short_description: "Rewrite with zardui internals and shadcn-first public APIs"
-  default_prompt: "Use $zardui-argusx-component-rewrite to rebuild one component with zardui implementation logic and shadcn-first API/preview alignment."
+  display_name: "ZardUI Rewrite Plain"
+  short_description: "Adopt shadcn conflicts; plain rewrite without compatibility"
+  default_prompt: "Use $zardui-argusx-component-rewrite to rebuild one component with zardui internals, adopting shadcn on conflicts, extending non-conflict APIs in ArgusX plain style, and keeping no compatibility layer."

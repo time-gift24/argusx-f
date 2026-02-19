@@ -67,7 +67,7 @@ export type EmptySize = NonNullable<EmptyVariants['size']>;
  *     <p appEmptyDescription>Try adjusting your search filters</p>
  *   </div>
  *   <div appEmptyContent>
- *     <button argus-button>Clear filters</button>
+ *     <button argusx-button>Clear filters</button>
  *   </div>
  * </div>
  * ```

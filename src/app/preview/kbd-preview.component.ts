@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { ButtonDirective } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { KbdDirective, KbdGroupDirective } from '@app/shared/ui/kbd';
 
 @Component({
   selector: 'app-kbd-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonDirective, KbdDirective, KbdGroupDirective],
+  imports: [ArgusxButtonDirective, KbdDirective, KbdGroupDirective],
   template: `
     <div class="mx-auto max-w-3xl p-8 space-y-8">
       <h1 class="mb-2 text-2xl font-semibold">Kbd</h1>
@@ -50,20 +50,20 @@ import { KbdDirective, KbdGroupDirective } from '@app/shared/ui/kbd';
           <h2 class="text-sm font-medium text-muted-foreground">With Button</h2>
         </div>
         <div class="rounded-lg border border-dashed border-border p-6 flex flex-wrap items-center gap-4">
-          <button argusButton variant="outline" size="sm" class="pr-2">
+          <button argusx-button variant="outline" size="sm" class="pr-2">
             Accept <kbd appKbd>⏎</kbd>
           </button>
-          <button argusButton variant="outline" size="sm" class="pr-2">
+          <button argusx-button variant="outline" size="sm" class="pr-2">
             Cancel <kbd appKbd>Esc</kbd>
           </button>
-          <button argusButton variant="outline" size="sm" class="pr-2">
+          <button argusx-button variant="outline" size="sm" class="pr-2">
             Copy link <kbd appKbdGroup>
               <kbd appKbd>⌘</kbd>
               <span>+</span>
               <kbd appKbd>C</kbd>
             </kbd>
           </button>
-          <button argusButton variant="outline" size="sm" class="pr-2">
+          <button argusx-button variant="outline" size="sm" class="pr-2">
             Paste <kbd appKbdGroup>
               <kbd appKbd>⌘</kbd>
               <span>+</span>

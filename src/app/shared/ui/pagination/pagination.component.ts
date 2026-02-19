@@ -7,7 +7,11 @@ import {
 } from '@angular/core';
 import { cn } from '../../utils/cn';
 import { LucideAngularModule, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-angular';
-import { buttonVariants, type ButtonVariant, type ButtonSize } from '../button/button.directive';
+import {
+  argusxButtonVariants,
+  type ArgusxButtonSize,
+  type ArgusxButtonVariant,
+} from '../button/button.directive';
 
 /**
  * Pagination navigation container.
@@ -118,8 +122,8 @@ export class PaginationLinkComponent {
   readonly page = input.required<number>();
   readonly href = input<string>('#');
   readonly isActive = input<boolean>(false);
-  readonly size = input<ButtonSize>('icon');
-  readonly variant = input<ButtonVariant>('ghost');
+  readonly size = input<ArgusxButtonSize>('icon');
+  readonly variant = input<ArgusxButtonVariant>('ghost');
   readonly class = input<string>('');
   readonly pageChange = output<number>();
 
@@ -133,7 +137,7 @@ export class PaginationLinkComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      buttonVariants({
+      argusxButtonVariants({
         variant: this.computedVariant(),
         size: this.size(),
       }),
@@ -184,7 +188,11 @@ export class PaginationPreviousComponent {
   protected readonly chevronLeftIcon = ChevronLeft;
 
   protected readonly computedClass = computed(() =>
-    cn(buttonVariants({ variant: 'ghost', size: 'default' }), 'gap-1 px-2.5 sm:pl-2.5', this.class())
+    cn(
+      argusxButtonVariants({ variant: 'ghost', size: 'default' }),
+      'gap-1 px-2.5 sm:pl-2.5',
+      this.class(),
+    )
   );
 
   onClick(event: Event): void {
@@ -230,7 +238,11 @@ export class PaginationNextComponent {
   protected readonly chevronRightIcon = ChevronRight;
 
   protected readonly computedClass = computed(() =>
-    cn(buttonVariants({ variant: 'ghost', size: 'default' }), 'gap-1 px-2.5 sm:pr-2.5', this.class())
+    cn(
+      argusxButtonVariants({ variant: 'ghost', size: 'default' }),
+      'gap-1 px-2.5 sm:pr-2.5',
+      this.class(),
+    )
   );
 
   onClick(event: Event): void {

@@ -12,7 +12,7 @@ import {
   Info,
   LucideAngularModule,
 } from 'lucide-angular';
-import { ButtonDirective } from '../shared/ui/button';
+import { ArgusxButtonDirective } from '../shared/ui/button';
 import { BadgeDirective } from '../shared/ui/badge';
 
 @Component({
@@ -24,7 +24,7 @@ import { BadgeDirective } from '../shared/ui/badge';
     AlertTitleComponent,
     AlertDescriptionComponent,
     LucideAngularModule,
-    ButtonDirective,
+    ArgusxButtonDirective,
     BadgeDirective,
   ],
   template: `
@@ -172,7 +172,7 @@ import { BadgeDirective } from '../shared/ui/badge';
             <app-alert>
               <app-alert-title>The selected emails have been marked as spam.</app-alert-title>
               <app-alert-action>
-                <button argusButton variant="outline" size="sm">Undo</button>
+                <button argusx-button variant="outline" size="sm">Undo</button>
               </app-alert-action>
             </app-alert>
 

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { AlertDialogComponents } from '@app/shared/ui/alert-dialog';
-import { ButtonComponent } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import {
   DialogCloseDirective,
   DialogComponent,
@@ -16,7 +16,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AlertDialogComponents,
-    ButtonComponent,
+    ArgusxButtonDirective,
     DialogComponent,
     DialogContentComponent,
     DialogHeaderComponent,
@@ -32,7 +32,7 @@ import {
           <h2 class="text-xs text-muted-foreground">Basic</h2>
           <div class="flex min-h-24 items-center justify-center rounded-md border border-dashed border-border">
             <app-alert-dialog>
-              <button argus-button variant="outline" size="sm" app-alert-dialog-trigger>
+              <button argusx-button variant="outline" size="sm" app-alert-dialog-trigger>
                 Default
               </button>
               <div app-alert-dialog-content>
@@ -55,7 +55,7 @@ import {
           <h2 class="text-xs text-muted-foreground">Small</h2>
           <div class="flex min-h-24 items-center justify-center rounded-md border border-dashed border-border">
             <app-alert-dialog size="sm">
-              <button argus-button variant="outline" size="sm" app-alert-dialog-trigger>
+              <button argusx-button variant="outline" size="sm" app-alert-dialog-trigger>
                 Small
               </button>
               <div app-alert-dialog-content>
@@ -78,7 +78,7 @@ import {
           <h2 class="text-xs text-muted-foreground">With Media</h2>
           <div class="flex min-h-24 items-center justify-center rounded-md border border-dashed border-border">
             <app-alert-dialog>
-              <button argus-button variant="outline" size="sm" app-alert-dialog-trigger>
+              <button argusx-button variant="outline" size="sm" app-alert-dialog-trigger>
                 Default (Media)
               </button>
               <div app-alert-dialog-content>
@@ -109,7 +109,7 @@ import {
           <h2 class="text-xs text-muted-foreground">Small With Media</h2>
           <div class="flex min-h-24 items-center justify-center rounded-md border border-dashed border-border">
             <app-alert-dialog size="sm">
-              <button argus-button variant="outline" size="sm" app-alert-dialog-trigger>
+              <button argusx-button variant="outline" size="sm" app-alert-dialog-trigger>
                 Small (Media)
               </button>
               <div app-alert-dialog-content>
@@ -140,7 +140,7 @@ import {
           <h2 class="text-xs text-muted-foreground">Destructive</h2>
           <div class="flex min-h-24 items-center justify-center rounded-md border border-dashed border-border">
             <app-alert-dialog>
-              <button argus-button variant="destructive" size="sm" app-alert-dialog-trigger>
+              <button argusx-button variant="destructive" size="sm" app-alert-dialog-trigger>
                 Delete Chat
               </button>
               <div app-alert-dialog-content>
@@ -182,7 +182,7 @@ import {
         <section class="space-y-2">
           <h2 class="text-xs text-muted-foreground">In Dialog</h2>
           <div class="flex min-h-24 items-center justify-center rounded-md border border-dashed border-border">
-            <button argus-button variant="outline" size="sm" (click)="inDialogOpen.set(true)">
+            <button argusx-button variant="outline" size="sm" (click)="inDialogOpen.set(true)">
               Open Dialog
             </button>
           </div>
@@ -201,7 +201,7 @@ import {
 
             <div class="flex justify-center">
               <app-alert-dialog>
-                <button argus-button variant="outline" size="sm" app-alert-dialog-trigger>
+                <button argusx-button variant="outline" size="sm" app-alert-dialog-trigger>
                   Open Alert Dialog
                 </button>
                 <div app-alert-dialog-content>
@@ -220,7 +220,7 @@ import {
             </div>
 
             <div argus-dialog-footer>
-              <button argus-button variant="outline" size="sm" argus-dialog-close>
+              <button argusx-button variant="outline" size="sm" argus-dialog-close>
                 Close
               </button>
             </div>

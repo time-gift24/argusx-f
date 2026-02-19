@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { ButtonComponent } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { DrawerComponents } from '@app/shared/ui/drawer';
 
 @Component({
   selector: 'app-drawer-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DrawerComponents, ButtonComponent],
+  imports: [DrawerComponents, ArgusxButtonDirective],
   template: `
     <div class="mx-auto max-w-3xl p-8 space-y-8">
       <h1 class="mb-2 text-2xl font-semibold">Drawer</h1>
@@ -19,7 +19,7 @@ import { DrawerComponents } from '@app/shared/ui/drawer';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
           <app-drawer [(open)]="rightOpen" direction="right">
-            <button argus-button variant="outline" appDrawerTrigger>
+            <button argusx-button variant="outline" appDrawerTrigger>
               Open Right Drawer
             </button>
             <app-drawer-content>
@@ -34,8 +34,8 @@ import { DrawerComponents } from '@app/shared/ui/drawer';
                 <p>This follows the shadcn slide-out interaction pattern.</p>
               </div>
               <app-drawer-footer>
-                <button argus-button variant="outline" appDrawerClose>Cancel</button>
-                <button argus-button appDrawerClose>Save changes</button>
+                <button argusx-button variant="outline" appDrawerClose>Cancel</button>
+                <button argusx-button appDrawerClose>Save changes</button>
               </app-drawer-footer>
             </app-drawer-content>
           </app-drawer>
@@ -48,7 +48,7 @@ import { DrawerComponents } from '@app/shared/ui/drawer';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
           <app-drawer [(open)]="bottomOpen" direction="bottom" size="sm">
-            <button argus-button variant="outline" appDrawerTrigger>
+            <button argusx-button variant="outline" appDrawerTrigger>
               Open Bottom Drawer
             </button>
             <app-drawer-content>
@@ -64,7 +64,7 @@ import { DrawerComponents } from '@app/shared/ui/drawer';
                 </div>
               </div>
               <app-drawer-footer>
-                <button argus-button variant="outline" appDrawerClose>Close</button>
+                <button argusx-button variant="outline" appDrawerClose>Close</button>
               </app-drawer-footer>
             </app-drawer-content>
           </app-drawer>

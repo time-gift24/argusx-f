@@ -17,7 +17,7 @@ import { cn } from '../../utils/cn';
  *   <app-alert-title>Update available</app-alert-title>
  *   <app-alert-description>A new version is ready to install.</app-alert-description>
  *   <app-alert-action>
- *     <button argusButton variant="ghost" size="icon" (click)="handleClose()">
+ *     <button argusx-button variant="ghost" size="icon" (click)="handleClose()">
  *       <lucide-icon [img]="xIcon"></lucide-icon>
  *     </button>
  *   </app-alert-action>

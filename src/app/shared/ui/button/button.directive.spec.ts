@@ -1,72 +1,111 @@
-import { Component, input, ViewChildren, QueryList, NO_ERRORS_SCHEMA, importProvidersFrom } from '@angular/core';
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ButtonDirective, buttonVariants } from './button.directive';
+import { By } from '@angular/platform-browser';
+import {
+  ArgusxButtonDirective,
+  argusxButtonVariants,
+  type ArgusxButtonShape,
+  type ArgusxButtonSize,
+  type ArgusxButtonVariant,
+} from './button.directive';
 
-describe('ButtonDirective', () => {
+describe('ArgusxButtonDirective', () => {
   let fixture: ComponentFixture<TestButtonComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ButtonDirective],
-      schemas: [NO_ERRORS_SCHEMA],
+      imports: [TestButtonComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestButtonComponent);
     fixture.detectChanges();
   });
 
-  it('should create component with button directive', () => {
-    expect(fixture).toBeTruthy();
-    const buttons = fixture.nativeElement.querySelectorAll('button');
-    expect(buttons.length).toBe(1);
+  it('applies to button and anchor with argusx-button selector', () => {
+    const nodes = fixture.debugElement.queryAll(By.directive(ArgusxButtonDirective));
+    expect(nodes.length).toBe(4);
+  });
+
+  it('emits host data attributes for variant and size', () => {
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="btn"]');
+    expect(button.getAttribute('data-slot')).toBe('button');
+    expect(button.getAttribute('data-variant')).toBe('default');
+    expect(button.getAttribute('data-size')).toBe('default');
+    expect(button.getAttribute('data-shape')).toBe('default');
+  });
+
+  it('returns computed classes through getClasses()', () => {
+    const instance = fixture.debugElement.query(By.directive(ArgusxButtonDirective))
+      .injector.get(ArgusxButtonDirective);
+    expect(instance.getClasses().length).toBeGreaterThan(0);
+  });
+
+  it('applies class styles on host by default', () => {
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="btn"]');
+    expect(button.getAttribute('class')).toBeTruthy();
   });
 });
 
-describe('buttonVariants', () => {
-  it('should return string for all variants', () => {
-    const variants = ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'] as const;
+describe('argusxButtonVariants', () => {
+  it('returns a class string for all variants', () => {
+    const variants: readonly ArgusxButtonVariant[] = [
+      'default',
+      'destructive',
+      'outline',
+      'secondary',
+      'ghost',
+      'link',
+    ];
 
     for (const variant of variants) {
-      const classes = buttonVariants({ variant });
+      const classes = argusxButtonVariants({ variant });
       expect(typeof classes).toBe('string');
       expect(classes.length).toBeGreaterThan(0);
     }
   });
 
-  it('should return string for all sizes', () => {
-    const sizes = ['default', 'sm', 'lg', 'icon'] as const;
+  it('returns a class string for all sizes', () => {
+    const sizes: readonly ArgusxButtonSize[] = [
+      'default',
+      'xs',
+      'sm',
+      'lg',
+      'icon',
+      'icon-xs',
+      'icon-sm',
+      'icon-lg',
+    ];
 
     for (const size of sizes) {
-      const classes = buttonVariants({ size });
+      const classes = argusxButtonVariants({ size });
       expect(typeof classes).toBe('string');
       expect(classes.length).toBeGreaterThan(0);
     }
   });
 
-  it('should return string for variant and size combinations', () => {
-    const variants = ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'] as const;
-    const sizes = ['default', 'sm', 'lg', 'icon'] as const;
-
-    for (const v of variants) {
-      for (const s of sizes) {
-        const classes = buttonVariants({ variant: v, size: s });
-        expect(typeof classes).toBe('string');
-        expect(classes.length).toBeGreaterThan(0);
-      }
+  it('supports shape/full/loading combinations', () => {
+    const shapes: readonly ArgusxButtonShape[] = ['default', 'circle', 'square'];
+    for (const shape of shapes) {
+      const classes = argusxButtonVariants({ shape, full: true, loading: true });
+      expect(typeof classes).toBe('string');
+      expect(classes).toContain('pointer-events-none');
     }
   });
 });
 
 @Component({
   standalone: true,
-  imports: [ButtonDirective],
-  schemas: [NO_ERRORS_SCHEMA],
-  template: `<button [argusButton]="null" [variant]="variant" [size]="size" [asChild]="asChild">Test</button>`,
-})
-class TestButtonComponent {
-  readonly variant = input<'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'>('default');
-  readonly size = input<'default' | 'xs' | 'sm' | 'lg' | 'icon' | 'icon-xs' | 'icon-sm' | 'icon-lg'>('default');
-  readonly asChild = input<boolean>(false);
+  imports: [ArgusxButtonDirective],
+  template: `
+    <button argusx-button data-testid="btn" variant="default" size="default" shape="default">
+      Test
+    </button>
 
-  @ViewChildren(ButtonDirective) directives!: QueryList<ButtonDirective>;
-}
+    <button argusx-button data-testid="loading-btn" loading>Loading</button>
+
+    <button argusx-button data-testid="as-child" asChild>As Child</button>
+
+    <a argusx-button data-testid="link" loading>Link</a>
+  `,
+})
+class TestButtonComponent {}

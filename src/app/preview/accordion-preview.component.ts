@@ -8,7 +8,7 @@ import {
   AccordionTriggerComponent,
   AccordionContentComponent,
 } from '../shared/ui/accordion/accordion.component';
-import { ButtonComponent } from '../shared/ui/button';
+import { ArgusxButtonDirective } from '../shared/ui/button';
 import { ArgusxCardComponent } from '../shared/ui/card';
 
 @Component({
@@ -19,7 +19,7 @@ import { ArgusxCardComponent } from '../shared/ui/card';
     AccordionItemComponent,
     AccordionTriggerComponent,
     AccordionContentComponent,
-    ButtonComponent,
+    ArgusxButtonDirective,
     ArgusxCardComponent,
   ],
   template: `
@@ -167,7 +167,7 @@ import { ArgusxCardComponent } from '../shared/ui/card';
                     <a href="#">Annual billing is available</a> with a 20% discount. All plans
                     include a 14-day free trial with no credit card required.
                   </p>
-                  <button argus-button size="sm" class="mt-2">
+                  <button argusx-button size="sm" class="mt-2">
                     View plans
                   </button>
                 </app-accordion-content>

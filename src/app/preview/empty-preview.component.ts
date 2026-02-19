@@ -7,7 +7,7 @@ import {
   EmptyMediaDirective,
   EmptyTitleDirective,
 } from '@app/shared/ui/empty';
-import { ButtonComponent } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 
 @Component({
   selector: 'app-empty-preview',
@@ -19,7 +19,7 @@ import { ButtonComponent } from '@app/shared/ui/button';
     EmptyTitleDirective,
     EmptyDescriptionDirective,
     EmptyContentDirective,
-    ButtonComponent,
+    ArgusxButtonDirective,
   ],
   template: `
     <div class="mx-auto max-w-3xl p-8 space-y-8">
@@ -49,7 +49,7 @@ import { ButtonComponent } from '@app/shared/ui/button';
             </p>
           </div>
           <div appEmptyContent>
-            <button argus-button size="sm">Start new conversation</button>
+            <button argusx-button size="sm">Start new conversation</button>
           </div>
         </div>
       </section>
@@ -79,7 +79,7 @@ import { ButtonComponent } from '@app/shared/ui/button';
             <h3 appEmptyTitle>No items found</h3>
           </div>
           <div appEmptyContent>
-            <button argus-button variant="outline" size="sm">Clear filters</button>
+            <button argusx-button variant="outline" size="sm">Clear filters</button>
           </div>
         </div>
       </section>

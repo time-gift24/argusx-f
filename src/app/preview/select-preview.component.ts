@@ -11,7 +11,7 @@ import {
   ChartPieIcon,
   ChevronDownIcon,
 } from 'lucide-angular';
-import { ButtonComponent } from '../shared/ui/button';
+import { ArgusxButtonDirective } from '../shared/ui/button';
 import {
   DialogComponent,
   DialogContentComponent,
@@ -61,7 +61,7 @@ interface PlanOption {
     SelectLabelComponent,
     SelectSeparatorComponent,
     SelectValueComponent,
-    ButtonComponent,
+    ArgusxButtonDirective,
     DialogComponent,
     DialogContentComponent,
     DialogHeaderComponent,
@@ -231,7 +231,7 @@ interface PlanOption {
                   }
                 </app-select-group>
               </app-select>
-              <button argus-button variant="outline" size="sm">Submit</button>
+              <button argusx-button variant="outline" size="sm">Submit</button>
             </div>
 
             <div class="flex items-center gap-2">
@@ -245,7 +245,7 @@ interface PlanOption {
                   }
                 </app-select-group>
               </app-select>
-              <button argus-button variant="outline">Submit</button>
+              <button argusx-button variant="outline">Submit</button>
             </div>
           </div>
         </section>
@@ -361,7 +361,7 @@ interface PlanOption {
 
         <section class="space-y-2 rounded-md border border-dashed p-4">
           <h2 class="text-muted-foreground text-xs">In Dialog</h2>
-          <button argus-button variant="outline" (click)="dialogOpen.set(true)">Open Dialog</button>
+          <button argusx-button variant="outline" (click)="dialogOpen.set(true)">Open Dialog</button>
 
           @if (dialogOpen()) {
             <div argus-dialog [(open)]="dialogOpen">

@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { ButtonDirective } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { SheetComponents, type SheetSide } from '@app/shared/ui/sheet';
 
 @Component({
   selector: 'app-sheet-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SheetComponents, ButtonDirective],
+  imports: [SheetComponents, ArgusxButtonDirective],
   template: `
     <div class="mx-auto max-w-3xl p-8 space-y-8">
       <h1 class="mb-2 text-2xl font-semibold">Sheet</h1>
@@ -21,7 +21,7 @@ import { SheetComponents, type SheetSide } from '@app/shared/ui/sheet';
           <div class="flex flex-wrap gap-2">
             @for (item of sides; track item) {
               <button
-                argusButton
+                argusx-button
                 variant="outline"
                 size="sm"
                 [class.bg-muted]="sheetSide() === item"
@@ -33,7 +33,7 @@ import { SheetComponents, type SheetSide } from '@app/shared/ui/sheet';
           </div>
 
           <app-sheet [side]="sheetSide()">
-            <button argusButton appSheetTrigger>Open Sheet</button>
+            <button argusx-button appSheetTrigger>Open Sheet</button>
 
             <app-sheet-content>
               <app-sheet-header>
@@ -55,8 +55,8 @@ import { SheetComponents, type SheetSide } from '@app/shared/ui/sheet';
               </div>
 
               <app-sheet-footer>
-                <button argusButton variant="outline" appSheetClose>Cancel</button>
-                <button argusButton appSheetClose>Save changes</button>
+                <button argusx-button variant="outline" appSheetClose>Cancel</button>
+                <button argusx-button appSheetClose>Save changes</button>
               </app-sheet-footer>
             </app-sheet-content>
           </app-sheet>

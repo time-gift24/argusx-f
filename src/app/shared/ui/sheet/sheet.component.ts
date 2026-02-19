@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { cn } from '../../utils/cn';
-import { ButtonDirective } from '../button/button.directive';
+import { ArgusxButtonDirective } from '../button/button.directive';
 import { LucideAngularModule, X } from 'lucide-angular';
 
 // ============================================================================
@@ -317,12 +317,12 @@ export class SheetOverlayComponent {
  */
 @Component({
   selector: 'app-sheet-content',
-  imports: [CommonModule, ButtonDirective, LucideAngularModule],
+  imports: [CommonModule, ArgusxButtonDirective, LucideAngularModule],
   template: `
     <ng-content />
     @if (showCloseButton()) {
       <button
-        argusButton
+        argusx-button
         variant="ghost"
         size="icon-sm"
         class="absolute top-4 right-4"
@@ -408,7 +408,7 @@ export class SheetHeaderComponent {
   template: `
     <ng-content />
     @if (showCloseButton()) {
-      <button argusButton variant="outline" appSheetClose>Close</button>
+      <button argusx-button variant="outline" appSheetClose>Close</button>
     }
   `,
   host: {

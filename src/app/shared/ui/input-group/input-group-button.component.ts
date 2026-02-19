@@ -1,7 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../utils/cn';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { buttonVariants, ButtonVariant } from '../button/button.directive';
+import {
+  argusxButtonVariants,
+  type ArgusxButtonVariant,
+} from '../button/button.directive';
 
 // Aligned with official shadcn preset (.vendor/aim/components/ui/input-group.tsx)
 const inputGroupButtonVariants = cva(
@@ -50,13 +53,13 @@ type InputGroupButtonSize = NonNullable<VariantProps<typeof inputGroupButtonVari
 })
 export class InputGroupButtonComponent {
   readonly type = input<'button' | 'submit' | 'reset'>('button');
-  readonly variant = input<ButtonVariant>('ghost');
+  readonly variant = input<ArgusxButtonVariant>('ghost');
   readonly size = input<InputGroupButtonSize>('xs');
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
     cn(
-      buttonVariants({ variant: this.variant(), size: 'default' }),
+      argusxButtonVariants({ variant: this.variant(), size: 'default' }),
       inputGroupButtonVariants({ size: this.size() }),
       this.class()
     )

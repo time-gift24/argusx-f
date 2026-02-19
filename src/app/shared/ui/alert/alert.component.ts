@@ -54,7 +54,7 @@ export type AlertVariant = NonNullable<AlertVariants['variant']>;
  *   <app-alert-title>Error</app-alert-title>
  *   <app-alert-description>Something went wrong.</app-alert-description>
  *   <app-alert-action>
- *     <button argusButton variant="ghost" size="icon" data-close>
+ *     <button argusx-button variant="ghost" size="icon" data-close>
  *       <lucide-icon [img]="xIcon"></lucide-icon>
  *     </button>
  *   </app-alert-action>

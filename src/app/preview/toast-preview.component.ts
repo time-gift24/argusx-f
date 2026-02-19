@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { ButtonDirective } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { ToastComponents, ToastService, type ToastPosition } from '@app/shared/ui/toast';
 
 @Component({
   selector: 'app-toast-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonDirective, ToastComponents],
+  imports: [ArgusxButtonDirective, ToastComponents],
   template: `
     <div class="mx-auto max-w-3xl p-8 space-y-8">
       <h1 class="mb-2 text-2xl font-semibold">Toast</h1>
@@ -18,11 +18,11 @@ import { ToastComponents, ToastService, type ToastPosition } from '@app/shared/u
           <h2 class="text-sm font-medium text-muted-foreground">Variants</h2>
         </div>
         <div class="rounded-lg border border-dashed border-border p-6 flex flex-wrap gap-2">
-          <button argusButton size="sm" (click)="showSuccess()">Success</button>
-          <button argusButton size="sm" variant="destructive" (click)="showError()">Error</button>
-          <button argusButton size="sm" variant="outline" (click)="showWarning()">Warning</button>
-          <button argusButton size="sm" variant="secondary" (click)="showInfo()">Info</button>
-          <button argusButton size="sm" variant="ghost" (click)="showLoading()">Loading</button>
+          <button argusx-button size="sm" (click)="showSuccess()">Success</button>
+          <button argusx-button size="sm" variant="destructive" (click)="showError()">Error</button>
+          <button argusx-button size="sm" variant="outline" (click)="showWarning()">Warning</button>
+          <button argusx-button size="sm" variant="secondary" (click)="showInfo()">Info</button>
+          <button argusx-button size="sm" variant="ghost" (click)="showLoading()">Loading</button>
         </div>
       </section>
 
@@ -32,7 +32,7 @@ import { ToastComponents, ToastService, type ToastPosition } from '@app/shared/u
         </div>
         <div class="rounded-lg border border-dashed border-border p-6 flex flex-wrap gap-2">
           @for (position of positions; track position) {
-            <button argusButton size="sm" variant="outline" (click)="setPosition(position)">
+            <button argusx-button size="sm" variant="outline" (click)="setPosition(position)">
               {{ position }}
             </button>
           }

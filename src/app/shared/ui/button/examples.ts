@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ButtonComponent } from './button.component';
+import { ArgusxButtonDirective } from './button.directive';
 
 @Component({
   selector: 'app-button-examples',
-  imports: [ButtonComponent, RouterLink],
+  imports: [ArgusxButtonDirective, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="examples-container">
@@ -18,12 +18,12 @@ import { ButtonComponent } from './button.component';
         <h2>Variants</h2>
         <p class="section-description">Different visual styles for different contexts</p>
         <div class="button-group">
-          <button argus-button variant="default">Default</button>
-          <button argus-button variant="secondary">Secondary</button>
-          <button argus-button variant="destructive">Destructive</button>
-          <button argus-button variant="outline">Outline</button>
-          <button argus-button variant="ghost">Ghost</button>
-          <button argus-button variant="link">Link</button>
+          <button argusx-button variant="default">Default</button>
+          <button argusx-button variant="secondary">Secondary</button>
+          <button argusx-button variant="destructive">Destructive</button>
+          <button argusx-button variant="outline">Outline</button>
+          <button argusx-button variant="ghost">Ghost</button>
+          <button argusx-button variant="link">Link</button>
         </div>
       </section>
 
@@ -32,10 +32,10 @@ import { ButtonComponent } from './button.component';
         <h2>Sizes</h2>
         <p class="section-description">Different sizes for different use cases</p>
         <div class="button-group">
-          <button argus-button size="sm">Small</button>
-          <button argus-button size="default">Default</button>
-          <button argus-button size="lg">Large</button>
-          <button argus-button size="icon">
+          <button argusx-button size="sm">Small</button>
+          <button argusx-button size="default">Default</button>
+          <button argusx-button size="lg">Large</button>
+          <button argusx-button size="icon">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -59,7 +59,7 @@ import { ButtonComponent } from './button.component';
         <h2>Icon Buttons</h2>
         <p class="section-description">Buttons with icons for visual enhancement</p>
         <div class="button-group">
-          <button argus-button size="icon">
+          <button argusx-button size="icon">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -75,7 +75,7 @@ import { ButtonComponent } from './button.component';
               <path d="m12 5 7 7-7 7" />
             </svg>
           </button>
-          <button argus-button variant="secondary" size="icon">
+          <button argusx-button variant="secondary" size="icon">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -90,7 +90,7 @@ import { ButtonComponent } from './button.component';
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
             </svg>
           </button>
-          <button argus-button variant="destructive" size="icon">
+          <button argusx-button variant="destructive" size="icon">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -115,7 +115,7 @@ import { ButtonComponent } from './button.component';
         <h2>Buttons with Icons and Text</h2>
         <p class="section-description">Combining icons with text for better UX</p>
         <div class="button-group">
-          <button argus-button>
+          <button argusx-button>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -132,7 +132,7 @@ import { ButtonComponent } from './button.component';
             </svg>
             Sign Up
           </button>
-          <button argus-button variant="outline">
+          <button argusx-button variant="outline">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -148,7 +148,7 @@ import { ButtonComponent } from './button.component';
             </svg>
             Toggle Theme
           </button>
-          <button argus-button variant="secondary">
+          <button argusx-button variant="secondary">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -174,10 +174,10 @@ import { ButtonComponent } from './button.component';
         <h2>Disabled State</h2>
         <p class="section-description">Buttons in disabled state</p>
         <div class="button-group">
-          <button argus-button disabled>Default</button>
-          <button argus-button variant="secondary" disabled>Secondary</button>
-          <button argus-button variant="outline" disabled>Outline</button>
-          <button argus-button variant="ghost" disabled>Ghost</button>
+          <button argusx-button disabled>Default</button>
+          <button argusx-button variant="secondary" disabled>Secondary</button>
+          <button argusx-button variant="outline" disabled>Outline</button>
+          <button argusx-button variant="ghost" disabled>Ghost</button>
         </div>
       </section>
 
@@ -186,9 +186,9 @@ import { ButtonComponent } from './button.component';
         <h2>Link as Button</h2>
         <p class="section-description">Using anchor tags with button styling</p>
         <div class="button-group">
-          <a argus-button routerLink="/" variant="default">Home</a>
-          <a argus-button routerLink="/about" variant="outline">About</a>
-          <a argus-button routerLink="/contact" variant="ghost">Contact</a>
+          <a argusx-button routerLink="/" variant="default">Home</a>
+          <a argusx-button routerLink="/about" variant="outline">About</a>
+          <a argusx-button routerLink="/contact" variant="ghost">Contact</a>
         </div>
       </section>
 
@@ -197,9 +197,9 @@ import { ButtonComponent } from './button.component';
         <h2>Custom Classes</h2>
         <p class="section-description">Adding custom classes for additional styling</p>
         <div class="button-group">
-          <button argus-button class="w-full">Full Width</button>
-          <button argus-button class="gap-4">Extra Gap</button>
-          <button argus-button class="rounded-full">Rounded Full</button>
+          <button argusx-button class="w-full">Full Width</button>
+          <button argusx-button class="gap-4">Extra Gap</button>
+          <button argusx-button class="rounded-full">Rounded Full</button>
         </div>
       </section>
 
@@ -208,8 +208,8 @@ import { ButtonComponent } from './button.component';
         <h2>Interactive Buttons</h2>
         <p class="section-description">Buttons with click event handlers</p>
         <div class="button-group">
-          <button argus-button (click)="handleClick($event)">Click Me</button>
-          <button argus-button variant="outline" (click)="handleClick($event)">Handle Click</button>
+          <button argusx-button (click)="handleClick($event)">Click Me</button>
+          <button argusx-button variant="outline" (click)="handleClick($event)">Handle Click</button>
         </div>
       </section>
 
@@ -222,7 +222,7 @@ import { ButtonComponent } from './button.component';
             <div class="combination-group">
               <h3>{{ variant }}</h3>
               @for (size of sizes; track size) {
-                <button argus-button [variant]="variant" [size]="size">
+                <button argusx-button [variant]="variant" [size]="size">
                   {{ size }}
                 </button>
               }

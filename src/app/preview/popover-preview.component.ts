@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { ButtonComponent } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { InputDirective } from '@app/shared/ui/input';
 import { LabelDirective } from '@app/shared/ui/label';
 import { PopoverComponents } from '@app/shared/ui/popover';
@@ -7,7 +7,7 @@ import { PopoverComponents } from '@app/shared/ui/popover';
 @Component({
   selector: 'app-popover-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PopoverComponents, ButtonComponent, LabelDirective, InputDirective],
+  imports: [PopoverComponents, ArgusxButtonDirective, LabelDirective, InputDirective],
   template: `
     <div class="mx-auto max-w-3xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Popover</h1>
@@ -21,7 +21,7 @@ import { PopoverComponents } from '@app/shared/ui/popover';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
           <app-popover [(open)]="open">
-            <button argus-button variant="outline" appPopoverTrigger>
+            <button argusx-button variant="outline" appPopoverTrigger>
               Open popover
             </button>
             <app-popover-content class="w-80">

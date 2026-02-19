@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { ButtonComponent } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { HoverCardComponents } from '@app/shared/ui/hover-card';
 
 @Component({
   selector: 'app-hover-card-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [HoverCardComponents, ButtonComponent],
+  imports: [HoverCardComponents, ArgusxButtonDirective],
   template: `
     <div class="mx-auto max-w-3xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Hover Card</h1>
@@ -19,7 +19,7 @@ import { HoverCardComponents } from '@app/shared/ui/hover-card';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6 flex justify-center">
           <app-hover-card>
-            <button argus-button variant="link" appHoverCardTrigger>
+            <button argusx-button variant="link" appHoverCardTrigger>
               @argusx
             </button>
             <app-hover-card-content class="w-80">

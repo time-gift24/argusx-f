@@ -8,13 +8,13 @@ import {
 } from '@angular/core';
 import type { MermaidConfig } from 'mermaid';
 import type { Plugin } from 'unified';
-import { ButtonComponent } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { SdMarkdownComponent } from '../shared/ui/markdown/markdown.component';
 import type { MarkdownPlugins } from '../shared/ui/markdown/models/markdown-plugin.models';
 
 @Component({
   selector: 'app-markdown-preview',
-  imports: [ButtonComponent, SdMarkdownComponent],
+  imports: [ArgusxButtonDirective, SdMarkdownComponent],
   template: `
     <div class="mx-auto max-w-6xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Markdown</h1>
@@ -47,16 +47,16 @@ import type { MarkdownPlugins } from '../shared/ui/markdown/models/markdown-plug
       <div class="mb-6">
         <h2 class="mb-3 text-sm font-medium text-muted-foreground">Demo Content</h2>
         <div class="flex flex-wrap gap-2">
-          <button argus-button variant="outline" (click)="loadDemo('basic')">
+          <button argusx-button variant="outline" (click)="loadDemo('basic')">
             Basic
           </button>
-          <button argus-button variant="outline" (click)="loadDemo('gfm')">
+          <button argusx-button variant="outline" (click)="loadDemo('gfm')">
             GFM
           </button>
-          <button argus-button variant="outline" (click)="loadDemo('code')">
+          <button argusx-button variant="outline" (click)="loadDemo('code')">
             Code
           </button>
-          <button argus-button variant="outline" (click)="loadDemo('mermaid')">
+          <button argusx-button variant="outline" (click)="loadDemo('mermaid')">
             Mermaid
           </button>
         </div>
@@ -119,29 +119,29 @@ import type { MarkdownPlugins } from '../shared/ui/markdown/models/markdown-plug
         </div>
 
         <div class="flex flex-wrap gap-2">
-          <button argus-button (click)="startLiveStreaming()">
+          <button argusx-button (click)="startLiveStreaming()">
             Start Streaming
           </button>
 
           @if (isStreaming()) {
-            <button argus-button variant="outline" (click)="pauseStreaming()">
+            <button argusx-button variant="outline" (click)="pauseStreaming()">
               Pause
             </button>
           } @else if (hasPendingChunks()) {
-            <button argus-button variant="outline" (click)="resumeStreaming()">
+            <button argusx-button variant="outline" (click)="resumeStreaming()">
               Resume
             </button>
           }
 
           <button
-            argus-button
+            argusx-button
             variant="outline"
             [disabled]="!isStreaming() && !hasPendingChunks()"
             (click)="stopStreaming()">
             Stop
           </button>
 
-          <button argus-button variant="ghost" (click)="showFullStreamingResult()">
+          <button argusx-button variant="ghost" (click)="showFullStreamingResult()">
             Show Full Result
           </button>
         </div>

@@ -44,9 +44,15 @@ def build_templates(component: str, zardui_component: str, shadcn_item: str) -> 
         # {component} API Diff
 
         ## API Matrix
-        | api | zardui | local (current) | shadcn | target (argusx) | evidence |
-        | --- | --- | --- | --- | --- | --- |
-        |  |  |  |  |  | Z1/L1/S1 |
+        | api | zardui | local (current) | shadcn | target (argusx) | conflict? | decision | plain note | evidence |
+        | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+        |  |  |  |  |  | yes/no | adopt-shadcn / extend-argusx | default style note | Z1/L1/S1 |
+
+        ## Conflict Decisions (Must Adopt shadcn)
+        - [ ] API name: conflict reason + adopted shadcn shape + source evidence
+
+        ## Non-conflict Extensions (ArgusX Plain)
+        - [ ] API name: extension rationale + argusx API shape + plain style behavior + source evidence
 
         ## Missing APIs
         - [ ] API name: impact + source evidence
@@ -60,6 +66,7 @@ def build_templates(component: str, zardui_component: str, shadcn_item: str) -> 
         - outputs:
         - data attributes:
         - accessibility contract:
+        - plain style defaults:
         """
     )
 
@@ -67,16 +74,33 @@ def build_templates(component: str, zardui_component: str, shadcn_item: str) -> 
         f"""\
         # {component} Rewrite Plan
 
+        ## Conflict Resolution (Must Adopt shadcn)
+        - [ ] lock shadcn naming/default/behavior for conflict APIs
+        - [ ] remove conflicting local/zardui primary entries
+
+        ## Non-conflict Extensions (ArgusX Plain)
+        - [ ] define extension API and naming
+        - [ ] ensure extension does not break shadcn main path
+        - [ ] set plain default style behavior
+
+        ## Breaking Rewrite Policy (No Compatibility Layer)
+        - [ ] remove legacy API entrances and deprecated aliases
+        - [ ] keep single canonical API path only
+
         ## Naming Migration (z -> argusx)
         - [ ] selector migration
         - [ ] input/output/type symbol migration
         - [ ] index export migration
-        - [ ] compatibility alias (if needed)
 
         ## shadcn API Alignment
         - [ ] API surface alignment
         - [ ] behavior alignment
         - [ ] accessibility alignment
+
+        ## Plain Style Alignment
+        - [ ] default variant/style is plain
+        - [ ] avoid heavy decoration in default state
+        - [ ] verify token usage and no hardcoded brand colors in component internals
 
         ## File-level Plan
         1. `src/app/shared/ui/{component}/...`
@@ -90,7 +114,8 @@ def build_templates(component: str, zardui_component: str, shadcn_item: str) -> 
         # {component} Preview Coverage
 
         ## Required Scenarios
-        - [ ] all primary input enums
+        - [ ] all conflict APIs with shadcn-aligned behavior
+        - [ ] all non-conflict extension APIs in plain style
         - [ ] all key state combinations
         - [ ] shadcn preview parity examples
         - [ ] one complex combined scenario

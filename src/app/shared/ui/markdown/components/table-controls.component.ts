@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular/core';
-import { ButtonDirective } from '../../button/button.directive';
+import { ArgusxButtonDirective } from '../../button/button.directive';
 import {
   extractTableDataFromElement,
   tableDataToCSV,
@@ -10,21 +10,21 @@ import {
 @Component({
   selector: 'sd-table-controls',
   standalone: true,
-  imports: [ButtonDirective],
+  imports: [ArgusxButtonDirective],
   template: `
     <div class="mb-2 flex items-center justify-end gap-2">
-      <button type="button" argusButton variant="outline" size="sm" (click)="copy('csv')">
+      <button type="button" argusx-button variant="outline" size="sm" (click)="copy('csv')">
         Copy CSV
       </button>
-      <button type="button" argusButton variant="outline" size="sm" (click)="copy('tsv')">
+      <button type="button" argusx-button variant="outline" size="sm" (click)="copy('tsv')">
         Copy TSV
       </button>
-      <button type="button" argusButton variant="outline" size="sm" (click)="download('csv')">
+      <button type="button" argusx-button variant="outline" size="sm" (click)="download('csv')">
         Download CSV
       </button>
       <button
         type="button"
-        argusButton
+        argusx-button
         variant="outline"
         size="sm"
         (click)="download('markdown')">

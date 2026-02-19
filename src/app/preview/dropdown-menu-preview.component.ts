@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { ButtonComponent } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { DropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
 
 @Component({
   selector: 'app-dropdown-menu-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DropdownMenuComponents, ButtonComponent],
+  imports: [DropdownMenuComponents, ArgusxButtonDirective],
   template: `
     <div class="mx-auto max-w-3xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Dropdown Menu</h1>
@@ -19,7 +19,7 @@ import { DropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
           <app-dropdown-menu>
-            <button argus-button variant="outline" appDropdownMenuTrigger>
+            <button argusx-button variant="outline" appDropdownMenuTrigger>
               Open Menu
             </button>
             <app-dropdown-menu-content>

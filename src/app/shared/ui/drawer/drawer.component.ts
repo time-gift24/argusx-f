@@ -19,7 +19,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { cn } from '../../utils/cn';
 import { cva } from 'class-variance-authority';
-import { buttonVariants } from '../button';
+import { argusxButtonVariants } from '../button';
 import { LucideAngularModule, XIcon } from 'lucide-angular';
 
 // ============================================================================
@@ -512,7 +512,7 @@ export class DrawerContentComponent {
 
   protected readonly closeButtonClass = computed(() =>
     cn(
-      buttonVariants({ variant: 'ghost', size: 'icon-sm' }),
+      argusxButtonVariants({ variant: 'ghost', size: 'icon-sm' }),
       'absolute top-4 right-4'
     )
   );
