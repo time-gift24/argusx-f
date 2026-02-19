@@ -1,61 +1,60 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  EffectRef,
+  Injector,
+  OnDestroy,
+  OnInit,
   computed,
+  contentChild,
+  effect,
   forwardRef,
   inject,
   input,
   model,
-  output,
   signal,
   viewChild,
-  effect,
-  Provider,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import {
-  CdkOverlayOrigin,
-  OverlayModule,
-  ConnectedPosition,
-  FlexibleConnectedPositionStrategy,
-  Overlay,
-  OverlayRef,
-} from '@angular/cdk/overlay';
-import { CdkListbox, CdkOption, ListboxValueChangeEvent } from '@angular/cdk/listbox';
+import { CdkOverlayOrigin, ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { CheckIcon, ChevronDownIcon, LucideAngularModule, XIcon } from 'lucide-angular';
+
 import { cn } from '../../utils/cn';
 import {
-  LucideAngularModule,
-  ChevronDownIcon,
-  XIcon,
-  CheckIcon,
-  SearchIcon,
-} from 'lucide-angular';
+  argusxMenuContentVariants,
+  argusxMenuItemVariants,
+  argusxMenuLabelVariants,
+  argusxMenuSeparatorVariants,
+} from '../menu-core/menu.variants';
 
-// ============================================================================
-// Types
-// ============================================================================
+export type ArgusxComboboxAlign = 'start' | 'center' | 'end';
+export type ArgusxComboboxSide = 'top' | 'bottom';
+export type ArgusxComboboxVariant = 'plain';
+export type ArgusxComboboxSize = 'sm' | 'default';
 
-export type ComboboxAlign = 'start' | 'center' | 'end';
-export type ComboboxSide = 'top' | 'bottom';
-
-export interface ComboboxItemData<T = unknown> {
+export interface ArgusxComboboxItemData<T = unknown> {
   value: T;
   label: string;
   disabled?: boolean;
 }
 
-// ============================================================================
-// Combobox Root Token for DI
-// ============================================================================
+export interface ArgusxComboboxRegisteredItem<T = unknown> {
+  value: () => T;
+  isVisible: () => boolean;
+  disabled: () => boolean;
+}
 
-export abstract class ComboboxRootToken<T = unknown> {
+export abstract class ArgusxComboboxRootToken<T = unknown> {
   abstract value: ReturnType<typeof model<T | T[] | undefined>>;
   abstract multiple: () => boolean;
   abstract disabled: () => boolean;
-  abstract open: ReturnType<typeof signal<boolean>>;
+  abstract variant: () => ArgusxComboboxVariant;
+  abstract size: () => ArgusxComboboxSize;
+  abstract open: ReturnType<typeof model<boolean>>;
   abstract searchTerm: ReturnType<typeof signal<string>>;
-  abstract filterMode: () => boolean;
+  abstract highlightedValue: ReturnType<typeof signal<T | undefined>>;
+  abstract hasVisibleItems: () => boolean;
   abstract openCombobox: () => void;
   abstract closeCombobox: () => void;
   abstract toggleCombobox: () => void;
@@ -64,23 +63,21 @@ export abstract class ComboboxRootToken<T = unknown> {
   abstract deselectValue: (value: T) => void;
   abstract clearValue: () => void;
   abstract getDisplayValue: () => string;
+  abstract setHighlightedValue: (value: T | undefined) => void;
+  abstract selectHighlighted: () => void;
+  abstract moveHighlighted: (direction: 1 | -1) => void;
+  abstract highlightBoundary: (position: 'first' | 'last') => void;
   abstract registerItemLabel: (value: T, label: string) => void;
   abstract getItemLabel: (value: T) => string;
+  abstract registerItem: (item: ArgusxComboboxRegisteredItem<T>) => number;
+  abstract unregisterItem: (id: number) => void;
 }
 
-// ============================================================================
-// Combobox Item Component
-// ============================================================================
-
-/**
- * Combobox Item Component
- * Individual selectable item in the dropdown
- */
 @Component({
-  selector: 'app-combobox-item',
+  selector: 'argusx-combobox-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <span class="pointer-events-none absolute right-2 flex items-center justify-center">
+    <span class="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
       @if (isSelected()) {
         <lucide-icon [img]="checkIcon" class="size-3.5 pointer-events-none" />
       }
@@ -92,22 +89,22 @@ export abstract class ComboboxRootToken<T = unknown> {
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"combobox-item"',
+    '[attr.data-state]': 'isSelected() ? "checked" : "unchecked"',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.data-highlighted]': 'isHighlighted() ? "" : null',
+    '[attr.hidden]': 'isVisible() ? null : ""',
     '[attr.role]': '"option"',
     '[attr.aria-selected]': 'isSelected()',
-    '[attr.data-disabled]': 'disabled()',
-    '[attr.data-value]': 'value()',
+    '[attr.tabindex]': 'disabled() ? null : "-1"',
     '(click)': 'onClick()',
+    '(mousemove)': 'onMouseMove()',
+    '(keydown)': 'onKeydown($event)',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: CdkOption,
-      useExisting: forwardRef(() => ComboboxItemComponent),
-    },
-  ],
 })
-export class ComboboxItemComponent<T = unknown> {
-  readonly combobox = inject<ComboboxRootToken<T>>(ComboboxRootToken);
+export class ArgusxComboboxItemComponent<T = unknown> implements OnInit, OnDestroy {
+  private readonly combobox = inject<ArgusxComboboxRootToken<T>>(ArgusxComboboxRootToken);
+  private readonly injector = inject(Injector);
 
   readonly value = input.required<T>();
   readonly label = input<string>('');
@@ -116,50 +113,98 @@ export class ComboboxItemComponent<T = unknown> {
 
   protected readonly checkIcon = CheckIcon;
 
-  constructor() {
-    effect(() => {
-      const itemValue = this.value();
-      const label = this.label().trim() || String(itemValue);
-      this.combobox.registerItemLabel(itemValue, label);
-    });
-  }
+  private readonly resolvedLabel = computed(() => {
+    const label = this.label().trim();
+    return label || String(this.value());
+  });
+
+  protected readonly isSelected = computed(() => this.combobox.isSelected(this.value()));
+  protected readonly isHighlighted = computed(
+    () => this.combobox.highlightedValue() === this.value()
+  );
+  protected readonly isVisible = computed(() => {
+    const searchTerm = this.combobox.searchTerm().trim().toLowerCase();
+    if (!searchTerm) {
+      return true;
+    }
+
+    const label = this.resolvedLabel().toLowerCase();
+    const valueText = String(this.value()).toLowerCase();
+    return label.includes(searchTerm) || valueText.includes(searchTerm);
+  });
 
   protected readonly computedClass = computed(() =>
     cn(
-      'data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed [&_svg:not([class*=\'size-\'])]:size-3.5 relative flex w-full cursor-default items-center outline-hidden select-none hover:bg-accent hover:text-accent-foreground',
-      this.disabled() ? 'pointer-events-none opacity-50' : 'cursor-pointer',
+      argusxMenuItemVariants({ inset: false, variant: 'default' }),
+      'data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground py-1.5 pr-8 pl-2 text-xs/relaxed',
       this.class()
     )
   );
 
-  protected readonly isSelected = computed(() => {
-    const currentValue = this.value();
-    return this.combobox.isSelected(currentValue);
-  });
+  private itemId: number | null = null;
+  private labelSyncEffect: EffectRef | null = null;
 
-  onClick(): void {
-    if (this.disabled()) return;
+  ngOnInit(): void {
+    this.itemId = this.combobox.registerItem({
+      value: () => this.value(),
+      isVisible: () => this.isVisible(),
+      disabled: () => this.disabled(),
+    });
+    this.labelSyncEffect = effect(
+      () => {
+        this.combobox.registerItemLabel(this.value(), this.resolvedLabel());
+      },
+      { injector: this.injector }
+    );
+  }
+
+  ngOnDestroy(): void {
+    if (this.itemId !== null) {
+      this.combobox.unregisterItem(this.itemId);
+      this.itemId = null;
+    }
+
+    this.labelSyncEffect?.destroy();
+    this.labelSyncEffect = null;
+  }
+
+  protected onMouseMove(): void {
+    if (this.disabled() || !this.isVisible()) {
+      return;
+    }
+
+    this.combobox.setHighlightedValue(this.value());
+  }
+
+  protected onKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    event.preventDefault();
+    this.onClick();
+  }
+
+  protected onClick(): void {
+    if (this.disabled() || !this.isVisible()) {
+      return;
+    }
+
+    this.combobox.setHighlightedValue(this.value());
     if (this.isSelected()) {
       this.combobox.deselectValue(this.value());
     } else {
       this.combobox.selectValue(this.value());
     }
+
     if (!this.combobox.multiple()) {
       this.combobox.closeCombobox();
     }
   }
 }
 
-// ============================================================================
-// Combobox Group Component
-// ============================================================================
-
-/**
- * Combobox Group Component
- * Groups related items together
- */
 @Component({
-  selector: 'app-combobox-group',
+  selector: 'argusx-combobox-group',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -169,24 +214,14 @@ export class ComboboxItemComponent<T = unknown> {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxGroupComponent {
+export class ArgusxComboboxGroupComponent {
   readonly class = input<string>('');
 
-  protected readonly computedClass = computed(() =>
-    cn('p-1', this.class())
-  );
+  protected readonly computedClass = computed(() => cn('block', this.class()));
 }
 
-// ============================================================================
-// Combobox Label Component
-// ============================================================================
-
-/**
- * Combobox Label Component
- * Labels a group of items
- */
 @Component({
-  selector: 'app-combobox-label',
+  selector: 'argusx-combobox-label',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -196,24 +231,16 @@ export class ComboboxGroupComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxLabelComponent {
+export class ArgusxComboboxLabelComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('text-muted-foreground px-2 py-1.5 text-xs', this.class())
+    cn(argusxMenuLabelVariants({ inset: false }), 'text-muted-foreground px-2 py-1.5 text-xs font-normal', this.class())
   );
 }
 
-// ============================================================================
-// Combobox Separator Component
-// ============================================================================
-
-/**
- * Combobox Separator Component
- * Visual divider between items
- */
 @Component({
-  selector: 'app-combobox-separator',
+  selector: 'argusx-combobox-separator',
   imports: [CommonModule],
   template: '',
   host: {
@@ -223,53 +250,35 @@ export class ComboboxLabelComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxSeparatorComponent {
+export class ArgusxComboboxSeparatorComponent {
   readonly class = input<string>('');
 
-  protected readonly computedClass = computed(() =>
-    cn('bg-border/50 -mx-1 my-1 h-px pointer-events-none', this.class())
-  );
+  protected readonly computedClass = computed(() => cn(argusxMenuSeparatorVariants(), this.class()));
 }
 
-// ============================================================================
-// Combobox Empty Component
-// ============================================================================
-
-/**
- * Combobox Empty Component
- * Shows when no results found
- */
 @Component({
-  selector: 'app-combobox-empty',
+  selector: 'argusx-combobox-empty',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"combobox-empty"',
+    '[attr.hidden]': 'combobox.hasVisibleItems() ? "" : null',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxEmptyComponent {
+export class ArgusxComboboxEmptyComponent {
+  private readonly combobox = inject<ArgusxComboboxRootToken>(ArgusxComboboxRootToken);
+
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(
-      'text-muted-foreground flex w-full justify-center py-2 text-center text-xs/relaxed',
-      this.class()
-    )
+    cn('text-muted-foreground flex w-full justify-center py-2 text-center text-xs/relaxed', this.class())
   );
 }
 
-// ============================================================================
-// Combobox Collection Component
-// ============================================================================
-
-/**
- * Combobox Collection Component
- * Container for items that can be filtered
- */
 @Component({
-  selector: 'app-combobox-collection',
+  selector: 'argusx-combobox-collection',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -277,20 +286,10 @@ export class ComboboxEmptyComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxCollectionComponent {
-  readonly class = input<string>('');
-}
+export class ArgusxComboboxCollectionComponent {}
 
-// ============================================================================
-// Combobox Value Component
-// ============================================================================
-
-/**
- * Combobox Value Component
- * Displays the selected value(s)
- */
 @Component({
-  selector: 'app-combobox-value',
+  selector: 'argusx-combobox-value',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -299,43 +298,39 @@ export class ComboboxCollectionComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxValueComponent {
+export class ArgusxComboboxValueComponent {
   readonly class = input<string>('');
 
-  protected readonly computedClass = computed(() =>
-    cn('flex-1 truncate', this.class())
-  );
+  protected readonly computedClass = computed(() => cn('flex-1 truncate', this.class()));
 }
 
-// ============================================================================
-// Combobox Trigger Component
-// ============================================================================
-
-/**
- * Combobox Trigger Component
- * Button to open the dropdown
- */
 @Component({
-  selector: 'app-combobox-trigger',
+  selector: 'argusx-combobox-trigger',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <ng-content />
     <lucide-icon
       [img]="chevronDownIcon"
-      class="text-muted-foreground size-3.5 pointer-events-none" />
+      data-slot="combobox-trigger-icon"
+      class="text-muted-foreground pointer-events-none size-3.5" />
   `,
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"combobox-trigger"',
+    '[attr.data-size]': 'combobox.size()',
+    '[attr.data-variant]': 'combobox.variant()',
     '[attr.aria-expanded]': 'combobox.open()',
     '[attr.aria-haspopup]': '"listbox"',
-    '[attr.disabled]': 'combobox.disabled() ? true : null',
+    '[attr.aria-disabled]': 'combobox.disabled()',
+    '[attr.role]': '"combobox"',
+    '[attr.tabindex]': 'combobox.disabled() ? null : "0"',
     '(click)': 'onClick()',
+    '(keydown)': 'onKeydown($event)',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxTriggerComponent {
-  readonly combobox = inject<ComboboxRootToken>(ComboboxRootToken);
+export class ArgusxComboboxTriggerComponent {
+  protected readonly combobox = inject<ArgusxComboboxRootToken>(ArgusxComboboxRootToken);
 
   readonly class = input<string>('');
 
@@ -343,41 +338,56 @@ export class ComboboxTriggerComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      "[&_svg:not([class*='size-'])]:size-3.5",
-      "flex items-center justify-center",
+      "[&_svg:not([class*='size-'])]:size-3.5 inline-flex items-center justify-between gap-1.5",
       this.class()
     )
   );
 
-  onClick(): void {
+  protected onKeydown(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        this.combobox.openCombobox();
+        this.combobox.moveHighlighted(1);
+        return;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.combobox.openCombobox();
+        this.combobox.moveHighlighted(-1);
+        return;
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        this.combobox.openCombobox();
+        return;
+      default:
+        return;
+    }
+  }
+
+  protected onClick(): void {
     this.combobox.toggleCombobox();
   }
 }
 
-// ============================================================================
-// Combobox Clear Component
-// ============================================================================
-
-/**
- * Combobox Clear Component
- * Button to clear the selection
- */
 @Component({
-  selector: 'app-combobox-clear',
+  selector: 'argusx-combobox-clear',
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <lucide-icon [img]="xIcon" class="pointer-events-none" />
+    <lucide-icon [img]="xIcon" class="pointer-events-none size-3.5" />
   `,
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"combobox-clear"',
-    '[attr.disabled]': 'combobox.disabled() ? true : null',
-    '(click)': 'onClick()',
+    '[attr.data-size]': 'combobox.size()',
+    '[attr.data-disabled]': 'combobox.disabled() ? "true" : null',
+    '[attr.aria-disabled]': 'combobox.disabled()',
+    '(click)': 'onClick($event)',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxClearComponent {
-  readonly combobox = inject<ComboboxRootToken>(ComboboxRootToken);
+export class ArgusxComboboxClearComponent {
+  protected readonly combobox = inject<ArgusxComboboxRootToken>(ArgusxComboboxRootToken);
 
   readonly class = input<string>('');
 
@@ -385,111 +395,126 @@ export class ComboboxClearComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'size-6 p-0 flex items-center justify-center rounded-md hover:bg-muted transition-colors',
-      'disabled:pointer-events-none disabled:opacity-50',
+      'hover:bg-muted inline-flex size-6 items-center justify-center rounded-sm transition-colors data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50',
       this.class()
     )
   );
 
-  onClick(): void {
-    if (!this.combobox.disabled()) {
-      this.combobox.clearValue();
+  protected onClick(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (this.combobox.disabled()) {
+      return;
     }
+
+    this.combobox.clearValue();
+    this.combobox.closeCombobox();
   }
 }
 
-// ============================================================================
-// Combobox List Component
-// ============================================================================
-
-/**
- * Combobox List Component
- * Scrollable container for items
- */
 @Component({
-  selector: 'app-combobox-list',
+  selector: 'argusx-combobox-list',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"combobox-list"',
+    '[attr.data-empty]': 'combobox.hasVisibleItems() ? null : ""',
     role: 'listbox',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxListComponent {
+export class ArgusxComboboxListComponent {
+  private readonly combobox = inject<ArgusxComboboxRootToken>(ArgusxComboboxRootToken);
+
   readonly class = input<string>('');
   readonly fixedHeight = input<boolean>(false);
 
   protected readonly computedClass = computed(() =>
     cn(
-      'block w-full overflow-y-auto overscroll-contain scroll-py-1 p-1',
-      this.fixedHeight() ? 'h-72 max-h-72' : 'max-h-72',
+      'block max-h-[min(24rem,calc(100vh-2.25rem))] scroll-py-1 overflow-y-auto p-1 data-[empty]:p-0',
+      this.fixedHeight() && 'h-72',
       this.class()
     )
   );
 }
 
-// ============================================================================
-// Combobox Content Component
-// ============================================================================
-
-/**
- * Combobox Content Component
- * The dropdown panel
- */
 @Component({
-  selector: 'app-combobox-content',
+  selector: 'argusx-combobox-content',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"combobox-content"',
+    '[attr.data-state]': 'combobox.open() ? "open" : "closed"',
+    '[attr.data-side]': 'side()',
+    '[attr.data-variant]': 'combobox.variant()',
+    '[attr.data-size]': 'combobox.size()',
+    '[attr.data-chips]': 'anchor() ? "" : null',
+    '(keydown)': 'onKeydown($event)',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxContentComponent {
-  readonly side = input<ComboboxSide>('bottom');
+export class ArgusxComboboxContentComponent {
+  private readonly combobox = inject<ArgusxComboboxRootToken>(ArgusxComboboxRootToken);
+
+  readonly side = input<ArgusxComboboxSide>('bottom');
   readonly sideOffset = input<number>(6);
-  readonly align = input<ComboboxAlign>('start');
+  readonly align = input<ArgusxComboboxAlign>('start');
   readonly alignOffset = input<number>(0);
+  readonly anchor = input<CdkOverlayOrigin | null>(null);
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
     cn(
-      'bg-popover text-popover-foreground ring-foreground/10 rounded-lg shadow-md ring-1 duration-100',
-      'data-[state=open]:animate-in data-[state=closed]:animate-out',
-      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-      'data-[side=bottom]:slide-in-from-top-2',
-      'data-[side=left]:slide-in-from-right-2',
-      'data-[side=right]:slide-in-from-left-2',
-      'data-[side=top]:slide-in-from-bottom-2',
-      'overflow-hidden',
-      'relative max-h-96 min-w-32',
+      argusxMenuContentVariants(),
+      'ring-foreground/10 relative min-w-52 overflow-hidden border-0 p-0 shadow-sm ring-1',
       this.class()
     )
   );
+
+  protected onKeydown(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'Escape':
+        event.preventDefault();
+        this.combobox.closeCombobox();
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        this.combobox.moveHighlighted(1);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.combobox.moveHighlighted(-1);
+        break;
+      case 'Home':
+        event.preventDefault();
+        this.combobox.highlightBoundary('first');
+        break;
+      case 'End':
+        event.preventDefault();
+        this.combobox.highlightBoundary('last');
+        break;
+      case 'Enter':
+        this.combobox.selectHighlighted();
+        break;
+      default:
+        break;
+    }
+  }
 }
 
-// ============================================================================
-// Combobox Input Component
-// ============================================================================
-
-/**
- * Combobox Input Component
- * Search input for filtering items
- */
 @Component({
-  selector: 'app-combobox-input',
+  selector: 'argusx-combobox-input',
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <div class="bg-input/20 dark:bg-input/30 border-input focus-within:border-ring focus-within:ring-ring/30 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive dark:has-aria-invalid:border-destructive/50 flex h-7 rounded-md border bg-clip-padding transition-colors focus-within:ring-2 has-aria-invalid:ring-2 w-auto group/input-group">
+    <div [class]="groupClass()">
       <input
         [class]="inputClass()"
         [type]="'text'"
         [placeholder]="placeholder()"
-        [disabled]="disabled()"
+        [disabled]="isDisabled()"
         [value]="inputValue()"
         [attr.aria-expanded]="combobox.open()"
         [attr.aria-haspopup]="'listbox'"
@@ -500,42 +525,47 @@ export class ComboboxContentComponent {
         (focus)="onFocus()"
         (keydown)="onKeydown($event)"
       />
+
       <div class="flex items-center gap-0.5 pr-1">
         @if (shouldShowTrigger()) {
           <button
             type="button"
             [class]="triggerButtonClass()"
-            [disabled]="disabled()"
-            (click)="onTriggerClick()"
-            data-slot="input-group-button">
+            [disabled]="isDisabled()"
+            data-slot="input-group-button"
+            (click)="onTriggerClick($event)">
             <lucide-icon [img]="chevronDownIcon" class="size-3.5 pointer-events-none" />
           </button>
         }
+
         @if (shouldShowClear()) {
           <button
             type="button"
             [class]="clearButtonClass()"
-            [disabled]="disabled()"
+            [disabled]="isDisabled()"
             [attr.data-slot]="'combobox-clear'"
             (click)="onClearClick($event)">
-            <lucide-icon [img]="xIcon" class="pointer-events-none" />
+            <lucide-icon [img]="xIcon" class="pointer-events-none size-3.5" />
           </button>
         }
       </div>
+
       <ng-content />
     </div>
   `,
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"combobox-input-wrapper"',
+    '[attr.data-size]': 'combobox.size()',
+    '[attr.data-variant]': 'combobox.variant()',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxInputComponent {
-  readonly combobox = inject<ComboboxRootToken>(ComboboxRootToken);
+export class ArgusxComboboxInputComponent {
+  protected readonly combobox = inject<ArgusxComboboxRootToken>(ArgusxComboboxRootToken);
 
   readonly placeholder = input<string>('Search...');
-  readonly disabled = input<boolean>(false);
+  readonly disabled = input<boolean | null>(null);
   readonly showTrigger = input<boolean>(true);
   readonly showClear = input<boolean>(false);
   readonly class = input<string>('');
@@ -543,55 +573,53 @@ export class ComboboxInputComponent {
   protected readonly chevronDownIcon = ChevronDownIcon;
   protected readonly xIcon = XIcon;
 
-  protected readonly searchTerm = computed(() => this.combobox.searchTerm());
-
   protected readonly hasValue = computed(() => {
     const value = this.combobox.value();
     if (this.combobox.multiple()) {
       return Array.isArray(value) && value.length > 0;
     }
+
     return value !== undefined && value !== null;
   });
 
-  protected readonly shouldShowClear = computed(() =>
-    this.showClear() && this.hasValue()
-  );
-
-  protected readonly shouldShowTrigger = computed(() =>
-    this.showTrigger() && !(this.shouldShowClear() && !this.combobox.multiple())
-  );
-
-  protected readonly computedClass = computed(() =>
-    cn('w-auto', this.class())
+  protected readonly isDisabled = computed(() => this.disabled() ?? this.combobox.disabled());
+  protected readonly shouldShowClear = computed(() => this.showClear() && this.hasValue());
+  protected readonly shouldShowTrigger = computed(
+    () => this.showTrigger() && !(this.shouldShowClear() && !this.combobox.multiple())
   );
 
   protected readonly inputValue = computed(() => {
-    const searchTerm = this.searchTerm();
+    const searchTerm = this.combobox.searchTerm();
     if (this.combobox.multiple()) {
       return searchTerm;
     }
+
     return searchTerm || this.combobox.getDisplayValue();
   });
 
+  protected readonly computedClass = computed(() => cn('w-auto', this.class()));
+  protected readonly groupClass = computed(() =>
+    cn(
+      'border-input bg-input/20 focus-within:border-ring focus-within:ring-ring/30 flex w-auto rounded-md border transition-colors focus-within:ring-2',
+      this.combobox.size() === 'sm' ? 'h-7' : 'h-8'
+    )
+  );
   protected readonly inputClass = computed(() =>
     cn(
-      'rounded-none border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0',
-      'flex-1 h-full px-2 py-0.5 text-xs/relaxed outline-none placeholder:text-muted-foreground',
+      'h-full flex-1 rounded-none border-0 bg-transparent px-2 py-0.5 text-xs/relaxed outline-none placeholder:text-muted-foreground focus-visible:ring-0',
+      this.combobox.size() === 'sm' ? 'text-xs/relaxed' : 'text-sm',
       'disabled:cursor-not-allowed disabled:opacity-50'
     )
   );
-
   protected readonly triggerButtonClass = computed(() =>
     cn(
-      'size-6 p-0 flex items-center justify-center rounded-sm hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors',
-      'data-pressed:bg-transparent',
-      'disabled:pointer-events-none disabled:opacity-50'
+      'hover:bg-muted inline-flex size-6 items-center justify-center rounded-sm transition-colors',
+      'disabled:pointer-events-none disabled:opacity-50 data-[pressed=true]:bg-transparent'
     )
   );
-
   protected readonly clearButtonClass = computed(() =>
     cn(
-      'size-6 p-0 flex items-center justify-center rounded-sm hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors',
+      'hover:bg-muted inline-flex size-6 items-center justify-center rounded-sm transition-colors',
       'disabled:pointer-events-none disabled:opacity-50'
     )
   );
@@ -605,24 +633,58 @@ export class ComboboxInputComponent {
   }
 
   protected onFocus(): void {
-    if (!this.combobox.disabled()) {
+    if (!this.isDisabled()) {
       this.combobox.openCombobox();
     }
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      this.combobox.closeCombobox();
-    } else if (event.key === 'Enter') {
-      // Selection is handled by item click
-    } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      if (!this.combobox.open()) {
-        this.combobox.openCombobox();
+    switch (event.key) {
+      case 'Escape':
+        this.combobox.closeCombobox();
+        return;
+      case 'ArrowDown': {
+        event.preventDefault();
+        if (!this.combobox.open()) {
+          this.combobox.openCombobox();
+        }
+        this.combobox.moveHighlighted(1);
+        return;
       }
+      case 'ArrowUp': {
+        event.preventDefault();
+        if (!this.combobox.open()) {
+          this.combobox.openCombobox();
+        }
+        this.combobox.moveHighlighted(-1);
+        return;
+      }
+      case 'Home':
+        if (this.combobox.open()) {
+          event.preventDefault();
+          this.combobox.highlightBoundary('first');
+        }
+        return;
+      case 'End':
+        if (this.combobox.open()) {
+          event.preventDefault();
+          this.combobox.highlightBoundary('last');
+        }
+        return;
+      case 'Enter':
+        if (this.combobox.open()) {
+          event.preventDefault();
+          this.combobox.selectHighlighted();
+        }
+        return;
+      default:
+        return;
     }
   }
 
-  protected onTriggerClick(): void {
+  protected onTriggerClick(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
     this.combobox.toggleCombobox();
   }
 
@@ -634,52 +696,41 @@ export class ComboboxInputComponent {
   }
 }
 
-// ============================================================================
-// Combobox Chips Component (for multiple selection)
-// ============================================================================
-
-/**
- * Combobox Chips Component
- * Container for chips in multiple selection mode
- */
 @Component({
-  selector: 'app-combobox-chips',
+  selector: 'argusx-combobox-chips',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"combobox-chips"',
+    '[attr.data-size]': 'combobox.size()',
+    '[attr.data-variant]': 'combobox.variant()',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxChipsComponent {
+export class ArgusxComboboxChipsComponent {
+  private readonly combobox = inject<ArgusxComboboxRootToken>(ArgusxComboboxRootToken);
+
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
     cn(
-      'bg-input/20 dark:bg-input/30 border-input focus-within:border-ring focus-within:ring-ring/30 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive dark:has-aria-invalid:border-destructive/50 flex min-h-7 flex-wrap items-center gap-1 rounded-md border bg-clip-padding px-2 py-0.5 text-xs/relaxed transition-colors focus-within:ring-2 has-aria-invalid:ring-2 has-data-[slot=combobox-chip]:px-1',
+      'border-input bg-background focus-within:border-ring focus-within:ring-ring/30 flex min-h-8 flex-wrap items-center gap-1.5 rounded-md border px-2 py-1 transition-colors focus-within:ring-2',
+      this.combobox.size() === 'sm' ? 'text-xs/relaxed' : 'text-sm',
       this.class()
     )
   );
 }
 
-// ============================================================================
-// Combobox Chip Component
-// ============================================================================
-
-/**
- * Combobox Chip Component
- * Individual chip for selected item in multiple selection
- */
 @Component({
-  selector: 'app-combobox-chip',
+  selector: 'argusx-combobox-chip',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <ng-content />
     @if (showRemove()) {
       <button
         type="button"
-        class="-ml-1 opacity-50 hover:opacity-100 size-4 p-0 flex items-center justify-center"
+        class="-ml-1 inline-flex size-4 items-center justify-center opacity-50 transition-opacity hover:opacity-100"
         data-slot="combobox-chip-remove"
         (click)="onRemove($event)">
         <lucide-icon [img]="xIcon" class="pointer-events-none size-3" />
@@ -692,8 +743,8 @@ export class ComboboxChipsComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxChipComponent<T = unknown> {
-  readonly combobox = inject<ComboboxRootToken<T>>(ComboboxRootToken);
+export class ArgusxComboboxChipComponent<T = unknown> {
+  private readonly combobox = inject<ArgusxComboboxRootToken<T>>(ArgusxComboboxRootToken);
 
   readonly value = input.required<T>();
   readonly showRemove = input<boolean>(true);
@@ -703,35 +754,34 @@ export class ComboboxChipComponent<T = unknown> {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'bg-muted-foreground/10 text-foreground flex h-[calc(--spacing(4.75))] w-fit items-center justify-center gap-1 rounded-[calc(var(--radius-sm)-2px)] px-1.5 text-xs/relaxed font-medium whitespace-nowrap has-data-[slot=combobox-chip-remove]:pr-0 has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50',
+      'bg-muted text-foreground inline-flex h-5 items-center gap-1 rounded-sm px-1.5 text-xs font-medium whitespace-nowrap',
+      'has-data-[slot=combobox-chip-remove]:pr-0',
       this.class()
     )
   );
 
   protected onRemove(event: MouseEvent): void {
+    event.preventDefault();
     event.stopPropagation();
+
+    if (this.combobox.disabled()) {
+      return;
+    }
+
     this.combobox.deselectValue(this.value());
   }
 }
 
-// ============================================================================
-// Combobox Chips Input Component
-// ============================================================================
-
-/**
- * Combobox Chips Input Component
- * Input field inside chips container
- */
 @Component({
-  selector: 'app-combobox-chips-input',
+  selector: 'argusx-combobox-chips-input',
   imports: [CommonModule],
   template: `
     <input
       [class]="computedClass()"
       [type]="'text'"
       [placeholder]="placeholder()"
-      [disabled]="disabled()"
-      [value]="searchTerm()"
+      [disabled]="disabled() ?? combobox.disabled()"
+      [value]="combobox.searchTerm()"
       [attr.aria-expanded]="combobox.open()"
       [attr.aria-haspopup]="'listbox'"
       [attr.aria-autocomplete]="'list'"
@@ -748,24 +798,17 @@ export class ComboboxChipComponent<T = unknown> {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxChipsInputComponent {
-  readonly combobox = inject<ComboboxRootToken>(ComboboxRootToken);
+export class ArgusxComboboxChipsInputComponent {
+  protected readonly combobox = inject<ArgusxComboboxRootToken>(ArgusxComboboxRootToken);
 
   readonly placeholder = input<string>('');
-  readonly disabled = input<boolean>(false);
+  readonly disabled = input<boolean | null>(null);
   readonly class = input<string>('');
 
-  protected readonly searchTerm = computed(() => this.combobox.searchTerm());
-
-  protected readonly wrapperClass = computed(() =>
-    cn('min-w-16 flex-1', this.class())
-  );
-
+  protected readonly wrapperClass = computed(() => cn('min-w-16 flex-1', this.class()));
   protected readonly computedClass = computed(() =>
     cn(
-      'w-full h-full outline-none bg-transparent text-xs/relaxed',
-      'placeholder:text-muted-foreground',
-      'disabled:cursor-not-allowed disabled:opacity-50'
+      'w-full bg-transparent text-xs/relaxed outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50'
     )
   );
 
@@ -784,173 +827,244 @@ export class ComboboxChipsInputComponent {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      this.combobox.closeCombobox();
-    } else if (event.key === 'Backspace' && !this.combobox.searchTerm()) {
-      // Remove last selected item on backspace if input is empty
-      const currentValue = this.combobox.value();
-      if (Array.isArray(currentValue) && currentValue.length > 0) {
-        this.combobox.deselectValue(currentValue[currentValue.length - 1]);
+    switch (event.key) {
+      case 'Escape':
+        this.combobox.closeCombobox();
+        return;
+      case 'ArrowDown':
+        event.preventDefault();
+        this.combobox.openCombobox();
+        this.combobox.moveHighlighted(1);
+        return;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.combobox.openCombobox();
+        this.combobox.moveHighlighted(-1);
+        return;
+      case 'Home':
+        if (this.combobox.open()) {
+          event.preventDefault();
+          this.combobox.highlightBoundary('first');
+        }
+        return;
+      case 'End':
+        if (this.combobox.open()) {
+          event.preventDefault();
+          this.combobox.highlightBoundary('last');
+        }
+        return;
+      case 'Enter':
+        if (this.combobox.open()) {
+          event.preventDefault();
+          this.combobox.selectHighlighted();
+        }
+        return;
+      case 'Backspace': {
+        if (this.combobox.searchTerm()) {
+          return;
+        }
+
+        const currentValue = this.combobox.value();
+        if (Array.isArray(currentValue) && currentValue.length > 0) {
+          this.combobox.deselectValue(currentValue[currentValue.length - 1]);
+        }
+        return;
       }
+      default:
+        return;
     }
   }
 }
 
-// ============================================================================
-// Combobox Root Component
-// ============================================================================
+let argusxComboboxIdCounter = 0;
 
-let comboboxIdCounter = 0;
-
-/**
- * Combobox Root Component
- * Main container with CDK Overlay for positioning
- */
 @Component({
-  selector: 'app-combobox',
-  imports: [
-    CommonModule,
-    OverlayModule,
-  ],
+  selector: 'argusx-combobox',
+  imports: [CommonModule, OverlayModule],
   template: `
     <div class="inline-flex w-full">
-      <!-- Trigger element -->
       <div cdkOverlayOrigin #trigger="cdkOverlayOrigin" class="w-full">
-        <ng-content select="app-combobox-input, app-combobox-chips" />
+        <ng-content select="argusx-combobox-input, argusx-combobox-chips, argusx-combobox-trigger" />
       </div>
 
-      <!-- Dropdown content via CDK Overlay -->
       <ng-template
         cdkConnectedOverlay
-        [cdkConnectedOverlayOrigin]="trigger"
+        [cdkConnectedOverlayOrigin]="content()?.anchor() ?? trigger"
         [cdkConnectedOverlayOpen]="open()"
         [cdkConnectedOverlayPositions]="positions()"
-        [cdkConnectedOverlayWidth]="triggerWidth()"
+        [cdkConnectedOverlayWidth]="overlayWidth()"
         [cdkConnectedOverlayHasBackdrop]="false"
         (overlayOutsideClick)="onOutsideClick($event)"
         (detach)="closeCombobox()">
-        <div
-          [class]="contentClass()"
-          role="listbox"
-          [attr.data-state]="open() ? 'open' : 'closed'"
-          [attr.data-side]="side()"
-          (keydown)="onContentKeydown($event)">
-          <ng-content select="app-combobox-content, app-combobox-list, app-combobox-item, app-combobox-group, app-combobox-label, app-combobox-separator, app-combobox-empty" />
-        </div>
+        <ng-content select="argusx-combobox-content" />
       </ng-template>
     </div>
   `,
   host: {
     '[attr.data-slot]': '"combobox"',
+    '[attr.data-size]': 'size()',
+    '[attr.data-variant]': 'variant()',
     '[class]': 'class()',
   },
   providers: [
     {
-      provide: ComboboxRootToken,
-      useExisting: forwardRef(() => ComboboxComponent),
+      provide: ArgusxComboboxRootToken,
+      useExisting: forwardRef(() => ArgusxComboboxComponent),
     },
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ComboboxComponent),
+      useExisting: forwardRef(() => ArgusxComboboxComponent),
       multi: true,
     },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboboxComponent<T = unknown>
-  implements ComboboxRootToken<T>, ControlValueAccessor
+export class ArgusxComboboxComponent<T = unknown>
+  implements ArgusxComboboxRootToken<T>, ControlValueAccessor
 {
   readonly value = model<T | T[] | undefined>(undefined);
+  readonly open = model<boolean>(false);
   readonly multiple = input<boolean>(false);
-  readonly disabled = input<boolean>(false);
-  readonly placeholder = input<string>('Select an option');
-  readonly filterMode = input<boolean>(true);
-  readonly side = input<ComboboxSide>('bottom');
-  readonly sideOffset = input<number>(6);
-  readonly align = input<ComboboxAlign>('start');
-  readonly alignOffset = input<number>(0);
+  readonly autoHighlight = input<boolean>(false);
+  readonly disabledInput = input<boolean>(false, { alias: 'disabled' });
+  readonly variant = input<ArgusxComboboxVariant>('plain');
+  readonly size = input<ArgusxComboboxSize>('default');
   readonly class = input<string>('');
 
-  readonly valueChange = output<T | T[] | undefined>();
-
-  readonly open = signal<boolean>(false);
   readonly searchTerm = signal<string>('');
-  private readonly itemLabels = new Map<T, string>();
+  readonly highlightedValue = signal<T | undefined>(undefined);
+  readonly disabled = computed(() => this.disabledInput() || this.formDisabled());
 
-  readonly id = `combobox-${comboboxIdCounter++}`;
+  private readonly formDisabled = signal<boolean>(false);
+  private readonly itemLabels = new Map<T, string>();
+  private readonly itemRegistry = signal(new Map<number, ArgusxComboboxRegisteredItem<T>>());
+  private nextItemId = 0;
+
+  readonly id = `argusx-combobox-${argusxComboboxIdCounter++}`;
 
   protected readonly trigger = viewChild(CdkOverlayOrigin);
+  protected readonly content = contentChild(ArgusxComboboxContentComponent);
+
+  readonly hasVisibleItems = computed(() => {
+    for (const item of this.itemRegistry().values()) {
+      if (item.isVisible()) {
+        return true;
+      }
+    }
+
+    return false;
+  });
+  private readonly visibleEnabledItems = computed(() => {
+    const items: T[] = [];
+
+    for (const item of this.itemRegistry().values()) {
+      if (item.isVisible() && !item.disabled()) {
+        items.push(item.value());
+      }
+    }
+
+    return items;
+  });
 
   protected readonly positions = computed<ConnectedPosition[]>(() => {
-    const alignX = this.align() === 'start' ? 'start' : this.align() === 'end' ? 'end' : 'center';
+    const content = this.content();
+    const side = content?.side() ?? 'bottom';
+    const align = content?.align() ?? 'start';
+    const sideOffset = content?.sideOffset() ?? 6;
+    const alignOffset = content?.alignOffset() ?? 0;
+
+    const alignX: ConnectedPosition['originX'] =
+      align === 'center' ? 'center' : align === 'end' ? 'end' : 'start';
+
     const positions: ConnectedPosition[] = [];
 
-    if (this.side() === 'bottom') {
+    if (side === 'bottom') {
       positions.push({
         originX: alignX,
         originY: 'bottom',
         overlayX: alignX,
         overlayY: 'top',
-        offsetY: this.sideOffset(),
+        offsetY: sideOffset,
+        offsetX: alignOffset,
       });
     }
 
-    if (this.side() === 'top') {
+    if (side === 'top') {
       positions.push({
         originX: alignX,
         originY: 'top',
         overlayX: alignX,
         overlayY: 'bottom',
-        offsetY: -this.sideOffset(),
+        offsetY: -sideOffset,
+        offsetX: alignOffset,
       });
     }
 
-    // Fallback position
     positions.push({
       originX: alignX,
-      originY: this.side() === 'bottom' ? 'top' : 'bottom',
+      originY: side === 'bottom' ? 'top' : 'bottom',
       overlayX: alignX,
-      overlayY: this.side() === 'bottom' ? 'bottom' : 'top',
-      offsetY: this.side() === 'bottom' ? -this.sideOffset() : this.sideOffset(),
+      overlayY: side === 'bottom' ? 'bottom' : 'top',
+      offsetY: side === 'bottom' ? -sideOffset : sideOffset,
+      offsetX: alignOffset,
     });
 
     return positions;
   });
 
-  protected readonly contentClass = computed(() =>
-    cn(
-      'bg-popover text-popover-foreground ring-foreground/10 rounded-lg shadow-md ring-1 duration-100 z-50',
-      'data-[state=open]:animate-in data-[state=closed]:animate-out',
-      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-      'data-[side=bottom]:slide-in-from-top-2',
-      'data-[side=left]:slide-in-from-right-2',
-      'data-[side=right]:slide-in-from-left-2',
-      'data-[side=top]:slide-in-from-bottom-2',
-      'overflow-hidden',
-      'relative max-h-96',
-      'w-full'
-    )
-  );
-
-  protected readonly triggerWidth = computed(() => {
-    const triggerEl = this.trigger()?.elementRef?.nativeElement;
-    return triggerEl?.offsetWidth ?? 200;
+  protected readonly overlayWidth = computed(() => {
+    const anchor = this.content()?.anchor() ?? this.trigger();
+    const element = anchor?.elementRef.nativeElement;
+    return element?.offsetWidth ?? 220;
   });
 
+  private onChange: (value: T | T[] | undefined) => void = () => {};
+  private onTouched: () => void = () => {};
+
+  constructor() {
+    effect(() => {
+      this.onChange(this.value());
+    });
+
+    effect(() => {
+      if (!this.open() || !this.autoHighlight()) {
+        return;
+      }
+
+      this.searchTerm();
+      this.itemRegistry();
+      this.ensureHighlightedValue();
+    });
+  }
+
   openCombobox(): void {
-    if (!this.disabled()) {
-      this.open.set(true);
+    if (this.disabled()) {
+      return;
+    }
+
+    this.open.set(true);
+
+    if (this.autoHighlight()) {
+      this.ensureHighlightedValue();
     }
   }
 
   closeCombobox(): void {
+    if (!this.open()) {
+      return;
+    }
+
     this.open.set(false);
     this.searchTerm.set('');
+    this.highlightedValue.set(undefined);
+    this.onTouched();
   }
 
   toggleCombobox(): void {
-    if (this.disabled()) return;
+    if (this.disabled()) {
+      return;
+    }
+
     if (this.open()) {
       this.closeCombobox();
     } else {
@@ -963,15 +1077,8 @@ export class ComboboxComponent<T = unknown>
     if (this.multiple()) {
       return Array.isArray(currentValue) && currentValue.includes(itemValue);
     }
+
     return currentValue === itemValue;
-  }
-
-  registerItemLabel(itemValue: T, label: string): void {
-    this.itemLabels.set(itemValue, label);
-  }
-
-  getItemLabel(itemValue: T): string {
-    return this.itemLabels.get(itemValue) ?? String(itemValue);
   }
 
   selectValue(itemValue: T): void {
@@ -980,38 +1087,36 @@ export class ComboboxComponent<T = unknown>
       const currentArray = Array.isArray(currentValue) ? [...currentValue] : [];
       if (!currentArray.includes(itemValue)) {
         currentArray.push(itemValue);
+        this.value.set(currentArray as T[]);
       }
-      this.value.set(currentArray as T[]);
-      this.valueChange.emit(currentArray);
-    } else {
-      this.value.set(itemValue);
-      this.valueChange.emit(itemValue);
-      this.closeCombobox();
+      return;
     }
+
+    this.value.set(itemValue);
+    this.closeCombobox();
   }
 
   deselectValue(itemValue: T): void {
     if (this.multiple()) {
       const currentValue = this.value();
-      if (Array.isArray(currentValue)) {
-        const newArray = currentValue.filter((v) => v !== itemValue);
-        this.value.set(newArray as T[]);
-        this.valueChange.emit(newArray);
+      if (!Array.isArray(currentValue)) {
+        return;
       }
-    } else {
-      this.value.set(undefined);
-      this.valueChange.emit(undefined);
+
+      this.value.set(currentValue.filter((value) => value !== itemValue) as T[]);
+      return;
     }
+
+    this.value.set(undefined);
   }
 
   clearValue(): void {
     if (this.multiple()) {
       this.value.set([] as T[]);
-      this.valueChange.emit([]);
-    } else {
-      this.value.set(undefined);
-      this.valueChange.emit(undefined);
+      return;
     }
+
+    this.value.set(undefined);
   }
 
   getDisplayValue(): string {
@@ -1022,21 +1127,98 @@ export class ComboboxComponent<T = unknown>
       }
       return '';
     }
+
     if (currentValue !== undefined && currentValue !== null) {
       return this.getItemLabel(currentValue as T);
     }
+
     return '';
   }
 
-  protected onContentKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      this.closeCombobox();
+  setHighlightedValue(value: T | undefined): void {
+    this.highlightedValue.set(value);
+  }
+
+  moveHighlighted(direction: 1 | -1): void {
+    const items = this.visibleEnabledItems();
+    if (items.length === 0) {
+      this.highlightedValue.set(undefined);
+      return;
+    }
+
+    const currentIndex = items.findIndex((value) => Object.is(value, this.highlightedValue()));
+    const nextIndex =
+      currentIndex < 0
+        ? direction === 1
+          ? 0
+          : items.length - 1
+        : (currentIndex + direction + items.length) % items.length;
+
+    this.highlightedValue.set(items[nextIndex]);
+  }
+
+  highlightBoundary(position: 'first' | 'last'): void {
+    const items = this.visibleEnabledItems();
+    if (items.length === 0) {
+      this.highlightedValue.set(undefined);
+      return;
+    }
+
+    this.highlightedValue.set(position === 'first' ? items[0] : items[items.length - 1]);
+  }
+
+  selectHighlighted(): void {
+    const highlighted = this.highlightedValue();
+    if (highlighted === undefined) {
+      return;
+    }
+
+    if (this.isSelected(highlighted)) {
+      this.deselectValue(highlighted);
+    } else {
+      this.selectValue(highlighted);
     }
   }
 
-  // ControlValueAccessor implementation
-  private onChange: (value: T | T[] | undefined) => void = () => {};
-  private onTouched: () => void = () => {};
+  registerItemLabel(itemValue: T, label: string): void {
+    this.itemLabels.set(itemValue, label);
+  }
+
+  getItemLabel(itemValue: T): string {
+    return this.itemLabels.get(itemValue) ?? String(itemValue);
+  }
+
+  registerItem(item: ArgusxComboboxRegisteredItem<T>): number {
+    const id = this.nextItemId++;
+    this.itemRegistry.update((current) => {
+      const next = new Map(current);
+      next.set(id, item);
+      return next;
+    });
+    return id;
+  }
+
+  unregisterItem(id: number): void {
+    this.itemRegistry.update((current) => {
+      const next = new Map(current);
+      next.delete(id);
+      return next;
+    });
+  }
+
+  private ensureHighlightedValue(): void {
+    const items = this.visibleEnabledItems();
+    if (items.length === 0) {
+      this.highlightedValue.set(undefined);
+      return;
+    }
+
+    const highlighted = this.highlightedValue();
+    const highlightedExists = items.some((value) => Object.is(value, highlighted));
+    if (!highlightedExists) {
+      this.highlightedValue.set(items[0]);
+    }
+  }
 
   writeValue(value: T | T[] | undefined): void {
     this.value.set(value);
@@ -1044,50 +1226,41 @@ export class ComboboxComponent<T = unknown>
 
   registerOnChange(fn: (value: T | T[] | undefined) => void): void {
     this.onChange = fn;
-    // Subscribe to value changes
-    effect(() => {
-      fn(this.value());
-    });
   }
 
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
-  // For form integration - use a signal to track disabled state
-  private _disabled = signal<boolean>(false);
-
   setDisabledState(isDisabled: boolean): void {
-    this._disabled.set(isDisabled);
+    this.formDisabled.set(isDisabled);
   }
 
   protected onOutsideClick(event: MouseEvent): void {
-    const triggerEl = this.trigger()?.elementRef?.nativeElement;
-    if (triggerEl && !triggerEl.contains(event.target as Node)) {
-      this.closeCombobox();
+    const triggerElement = this.trigger()?.elementRef.nativeElement;
+    if (triggerElement?.contains(event.target as Node)) {
+      return;
     }
+
+    this.closeCombobox();
   }
 }
 
-// ============================================================================
-// Exports
-// ============================================================================
-
-export const ComboboxComponents = [
-  ComboboxComponent,
-  ComboboxValueComponent,
-  ComboboxTriggerComponent,
-  ComboboxClearComponent,
-  ComboboxInputComponent,
-  ComboboxContentComponent,
-  ComboboxListComponent,
-  ComboboxItemComponent,
-  ComboboxGroupComponent,
-  ComboboxLabelComponent,
-  ComboboxCollectionComponent,
-  ComboboxEmptyComponent,
-  ComboboxSeparatorComponent,
-  ComboboxChipsComponent,
-  ComboboxChipComponent,
-  ComboboxChipsInputComponent,
-];
+export const ArgusxComboboxComponents = [
+  ArgusxComboboxComponent,
+  ArgusxComboboxValueComponent,
+  ArgusxComboboxTriggerComponent,
+  ArgusxComboboxClearComponent,
+  ArgusxComboboxInputComponent,
+  ArgusxComboboxContentComponent,
+  ArgusxComboboxListComponent,
+  ArgusxComboboxItemComponent,
+  ArgusxComboboxGroupComponent,
+  ArgusxComboboxLabelComponent,
+  ArgusxComboboxCollectionComponent,
+  ArgusxComboboxEmptyComponent,
+  ArgusxComboboxSeparatorComponent,
+  ArgusxComboboxChipsComponent,
+  ArgusxComboboxChipComponent,
+  ArgusxComboboxChipsInputComponent,
+] as const;
