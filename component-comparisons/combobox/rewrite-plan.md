@@ -33,6 +33,7 @@
 - [x] default variant/style is plain
 - [x] avoid heavy decoration in default state
 - [x] verify token usage and no hardcoded brand colors in component internals
+- [x] reuse `menu-core` variants for combobox popup/list semantics (`content/item/label/separator`)
 
 ## File-level Plan
 1. `src/app/shared/ui/combobox/combobox.component.ts`

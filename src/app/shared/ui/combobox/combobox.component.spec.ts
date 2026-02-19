@@ -98,8 +98,16 @@ describe('ArgusxComboboxComponent', () => {
   it('tracks visible item registry state for empty rendering logic', () => {
     expect(component.hasVisibleItems()).toBe(false);
 
-    const first = component.registerItem(() => false);
-    const second = component.registerItem(() => true);
+    const first = component.registerItem({
+      value: () => 'first',
+      isVisible: () => false,
+      disabled: () => false,
+    });
+    const second = component.registerItem({
+      value: () => 'second',
+      isVisible: () => true,
+      disabled: () => false,
+    });
     expect(component.hasVisibleItems()).toBe(true);
 
     component.unregisterItem(second);
@@ -107,6 +115,50 @@ describe('ArgusxComboboxComponent', () => {
 
     component.unregisterItem(first);
     expect(component.hasVisibleItems()).toBe(false);
+  });
+
+  it('auto highlights the first visible enabled item when opened', () => {
+    (component as { autoHighlight: () => boolean }).autoHighlight = () => true;
+
+    component.registerItem({
+      value: () => 'disabled',
+      isVisible: () => true,
+      disabled: () => true,
+    });
+    component.registerItem({
+      value: () => 'next.js',
+      isVisible: () => true,
+      disabled: () => false,
+    });
+
+    component.openCombobox();
+
+    expect(component.highlightedValue()).toBe('next.js');
+  });
+
+  it('moves highlighted item with wrap-around navigation', () => {
+    component.registerItem({
+      value: () => 'next.js',
+      isVisible: () => true,
+      disabled: () => false,
+    });
+    component.registerItem({
+      value: () => 'sveltekit',
+      isVisible: () => true,
+      disabled: () => false,
+    });
+
+    component.moveHighlighted(1);
+    expect(component.highlightedValue()).toBe('next.js');
+
+    component.moveHighlighted(1);
+    expect(component.highlightedValue()).toBe('sveltekit');
+
+    component.moveHighlighted(1);
+    expect(component.highlightedValue()).toBe('next.js');
+
+    component.moveHighlighted(-1);
+    expect(component.highlightedValue()).toBe('sveltekit');
   });
 
   it('selects highlighted value when available', () => {

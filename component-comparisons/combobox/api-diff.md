@@ -11,6 +11,7 @@
 | empty-state visibility | command empty handles internally | local empty always rendered | empty shown only when list empty | empty hidden when visible items exist | yes | adopt-shadcn behavior | plain text-only empty state | S6/L1 |
 | chips API | no chips primitives | chips/chip/chips-input present | chips/chip/chips-input present | kept as first-class slots | no | adopt-shadcn main path (already aligned) | compact chip styling | S7/L4 |
 | controlled open state | internal signal via popover | internal-only signal | primitive supports controlled interaction patterns | `open` upgraded to model (`[(open)]`) | no | extend-argusx | plain behavior, no visual divergence | Z3/S1 |
+| auto-highlight behavior | command-like first match focus | none | showcased in combobox-example | `autoHighlight` input on root | no | extend-argusx | highlighted row stays plain (accent only) | S2/L3 |
 | root `variant` / `size` | `buttonVariant/zWidth` | none | no combobox variant prop | `variant="plain"` default + `size` | no | extend-argusx | explicit plain default | Z2/L2 |
 | filtering source of truth | command input internal | searchTerm on root/input | primitive input/list filtering | root searchTerm + item visibility registration | no | extend-argusx | plain text filtering | Z3/S4/L3 |
 | legacy width/button APIs | `zWidth`, `buttonVariant` | N/A | N/A | removed | yes | adopt-shadcn-compatible API surface (drop zard names) | rely on neutral tokens/classes | Z2/U1 |
@@ -26,6 +27,7 @@
 - [x] **`variant`**: added `variant` with default `plain` to enforce explicit plain style baseline without redefining shadcn semantics.
 - [x] **`size`**: added compact `sm/default` sizing layer for input/chips/layout while keeping shadcn slot behavior unchanged.
 - [x] **Controlled open model**: exposed `open` as model (`[(open)]`) for preview and app-level orchestration.
+- [x] **`autoHighlight`**: added root-level opt-in to highlight first visible enabled item for keyboard-first flows.
 - [x] **`fixedHeight` on list**: retained local ergonomics extension for predictable long-list viewport in plain style demos.
 
 ## Missing APIs
@@ -43,6 +45,7 @@
   - slots: `argusx-combobox-{value,trigger,clear,input,content,list,item,group,label,collection,empty,separator,chips,chip,chips-input}`
 - inputs:
   - root: `value`(model), `open`(model), `multiple`, `disabled`, `variant`(default `plain`), `size`(default `default`), `class`
+  - root (extension): `autoHighlight`
   - input: `placeholder`, `disabled`, `showTrigger`, `showClear`, `class`
   - content: `side`, `sideOffset`, `align`, `alignOffset`, `anchor`, `class`
   - list: `fixedHeight`, `class`

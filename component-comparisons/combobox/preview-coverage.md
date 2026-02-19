@@ -1,22 +1,27 @@
 # combobox Preview Coverage
 
 ## Required Scenarios
-- [x] all conflict APIs with shadcn-aligned behavior  
-  scenario: `shadcn Baseline (Single Select)` uses root/input/content/list/item/empty/group and clear/trigger toggles.
-- [x] all non-conflict extension APIs in plain style  
-  scenario: `ArgusX Plain Extension (Multiple + Chips + size="sm")` uses `multiple`, chips API, `size="sm"`.
-- [x] all key state combinations  
-  scenarios: disabled root, disabled option, controlled open state, selected/cleared values.
-- [x] shadcn preview parity examples  
-  parity mapping: single select with searchable input + clear/trigger, grouped list, item indicator.
-- [x] one complex combined scenario  
-  scenario: controlled `[(open)]`, `size="sm"`, `showTrigger=false`, `showClear=true`, top-aligned content, separator + grouped actions.
+- [x] all `combobox-example` showcase scenarios from create preview
+  list:
+  `Basic`, `Disabled`, `Invalid`, `Framework`, `With Clear Button`, `With Auto Highlight`,
+  `With Groups`, `With Groups and Separator`, `Large List (100 items)`, `With Icon Addon`,
+  `Combobox in Popup`, `Form with Combobox`, `Combobox Multiple`,
+  `Combobox Multiple Disabled`, `Combobox Multiple Invalid`, `Frameworks`,
+  `Combobox Multiple (No Remove)`, `With Custom Item Rendering`,
+  `Combobox in Dialog`, `With Other Inputs`, `Disabled Items`.
+- [x] menu-core based visual contract
+  applied to combobox content/item/label/separator via shared menu-core variants.
+- [x] ArgusX extension parity kept
+  retained multiple+chips path in plain style without compatibility aliases.
 
 ## Local Preview Routes
 - main: `/preview?component=combobox`
-- reference: `https://ui.shadcn.com/preview/radix/combobox-example`
+- reference:
+  `https://ui.shadcn.com/create?base=radix&style=mira&baseColor=neutral&theme=cyan&iconLibrary=lucide&font=nunito-sans&menuAccent=bold&menuColor=default&radius=medium&template=vite&rtl=false&item=combobox-example`
+  and
+  `https://ui.shadcn.com/preview/radix/combobox-example?item=combobox-example&style=mira&theme=cyan&font=nunito-sans&menuAccent=bold&radius=medium&template=vite`
 
 ## Verification Notes
 - build: `ng build` ✅ (2026-02-19)
-- tests: no component spec exists under `src/app/shared/ui/combobox/**/*.spec.ts`, so no targeted spec run
-- manual check: preview scenarios are wired in `src/app/preview/combobox-preview.component.ts`; browser walkthrough not executed in this run
+- tests: `npx vitest run src/app/shared/ui/combobox/combobox.component.spec.ts` ✅ (12 passed)
+- manual check: pending manual QA in `/preview?component=combobox`

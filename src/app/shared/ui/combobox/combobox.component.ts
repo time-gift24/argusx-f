@@ -21,6 +21,12 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CheckIcon, ChevronDownIcon, LucideAngularModule, XIcon } from 'lucide-angular';
 
 import { cn } from '../../utils/cn';
+import {
+  argusxMenuContentVariants,
+  argusxMenuItemVariants,
+  argusxMenuLabelVariants,
+  argusxMenuSeparatorVariants,
+} from '../menu-core/menu.variants';
 
 export type ArgusxComboboxAlign = 'start' | 'center' | 'end';
 export type ArgusxComboboxSide = 'top' | 'bottom';
@@ -31,6 +37,12 @@ export interface ArgusxComboboxItemData<T = unknown> {
   value: T;
   label: string;
   disabled?: boolean;
+}
+
+export interface ArgusxComboboxRegisteredItem<T = unknown> {
+  value: () => T;
+  isVisible: () => boolean;
+  disabled: () => boolean;
 }
 
 export abstract class ArgusxComboboxRootToken<T = unknown> {
@@ -53,9 +65,11 @@ export abstract class ArgusxComboboxRootToken<T = unknown> {
   abstract getDisplayValue: () => string;
   abstract setHighlightedValue: (value: T | undefined) => void;
   abstract selectHighlighted: () => void;
+  abstract moveHighlighted: (direction: 1 | -1) => void;
+  abstract highlightBoundary: (position: 'first' | 'last') => void;
   abstract registerItemLabel: (value: T, label: string) => void;
   abstract getItemLabel: (value: T) => string;
-  abstract registerItem: (isVisible: () => boolean) => number;
+  abstract registerItem: (item: ArgusxComboboxRegisteredItem<T>) => number;
   abstract unregisterItem: (id: number) => void;
 }
 
@@ -121,7 +135,8 @@ export class ArgusxComboboxItemComponent<T = unknown> implements OnInit, OnDestr
 
   protected readonly computedClass = computed(() =>
     cn(
-      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-xs/relaxed outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
+      argusxMenuItemVariants({ inset: false, variant: 'default' }),
+      'data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground py-1.5 pr-8 pl-2 text-xs/relaxed',
       this.class()
     )
   );
@@ -130,7 +145,11 @@ export class ArgusxComboboxItemComponent<T = unknown> implements OnInit, OnDestr
   private labelSyncEffect: EffectRef | null = null;
 
   ngOnInit(): void {
-    this.itemId = this.combobox.registerItem(() => this.isVisible());
+    this.itemId = this.combobox.registerItem({
+      value: () => this.value(),
+      isVisible: () => this.isVisible(),
+      disabled: () => this.disabled(),
+    });
     this.labelSyncEffect = effect(
       () => {
         this.combobox.registerItemLabel(this.value(), this.resolvedLabel());
@@ -198,7 +217,7 @@ export class ArgusxComboboxItemComponent<T = unknown> implements OnInit, OnDestr
 export class ArgusxComboboxGroupComponent {
   readonly class = input<string>('');
 
-  protected readonly computedClass = computed(() => cn('p-1', this.class()));
+  protected readonly computedClass = computed(() => cn('block', this.class()));
 }
 
 @Component({
@@ -216,7 +235,7 @@ export class ArgusxComboboxLabelComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('text-muted-foreground px-2 py-1.5 text-xs', this.class())
+    cn(argusxMenuLabelVariants({ inset: false }), 'text-muted-foreground px-2 py-1.5 text-xs font-normal', this.class())
   );
 }
 
@@ -234,7 +253,7 @@ export class ArgusxComboboxLabelComponent {
 export class ArgusxComboboxSeparatorComponent {
   readonly class = input<string>('');
 
-  protected readonly computedClass = computed(() => cn('bg-border -mx-1 my-1 h-px', this.class()));
+  protected readonly computedClass = computed(() => cn(argusxMenuSeparatorVariants(), this.class()));
 }
 
 @Component({
@@ -325,12 +344,25 @@ export class ArgusxComboboxTriggerComponent {
   );
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp' && event.key !== 'Enter' && event.key !== ' ') {
-      return;
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        this.combobox.openCombobox();
+        this.combobox.moveHighlighted(1);
+        return;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.combobox.openCombobox();
+        this.combobox.moveHighlighted(-1);
+        return;
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        this.combobox.openCombobox();
+        return;
+      default:
+        return;
     }
-
-    event.preventDefault();
-    this.combobox.openCombobox();
   }
 
   protected onClick(): void {
@@ -401,7 +433,7 @@ export class ArgusxComboboxListComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'max-h-[min(calc(--spacing(96)---spacing(9)),calc(100vh---spacing(9)))] scroll-py-1 overflow-y-auto p-1',
+      'block max-h-[min(24rem,calc(100vh-2.25rem))] scroll-py-1 overflow-y-auto p-1 data-[empty]:p-0',
       this.fixedHeight() && 'h-72',
       this.class()
     )
@@ -436,7 +468,8 @@ export class ArgusxComboboxContentComponent {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 relative max-h-96 min-w-52 overflow-hidden rounded-md shadow-sm ring-1 duration-100',
+      argusxMenuContentVariants(),
+      'ring-foreground/10 relative min-w-52 overflow-hidden border-0 p-0 shadow-sm ring-1',
       this.class()
     )
   );
@@ -446,6 +479,22 @@ export class ArgusxComboboxContentComponent {
       case 'Escape':
         event.preventDefault();
         this.combobox.closeCombobox();
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        this.combobox.moveHighlighted(1);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.combobox.moveHighlighted(-1);
+        break;
+      case 'Home':
+        event.preventDefault();
+        this.combobox.highlightBoundary('first');
+        break;
+      case 'End':
+        event.preventDefault();
+        this.combobox.highlightBoundary('last');
         break;
       case 'Enter':
         this.combobox.selectHighlighted();
@@ -594,14 +643,37 @@ export class ArgusxComboboxInputComponent {
       case 'Escape':
         this.combobox.closeCombobox();
         return;
-      case 'ArrowDown':
-      case 'ArrowUp':
+      case 'ArrowDown': {
+        event.preventDefault();
         if (!this.combobox.open()) {
           this.combobox.openCombobox();
+        }
+        this.combobox.moveHighlighted(1);
+        return;
+      }
+      case 'ArrowUp': {
+        event.preventDefault();
+        if (!this.combobox.open()) {
+          this.combobox.openCombobox();
+        }
+        this.combobox.moveHighlighted(-1);
+        return;
+      }
+      case 'Home':
+        if (this.combobox.open()) {
+          event.preventDefault();
+          this.combobox.highlightBoundary('first');
+        }
+        return;
+      case 'End':
+        if (this.combobox.open()) {
+          event.preventDefault();
+          this.combobox.highlightBoundary('last');
         }
         return;
       case 'Enter':
         if (this.combobox.open()) {
+          event.preventDefault();
           this.combobox.selectHighlighted();
         }
         return;
@@ -691,6 +763,11 @@ export class ArgusxComboboxChipComponent<T = unknown> {
   protected onRemove(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
+
+    if (this.combobox.disabled()) {
+      return;
+    }
+
     this.combobox.deselectValue(this.value());
   }
 }
@@ -750,16 +827,51 @@ export class ArgusxComboboxChipsInputComponent {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      this.combobox.closeCombobox();
-      return;
-    }
+    switch (event.key) {
+      case 'Escape':
+        this.combobox.closeCombobox();
+        return;
+      case 'ArrowDown':
+        event.preventDefault();
+        this.combobox.openCombobox();
+        this.combobox.moveHighlighted(1);
+        return;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.combobox.openCombobox();
+        this.combobox.moveHighlighted(-1);
+        return;
+      case 'Home':
+        if (this.combobox.open()) {
+          event.preventDefault();
+          this.combobox.highlightBoundary('first');
+        }
+        return;
+      case 'End':
+        if (this.combobox.open()) {
+          event.preventDefault();
+          this.combobox.highlightBoundary('last');
+        }
+        return;
+      case 'Enter':
+        if (this.combobox.open()) {
+          event.preventDefault();
+          this.combobox.selectHighlighted();
+        }
+        return;
+      case 'Backspace': {
+        if (this.combobox.searchTerm()) {
+          return;
+        }
 
-    if (event.key === 'Backspace' && !this.combobox.searchTerm()) {
-      const currentValue = this.combobox.value();
-      if (Array.isArray(currentValue) && currentValue.length > 0) {
-        this.combobox.deselectValue(currentValue[currentValue.length - 1]);
+        const currentValue = this.combobox.value();
+        if (Array.isArray(currentValue) && currentValue.length > 0) {
+          this.combobox.deselectValue(currentValue[currentValue.length - 1]);
+        }
+        return;
       }
+      default:
+        return;
     }
   }
 }
@@ -813,6 +925,7 @@ export class ArgusxComboboxComponent<T = unknown>
   readonly value = model<T | T[] | undefined>(undefined);
   readonly open = model<boolean>(false);
   readonly multiple = input<boolean>(false);
+  readonly autoHighlight = input<boolean>(false);
   readonly disabledInput = input<boolean>(false, { alias: 'disabled' });
   readonly variant = input<ArgusxComboboxVariant>('plain');
   readonly size = input<ArgusxComboboxSize>('default');
@@ -824,7 +937,7 @@ export class ArgusxComboboxComponent<T = unknown>
 
   private readonly formDisabled = signal<boolean>(false);
   private readonly itemLabels = new Map<T, string>();
-  private readonly itemVisibilityMap = signal(new Map<number, () => boolean>());
+  private readonly itemRegistry = signal(new Map<number, ArgusxComboboxRegisteredItem<T>>());
   private nextItemId = 0;
 
   readonly id = `argusx-combobox-${argusxComboboxIdCounter++}`;
@@ -833,18 +946,24 @@ export class ArgusxComboboxComponent<T = unknown>
   protected readonly content = contentChild(ArgusxComboboxContentComponent);
 
   readonly hasVisibleItems = computed(() => {
-    const visibilityMap = this.itemVisibilityMap();
-    if (visibilityMap.size === 0) {
-      return false;
-    }
-
-    for (const isVisible of visibilityMap.values()) {
-      if (isVisible()) {
+    for (const item of this.itemRegistry().values()) {
+      if (item.isVisible()) {
         return true;
       }
     }
 
     return false;
+  });
+  private readonly visibleEnabledItems = computed(() => {
+    const items: T[] = [];
+
+    for (const item of this.itemRegistry().values()) {
+      if (item.isVisible() && !item.disabled()) {
+        items.push(item.value());
+      }
+    }
+
+    return items;
   });
 
   protected readonly positions = computed<ConnectedPosition[]>(() => {
@@ -906,6 +1025,16 @@ export class ArgusxComboboxComponent<T = unknown>
     effect(() => {
       this.onChange(this.value());
     });
+
+    effect(() => {
+      if (!this.open() || !this.autoHighlight()) {
+        return;
+      }
+
+      this.searchTerm();
+      this.itemRegistry();
+      this.ensureHighlightedValue();
+    });
   }
 
   openCombobox(): void {
@@ -914,6 +1043,10 @@ export class ArgusxComboboxComponent<T = unknown>
     }
 
     this.open.set(true);
+
+    if (this.autoHighlight()) {
+      this.ensureHighlightedValue();
+    }
   }
 
   closeCombobox(): void {
@@ -1006,6 +1139,34 @@ export class ArgusxComboboxComponent<T = unknown>
     this.highlightedValue.set(value);
   }
 
+  moveHighlighted(direction: 1 | -1): void {
+    const items = this.visibleEnabledItems();
+    if (items.length === 0) {
+      this.highlightedValue.set(undefined);
+      return;
+    }
+
+    const currentIndex = items.findIndex((value) => Object.is(value, this.highlightedValue()));
+    const nextIndex =
+      currentIndex < 0
+        ? direction === 1
+          ? 0
+          : items.length - 1
+        : (currentIndex + direction + items.length) % items.length;
+
+    this.highlightedValue.set(items[nextIndex]);
+  }
+
+  highlightBoundary(position: 'first' | 'last'): void {
+    const items = this.visibleEnabledItems();
+    if (items.length === 0) {
+      this.highlightedValue.set(undefined);
+      return;
+    }
+
+    this.highlightedValue.set(position === 'first' ? items[0] : items[items.length - 1]);
+  }
+
   selectHighlighted(): void {
     const highlighted = this.highlightedValue();
     if (highlighted === undefined) {
@@ -1027,22 +1188,36 @@ export class ArgusxComboboxComponent<T = unknown>
     return this.itemLabels.get(itemValue) ?? String(itemValue);
   }
 
-  registerItem(isVisible: () => boolean): number {
+  registerItem(item: ArgusxComboboxRegisteredItem<T>): number {
     const id = this.nextItemId++;
-    this.itemVisibilityMap.update((current) => {
+    this.itemRegistry.update((current) => {
       const next = new Map(current);
-      next.set(id, isVisible);
+      next.set(id, item);
       return next;
     });
     return id;
   }
 
   unregisterItem(id: number): void {
-    this.itemVisibilityMap.update((current) => {
+    this.itemRegistry.update((current) => {
       const next = new Map(current);
       next.delete(id);
       return next;
     });
+  }
+
+  private ensureHighlightedValue(): void {
+    const items = this.visibleEnabledItems();
+    if (items.length === 0) {
+      this.highlightedValue.set(undefined);
+      return;
+    }
+
+    const highlighted = this.highlightedValue();
+    const highlightedExists = items.some((value) => Object.is(value, highlighted));
+    if (!highlightedExists) {
+      this.highlightedValue.set(items[0]);
+    }
   }
 
   writeValue(value: T | T[] | undefined): void {
