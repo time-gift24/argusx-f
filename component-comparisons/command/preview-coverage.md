@@ -55,11 +55,10 @@
 ## Verification Notes
 
 ### Build Status
-- [ ] Build passed
-- [ ] Build failed (待验证)
+- [x] Build passed
 
 ### Test Status
-- [ ] No spec file found - no tests to run
+- [x] No spec file found - no tests to run
 
 ### Manual Check
 - [ ] 打开 `/preview?component=command`
