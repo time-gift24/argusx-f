@@ -26,7 +26,7 @@ interface TooltipPayload {
  * Use this for custom tooltip rendering.
  */
 @Component({
-  selector: 'app-chart-tooltip',
+  selector: 'argusx-chart-tooltip',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
   template: `

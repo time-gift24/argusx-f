@@ -14,7 +14,7 @@ import { ChartConfig, ChartLegendPosition } from './chart.types';
  * Use this for custom legend rendering.
  */
 @Component({
-  selector: 'app-chart-legend',
+  selector: 'argusx-chart-legend',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div [class]="containerClass()">
