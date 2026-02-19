@@ -20,18 +20,18 @@ const toggleGroupVariants = cva(
   {
     variants: {
       variant: {
-        default: '',
+        plain: '',
         outline: '',
       },
       size: {
-        default: '',
         sm: '',
+        md: '',
         lg: '',
       },
     },
     defaultVariants: {
-      variant: 'default',
-      size: 'default',
+      variant: 'plain',
+      size: 'md',
     },
   }
 );
@@ -65,8 +65,8 @@ type ToggleGroupVariants = VariantProps<typeof toggleGroupVariants>;
   },
 })
 export class ToggleGroupComponent {
-  readonly variant = input<ToggleVariant>('default');
-  readonly size = input<ToggleSize>('default');
+  readonly variant = input<ToggleVariant>('plain');
+  readonly size = input<ToggleSize>('md');
   readonly class = input<string>('');
   readonly type = input<ToggleGroupType>('single');
   readonly orientation = input<ToggleGroupOrientation>('horizontal');
@@ -125,8 +125,8 @@ export class ToggleGroupComponent {
 export class ToggleGroupItemComponent {
   readonly value = input.required<string>();
   readonly group = input.required<ToggleGroupComponent>();
-  readonly variant = input<ToggleVariant>('default');
-  readonly size = input<ToggleSize>('default');
+  readonly variant = input<ToggleVariant>('plain');
+  readonly size = input<ToggleSize>('md');
   readonly class = input<string>('');
 
   protected readonly isPressed = computed(() => {
@@ -140,8 +140,8 @@ export class ToggleGroupItemComponent {
   protected readonly computedClass = computed(() => {
     const group = this.group();
     const baseClass = toggleVariants({
-      variant: group.variant() !== 'default' ? group.variant() : this.variant(),
-      size: group.size() !== 'default' ? group.size() : this.size(),
+      variant: group.variant() !== 'plain' ? group.variant() : this.variant(),
+      size: group.size() !== 'md' ? group.size() : this.size(),
     });
 
     return cn(
