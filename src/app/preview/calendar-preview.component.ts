@@ -5,9 +5,9 @@ import { ArgusxButtonDirective } from '../shared/ui/button';
 import { CalendarComponent } from '../shared/ui/calendar/calendar.component';
 import { ArgusxCardComponent } from '../shared/ui/card';
 import {
-  PopoverComponent,
-  PopoverContentComponent,
-  PopoverTriggerDirective,
+  ArgusxPopoverComponent,
+  ArgusxPopoverContentComponent,
+  ArgusxPopoverTriggerDirective,
 } from '../shared/ui/popover';
 
 @Component({
@@ -16,9 +16,9 @@ import {
   imports: [
     CalendarComponent,
     ArgusxButtonDirective,
-    PopoverComponent,
-    PopoverContentComponent,
-    PopoverTriggerDirective,
+    ArgusxPopoverComponent,
+    ArgusxPopoverContentComponent,
+    ArgusxPopoverTriggerDirective,
     ArgusxCardComponent,
     LucideAngularModule,
   ],
@@ -38,7 +38,7 @@ import {
           </div>
           <div class="rounded-lg border border-border bg-card/70 px-3 py-2 text-xs text-muted-foreground">
             Built with <span class="font-medium text-foreground">app-calendar</span>,
-            <span class="font-medium text-foreground">app-popover</span>, and
+            <span class="font-medium text-foreground">argusx-popover</span>, and
             <span class="font-medium text-foreground">argusx-card</span>
           </div>
         </div>
@@ -112,9 +112,9 @@ import {
             >
               <div class="space-y-4">
                 <div class="rounded-lg border border-dashed border-border p-4">
-                  <app-popover [(open)]="popoverOpen">
+                  <argusx-popover [(open)]="popoverOpen">
                     <button
-                      appPopoverTrigger
+                      argusxPopoverTrigger
                       argusx-button
                       variant="outline"
                       class="w-[220px] justify-start font-normal"
@@ -122,14 +122,14 @@ import {
                       <lucide-icon [img]="calendarIcon" class="mr-1.5 size-3.5"></lucide-icon>
                       {{ popoverDate() ? formatDate(popoverDate()) : 'Pick a date' }}
                     </button>
-                    <app-popover-content class="w-auto p-2">
+                    <argusx-popover-content class="w-auto p-2">
                       <app-calendar
                         [showMonthYearSelectors]="true"
                         [(model)]="popoverDate"
                         (dateSelect)="popoverOpen.set(false)"
                       />
-                    </app-popover-content>
-                  </app-popover>
+                    </argusx-popover-content>
+                  </argusx-popover>
                 </div>
               </div>
               <div card-footer class="w-full items-start text-xs text-muted-foreground">

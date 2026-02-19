@@ -24,6 +24,7 @@ import { cn } from '../../utils/cn';
 
 export type PopoverAlign = 'start' | 'center' | 'end';
 export type PopoverSide = 'top' | 'right' | 'bottom' | 'left';
+export type PopoverVariant = 'plain' | 'glass';
 
 // ============================================================================
 // Popover Root
@@ -37,25 +38,25 @@ let popoverIdCounter = 0;
  *
  * @example
  * ```html
- * <app-popover [open]="open()" (openChange)="open.set($event)">
- *   <button appPopoverTrigger>Open</button>
- *   <app-popover-content>
- *     <app-popover-header>
- *       <app-popover-title>Title</app-popover-title>
- *       <app-popover-description>Description</app-popover-description>
- *     </app-popover-header>
- *   </app-popover-content>
- * </app-popover>
+ * <argusx-popover [open]="open()" (openChange)="open.set($event)">
+ *   <button argusxPopoverTrigger>Open</button>
+ *   <argusx-popover-content>
+ *     <argusx-popover-header>
+ *       <argusx-popover-title>Title</argusx-popover-title>
+ *       <argusx-popover-description>Description</argusx-popover-description>
+ *     </argusx-popover-header>
+ *   </argusx-popover-content>
+ * </argusx-popover>
  * ```
  */
 @Component({
-  selector: 'app-popover',
+  selector: 'argusx-popover',
   imports: [CommonModule, OverlayModule],
   template: `
     <div class="inline-flex">
       <!-- Trigger element -->
       <div cdkOverlayOrigin #trigger="cdkOverlayOrigin">
-        <ng-content select="[appPopoverTrigger]" />
+        <ng-content select="[argusxPopoverTrigger]" />
       </div>
 
       <!-- Popover content via CDK Overlay -->
@@ -79,7 +80,7 @@ let popoverIdCounter = 0;
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PopoverComponent {
+export class ArgusxPopoverComponent {
   readonly open = model<boolean>(false);
 
   readonly align = input<PopoverAlign>('center');
@@ -207,7 +208,7 @@ export class PopoverComponent {
  * Opens the popover when clicked
  */
 @Directive({
-  selector: '[appPopoverTrigger]',
+  selector: '[argusxPopoverTrigger]',
   host: {
     '[attr.data-slot]': '"popover-trigger"',
     '[attr.aria-expanded]': 'popover.open()',
@@ -216,8 +217,8 @@ export class PopoverComponent {
     '(click)': 'onClick()',
   },
 })
-export class PopoverTriggerDirective {
-  readonly popover = inject(PopoverComponent);
+export class ArgusxPopoverTriggerDirective {
+  readonly popover = inject(ArgusxPopoverComponent);
 
   onClick(): void {
     this.popover.togglePopover();
@@ -233,13 +234,13 @@ export class PopoverTriggerDirective {
  * Anchors the popover to a specific element
  */
 @Directive({
-  selector: '[appPopoverAnchor]',
+  selector: '[argusxPopoverAnchor]',
   host: {
     '[attr.data-slot]': '"popover-anchor"',
   },
 })
-export class PopoverAnchorDirective {
-  readonly popover = inject(PopoverComponent);
+export class ArgusxPopoverAnchorDirective {
+  readonly popover = inject(ArgusxPopoverComponent);
 }
 
 // ============================================================================
@@ -251,10 +252,10 @@ export class PopoverAnchorDirective {
  * The main popover panel
  */
 @Component({
-  selector: 'app-popover-content',
+  selector: 'argusx-popover-content',
   imports: [CommonModule],
   template: `
-    <div [class]="glass() ? glassClass() : computedClass()" (keydown.escape)="popover.closePopover()">
+    <div [class]="variant() === 'glass' ? glassClass() : computedClass()" (keydown.escape)="popover.closePopover()">
       <ng-content />
     </div>
   `,
@@ -263,8 +264,8 @@ export class PopoverAnchorDirective {
     '[attr.id]': 'popover.id',
     '[attr.data-state]': 'popover.open() ? "open" : "closed"',
     '[attr.data-side]': 'popover.side()',
-    '[style.background]': 'glass() ? "transparent" : "var(--popover)"',
-    '[style.color]': 'glass() ? "inherit" : "var(--popover-foreground)"',
+    '[style.background]': 'variant() === "glass" ? "transparent" : "var(--popover)"',
+    '[style.color]': 'variant() === "glass" ? "inherit" : "var(--popover-foreground)"',
   },
   styles: [`
     :host {
@@ -280,10 +281,10 @@ export class PopoverAnchorDirective {
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PopoverContentComponent {
-  readonly popover = inject(PopoverComponent);
+export class ArgusxPopoverContentComponent {
+  readonly popover = inject(ArgusxPopoverComponent);
   readonly class = input<string>('');
-  readonly glass = input<boolean>(false);
+  readonly variant = input<PopoverVariant>('plain');
 
   protected readonly glassClass = computed(() =>
     cn(
@@ -326,7 +327,7 @@ export class PopoverContentComponent {
  * Container for title and description
  */
 @Component({
-  selector: 'app-popover-header',
+  selector: 'argusx-popover-header',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -335,7 +336,7 @@ export class PopoverContentComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PopoverHeaderComponent {
+export class ArgusxPopoverHeaderComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
@@ -352,7 +353,7 @@ export class PopoverHeaderComponent {
  * Title text for the popover
  */
 @Component({
-  selector: 'app-popover-title',
+  selector: 'argusx-popover-title',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -361,7 +362,7 @@ export class PopoverHeaderComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PopoverTitleComponent {
+export class ArgusxPopoverTitleComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
@@ -378,7 +379,7 @@ export class PopoverTitleComponent {
  * Description text for the popover
  */
 @Component({
-  selector: 'app-popover-description',
+  selector: 'argusx-popover-description',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -387,7 +388,7 @@ export class PopoverTitleComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PopoverDescriptionComponent {
+export class ArgusxPopoverDescriptionComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
@@ -399,12 +400,12 @@ export class PopoverDescriptionComponent {
 // Exports
 // ============================================================================
 
-export const PopoverComponents = [
-  PopoverComponent,
-  PopoverTriggerDirective,
-  PopoverAnchorDirective,
-  PopoverContentComponent,
-  PopoverHeaderComponent,
-  PopoverTitleComponent,
-  PopoverDescriptionComponent,
+export const ArgusxPopoverComponents = [
+  ArgusxPopoverComponent,
+  ArgusxPopoverTriggerDirective,
+  ArgusxPopoverAnchorDirective,
+  ArgusxPopoverContentComponent,
+  ArgusxPopoverHeaderComponent,
+  ArgusxPopoverTitleComponent,
+  ArgusxPopoverDescriptionComponent,
 ];
