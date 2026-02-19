@@ -1,79 +1,180 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ArgusxButtonDirective } from '@app/shared/ui/button';
-import { DrawerComponents } from '@app/shared/ui/drawer';
+import {
+  ArgusxDrawerComponents,
+  type ArgusxDrawerDirection,
+  type ArgusxDrawerSize,
+} from '@app/shared/ui/drawer';
 
 @Component({
   selector: 'app-drawer-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DrawerComponents, ArgusxButtonDirective],
+  imports: [ArgusxDrawerComponents, ArgusxButtonDirective],
   template: `
-    <div class="mx-auto max-w-3xl p-8 space-y-8">
+    <div class="mx-auto max-w-3xl space-y-8 p-8">
       <h1 class="mb-2 text-2xl font-semibold">Drawer</h1>
       <p class="mb-8 text-muted-foreground">
-        A panel that slides from screen edges to show contextual content.
+        shadcn-aligned drawer primitives with ArgusX plain extensions.
       </p>
 
-      <section>
-        <div class="mb-3">
-          <h2 class="text-sm font-medium text-muted-foreground">Right Drawer</h2>
-        </div>
+      <section class="space-y-3">
+        <h2 class="text-sm font-medium text-muted-foreground">shadcn Baseline</h2>
         <div class="rounded-lg border border-dashed border-border p-6">
-          <app-drawer [(open)]="rightOpen" direction="right">
-            <button argusx-button variant="outline" appDrawerTrigger>
-              Open Right Drawer
+          <argusx-drawer>
+            <button argusx-button variant="outline" argusxDrawerTrigger>
+              Open Drawer
             </button>
-            <app-drawer-content>
-              <app-drawer-header>
-                <app-drawer-title>Edit profile</app-drawer-title>
-                <app-drawer-description>
-                  Make changes to your profile and close when you are done.
-                </app-drawer-description>
-              </app-drawer-header>
-              <div class="p-4 space-y-3 text-xs text-muted-foreground">
-                <p>Drawer content supports any custom layout.</p>
-                <p>This follows the shadcn slide-out interaction pattern.</p>
+            <argusx-drawer-content>
+              <div class="mx-auto w-full max-w-sm">
+                <argusx-drawer-header>
+                  <argusx-drawer-title>Move Goal</argusx-drawer-title>
+                  <argusx-drawer-description>
+                    Set your daily activity goal.
+                  </argusx-drawer-description>
+                </argusx-drawer-header>
+                <div class="space-y-2 px-4 pb-2 text-sm text-muted-foreground">
+                  <p>Default usage keeps the same slot structure as shadcn drawer.</p>
+                  <p>Close behavior is explicit through <code>argusxDrawerClose</code>.</p>
+                </div>
+                <argusx-drawer-footer>
+                  <button argusx-button>Submit</button>
+                  <button argusx-button variant="outline" argusxDrawerClose>Cancel</button>
+                </argusx-drawer-footer>
               </div>
-              <app-drawer-footer>
-                <button argusx-button variant="outline" appDrawerClose>Cancel</button>
-                <button argusx-button appDrawerClose>Save changes</button>
-              </app-drawer-footer>
-            </app-drawer-content>
-          </app-drawer>
+            </argusx-drawer-content>
+          </argusx-drawer>
         </div>
       </section>
 
-      <section>
-        <div class="mb-3">
-          <h2 class="text-sm font-medium text-muted-foreground">Bottom Drawer</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
-          <app-drawer [(open)]="bottomOpen" direction="bottom" size="sm">
-            <button argusx-button variant="outline" appDrawerTrigger>
-              Open Bottom Drawer
+      <section class="space-y-3">
+        <h2 class="text-sm font-medium text-muted-foreground">Direction (shadcn API)</h2>
+        <div class="rounded-lg border border-dashed border-border p-6 space-y-4">
+          <div class="flex flex-wrap gap-2">
+            @for (dir of directions; track dir) {
+              <button
+                argusx-button
+                variant="outline"
+                size="sm"
+                [class.bg-muted]="direction() === dir"
+                (click)="direction.set(dir)"
+              >
+                {{ dir }}
+              </button>
+            }
+          </div>
+          <argusx-drawer [direction]="direction()">
+            <button argusx-button variant="outline" argusxDrawerTrigger>
+              Open {{ direction() }} Drawer
             </button>
-            <app-drawer-content>
-              <app-drawer-header>
-                <app-drawer-title>Share link</app-drawer-title>
-                <app-drawer-description>
-                  Copy and share this invite link with your team.
-                </app-drawer-description>
-              </app-drawer-header>
-              <div class="px-4 pb-2">
-                <div class="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-foreground">
-                  https://argusx.app/invite/team-alpha
-                </div>
+            <argusx-drawer-content>
+              <argusx-drawer-header>
+                <argusx-drawer-title>Drawer Direction</argusx-drawer-title>
+                <argusx-drawer-description>
+                  The current direction is <strong>{{ direction() }}</strong>.
+                </argusx-drawer-description>
+              </argusx-drawer-header>
+              <argusx-drawer-footer>
+                <button argusx-button variant="outline" argusxDrawerClose>Close</button>
+              </argusx-drawer-footer>
+            </argusx-drawer-content>
+          </argusx-drawer>
+        </div>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-sm font-medium text-muted-foreground">ArgusX Plain Extension: size + close button</h2>
+        <div class="rounded-lg border border-dashed border-border p-6 space-y-4">
+          <div class="flex flex-wrap gap-2">
+            @for (size of sizes; track size) {
+              <button
+                argusx-button
+                variant="outline"
+                size="sm"
+                [class.bg-muted]="extensionSize() === size"
+                (click)="extensionSize.set(size)"
+              >
+                {{ size }}
+              </button>
+            }
+          </div>
+          <argusx-drawer direction="right" [size]="extensionSize()">
+            <button argusx-button variant="outline" argusxDrawerTrigger>
+              Open Sized Drawer
+            </button>
+            <argusx-drawer-content [showCloseButton]="true">
+              <argusx-drawer-header>
+                <argusx-drawer-title>Plain Extension</argusx-drawer-title>
+                <argusx-drawer-description>
+                  Current size extension: <strong>{{ extensionSize() }}</strong>
+                </argusx-drawer-description>
+              </argusx-drawer-header>
+              <div class="space-y-2 px-4 text-sm text-muted-foreground">
+                <p>ArgusX keeps shadcn default behavior and extends with optional sizing.</p>
+                <p>The top-right close button is also optional and defaults to hidden.</p>
               </div>
-              <app-drawer-footer>
-                <button argusx-button variant="outline" appDrawerClose>Close</button>
-              </app-drawer-footer>
-            </app-drawer-content>
-          </app-drawer>
+              <argusx-drawer-footer>
+                <button argusx-button variant="outline" argusxDrawerClose>Done</button>
+              </argusx-drawer-footer>
+            </argusx-drawer-content>
+          </argusx-drawer>
+        </div>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-sm font-medium text-muted-foreground">Complex Combination</h2>
+        <div class="rounded-lg border border-dashed border-border p-6 space-y-4">
+          <div class="flex flex-wrap gap-2">
+            <button argusx-button variant="outline" size="sm" (click)="complexOpen.set(true)">
+              Programmatic Open
+            </button>
+            <button
+              argusx-button
+              variant="outline"
+              size="sm"
+              (click)="complexOpen.set(false)"
+              [disabled]="!complexOpen()"
+            >
+              Programmatic Close
+            </button>
+          </div>
+          <argusx-drawer
+            [open]="complexOpen()"
+            (openChange)="complexOpen.set($event)"
+            [direction]="direction()"
+            [size]="extensionSize()"
+            [dismissible]="false"
+            [shouldScaleBackground]="true"
+          >
+            <button argusx-button argusxDrawerTrigger>Open Combined Drawer</button>
+            <argusx-drawer-content [showCloseButton]="true">
+              <argusx-drawer-header>
+                <argusx-drawer-title>Controlled Drawer</argusx-drawer-title>
+                <argusx-drawer-description>
+                  Controlled open state + direction + size + non-dismissible backdrop.
+                </argusx-drawer-description>
+              </argusx-drawer-header>
+              <div class="space-y-2 px-4 text-sm text-muted-foreground">
+                <p>Backdrop and Escape are disabled in this state.</p>
+                <p>Use explicit close actions to dismiss.</p>
+              </div>
+              <argusx-drawer-footer>
+                <button argusx-button variant="outline" (click)="complexOpen.set(false)">
+                  Close via Signal
+                </button>
+                <button argusx-button argusxDrawerClose>Close via Directive</button>
+              </argusx-drawer-footer>
+            </argusx-drawer-content>
+          </argusx-drawer>
         </div>
       </section>
     </div>
   `,
 })
 export class DrawerPreviewComponent {
-  readonly rightOpen = signal(false);
-  readonly bottomOpen = signal(false);
+  readonly directions = ['top', 'right', 'bottom', 'left'] as const;
+  readonly sizes = ['sm', 'default', 'lg', 'full'] as const;
+
+  readonly direction = signal<ArgusxDrawerDirection>('right');
+  readonly extensionSize = signal<ArgusxDrawerSize>('default');
+  readonly complexOpen = signal(false);
 }

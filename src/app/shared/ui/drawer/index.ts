@@ -1,21 +1,18 @@
 export {
-  // Components
-  DrawerComponent,
-  DrawerTriggerDirective,
-  DrawerPortalComponent,
-  DrawerOverlayComponent,
-  DrawerCloseDirective,
-  DrawerContentComponent,
-  DrawerHeaderComponent,
-  DrawerFooterComponent,
-  DrawerTitleComponent,
-  DrawerDescriptionComponent,
-  // Component array for module imports
-  DrawerComponents,
+  ArgusxDrawerComponent,
+  ArgusxDrawerTriggerDirective,
+  ArgusxDrawerPortalComponent,
+  ArgusxDrawerOverlayComponent,
+  ArgusxDrawerCloseDirective,
+  ArgusxDrawerContentComponent,
+  ArgusxDrawerHeaderComponent,
+  ArgusxDrawerFooterComponent,
+  ArgusxDrawerTitleComponent,
+  ArgusxDrawerDescriptionComponent,
+  ArgusxDrawerComponents,
 } from './drawer.component';
 
 export type {
-  // Types
-  DrawerDirection,
-  DrawerSize,
+  ArgusxDrawerDirection,
+  ArgusxDrawerSize,
 } from './drawer.component';

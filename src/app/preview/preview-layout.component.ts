@@ -38,7 +38,7 @@ const PREVIEW_ITEMS = [
   { id: 'collapsible', label: 'Collapsible', reviewStatus: 'not_processed' },
   { id: 'combobox', label: 'Combobox', reviewStatus: 'not_processed' },
   { id: 'command', label: 'Command', reviewStatus: 'not_processed' },
-  { id: 'drawer', label: 'Drawer', reviewStatus: 'not_processed' },
+  { id: 'drawer', label: 'Drawer', reviewStatus: 'reviewed' },
   { id: 'dropdown-menu', label: 'Dropdown Menu', reviewStatus: 'not_processed' },
   { id: 'empty', label: 'Empty', reviewStatus: 'not_processed' },
   { id: 'field', label: 'Field', reviewStatus: 'not_processed' },
