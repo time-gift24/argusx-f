@@ -1,26 +1,24 @@
-// Unit tests for KbdDirective - testing variant classes directly
+// Unit tests for ArgusxKbdDirective - testing size extension classes directly
 import { describe, expect, it } from 'vitest';
-import { kbdSizes } from './kbd.directive';
+import { argusxKbdSizes } from './kbd.directive';
 
-describe('kbdSizes', () => {
-  it('should have sm size with correct classes', () => {
-    const classes = kbdSizes['sm'];
+describe('argusxKbdSizes', () => {
+  it('should have sm size extension classes', () => {
+    const classes = argusxKbdSizes['sm'];
     expect(classes).toContain('h-4');
-    expect(classes).toContain('text-[0.5rem]');
+    expect(classes).toContain('text-[0.625rem]');
     expect(classes).toContain('min-w-4');
   });
 
-  it('should have default size with correct classes', () => {
-    const classes = kbdSizes['default'];
-    expect(classes).toContain('h-5');
-    expect(classes).toContain('text-[0.625rem]');
-    expect(classes).toContain('min-w-5');
+  it('should keep default size as shadcn baseline', () => {
+    const classes = argusxKbdSizes['default'];
+    expect(classes).toBe('');
   });
 
-  it('should have lg size with correct classes', () => {
-    const classes = kbdSizes['lg'];
+  it('should have lg size extension classes', () => {
+    const classes = argusxKbdSizes['lg'];
     expect(classes).toContain('h-6');
-    expect(classes).toContain('text-[0.75rem]');
+    expect(classes).toContain('text-sm');
     expect(classes).toContain('min-w-6');
   });
 });

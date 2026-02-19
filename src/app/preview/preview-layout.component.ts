@@ -46,7 +46,7 @@ const PREVIEW_ITEMS = [
   { id: 'hover-card', label: 'Hover Card', reviewStatus: 'not_processed' },
   { id: 'input-group', label: 'Input Group', reviewStatus: 'not_processed' },
   { id: 'input-otp', label: 'Input OTP', reviewStatus: 'not_processed' },
-  { id: 'kbd', label: 'Keyboard Key', reviewStatus: 'not_processed' },
+  { id: 'kbd', label: 'Kbd', reviewStatus: 'not_processed' },
   { id: 'label', label: 'Label', reviewStatus: 'not_processed' },
   { id: 'menubar', label: 'Menubar', reviewStatus: 'reviewed' },
   { id: 'native-select', label: 'Native Select', reviewStatus: 'not_processed' },
@@ -85,6 +85,18 @@ const PREVIEW_ITEM_IDS = new Set(PREVIEW_ITEMS.map((item) => item.id));
 
 function isPreviewItemId(id: string | null): id is PreviewItemId {
   return id !== null && PREVIEW_ITEM_IDS.has(id as PreviewItemId);
+}
+
+function normalizePreviewItemId(id: string | null): PreviewItemId | null {
+  if (isPreviewItemId(id)) {
+    return id;
+  }
+
+  if (id === 'kdb') {
+    return 'kbd';
+  }
+
+  return null;
 }
 
 @Component({
@@ -173,9 +185,13 @@ export class PreviewLayoutComponent implements OnInit {
 
   ngOnInit(): void {
     const componentFromUrl = this.route.snapshot.queryParamMap.get('component');
-    if (isPreviewItemId(componentFromUrl)) {
-      this.currentPreview.set(componentFromUrl);
+    const normalizedComponent = normalizePreviewItemId(componentFromUrl);
+    if (normalizedComponent) {
+      this.currentPreview.set(normalizedComponent);
       this.iframeVersion.set(Date.now());
+      if (componentFromUrl !== normalizedComponent) {
+        void this.syncRoute(normalizedComponent, true);
+      }
     } else {
       void this.syncRoute(this.currentPreview(), true);
     }
@@ -183,7 +199,8 @@ export class PreviewLayoutComponent implements OnInit {
     this.route.queryParamMap
       .pipe(
         map((params) => params.get('component')),
-        filter(isPreviewItemId),
+        map(normalizePreviewItemId),
+        filter((component): component is PreviewItemId => component !== null),
         distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef)
       )
