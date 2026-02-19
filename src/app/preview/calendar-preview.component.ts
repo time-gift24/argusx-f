@@ -1,24 +1,14 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  signal,
-} from '@angular/core';
-import { LucideAngularModule, Calendar as CalendarIcon } from 'lucide-angular';
-import { CalendarComponent } from '../shared/ui/calendar/calendar.component';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Calendar as CalendarIcon, LucideAngularModule } from 'lucide-angular';
+
 import { ButtonComponent } from '../shared/ui/button';
+import { CalendarComponent } from '../shared/ui/calendar/calendar.component';
+import { ArgusxCardComponent } from '../shared/ui/card';
 import {
   PopoverComponent,
   PopoverContentComponent,
   PopoverTriggerDirective,
 } from '../shared/ui/popover';
-import {
-  CardDirective,
-  CardHeaderDirective,
-  CardTitleDirective,
-  CardDescriptionDirective,
-  CardContentDirective,
-  CardFooterDirective,
-} from '../shared/ui/card';
 
 @Component({
   selector: 'app-calendar-preview',
@@ -29,12 +19,7 @@ import {
     PopoverComponent,
     PopoverContentComponent,
     PopoverTriggerDirective,
-    CardDirective,
-    CardHeaderDirective,
-    CardTitleDirective,
-    CardDescriptionDirective,
-    CardContentDirective,
-    CardFooterDirective,
+    ArgusxCardComponent,
     LucideAngularModule,
   ],
   template: `
@@ -54,88 +39,78 @@ import {
           <div class="rounded-lg border border-border bg-card/70 px-3 py-2 text-xs text-muted-foreground">
             Built with <span class="font-medium text-foreground">app-calendar</span>,
             <span class="font-medium text-foreground">app-popover</span>, and
-            <span class="font-medium text-foreground">app-card</span>
+            <span class="font-medium text-foreground">argusx-card</span>
           </div>
         </div>
 
         <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
           <section>
-            <div appCard class="h-full">
-              <div appCardHeader>
-                <div appCardTitle>Single</div>
-                <div appCardDescription>Basic single date selection.</div>
-              </div>
-              <div appCardContent class="space-y-4">
+            <argusx-card class="h-full" title="Single" description="Basic single date selection.">
+              <div class="space-y-4">
                 <div class="flex justify-center rounded-lg border border-dashed border-border p-4">
                   <app-calendar [(model)]="singleDate" />
                 </div>
               </div>
-              <div appCardFooter class="text-xs text-muted-foreground">
+              <div card-footer class="w-full items-start text-xs text-muted-foreground">
                 Selected: {{ formatDate(singleDate()) }}
               </div>
-            </div>
+            </argusx-card>
           </section>
 
           <section>
-            <div appCard class="h-full">
-              <div appCardHeader>
-                <div appCardTitle>Single with Dropdowns</div>
-                <div appCardDescription>Month and year are selectable from native dropdowns.</div>
-              </div>
-              <div appCardContent class="space-y-4">
+            <argusx-card
+              class="h-full"
+              title="Single with Dropdowns"
+              description="Month and year are selectable from native dropdowns."
+            >
+              <div class="space-y-4">
                 <div class="flex justify-center rounded-lg border border-dashed border-border p-4">
                   <app-calendar [showMonthYearSelectors]="true" [(model)]="singleWithSelectorsDate" />
                 </div>
               </div>
-              <div appCardFooter class="text-xs text-muted-foreground">
+              <div card-footer class="w-full items-start text-xs text-muted-foreground">
                 Selected: {{ formatDate(singleWithSelectorsDate()) }}
               </div>
-            </div>
+            </argusx-card>
           </section>
 
           <section>
-            <div appCard class="h-full">
-              <div appCardHeader>
-                <div appCardTitle>Multiple</div>
-                <div appCardDescription>Select and toggle multiple independent dates.</div>
-              </div>
-              <div appCardContent class="space-y-4">
+            <argusx-card class="h-full" title="Multiple" description="Select and toggle multiple independent dates.">
+              <div class="space-y-4">
                 <div class="flex justify-center rounded-lg border border-dashed border-border p-4">
                   <app-calendar mode="multiple" [showMonthYearSelectors]="true" [(model)]="multipleDates" />
                 </div>
               </div>
-              <div appCardFooter class="text-xs text-muted-foreground">
+              <div card-footer class="w-full items-start text-xs text-muted-foreground">
                 Selected: {{ formatDateList(multipleDates()) }}
               </div>
-            </div>
+            </argusx-card>
           </section>
 
           <section>
-            <div appCard class="h-full">
-              <div appCardHeader>
-                <div appCardTitle>Range</div>
-                <div appCardDescription>
-                  Connected range rendering with muted in-between cells.
-                </div>
-              </div>
-              <div appCardContent class="space-y-4">
+            <argusx-card
+              class="h-full"
+              title="Range"
+              description="Connected range rendering with muted in-between cells."
+            >
+              <div class="space-y-4">
                 <div class="flex justify-center rounded-lg border border-dashed border-border p-4">
                   <app-calendar mode="range" [showMonthYearSelectors]="true" [(model)]="rangeDate" />
                 </div>
               </div>
-              <div appCardFooter class="text-xs text-muted-foreground">
+              <div card-footer class="w-full items-start text-xs text-muted-foreground">
                 Selected: {{ formatDateRange(rangeDate()) }}
               </div>
-            </div>
+            </argusx-card>
           </section>
 
           <section>
-            <div appCard class="h-full">
-              <div appCardHeader>
-                <div appCardTitle>Date Picker in Popover</div>
-                <div appCardDescription>Trigger calendar selection from an overlay panel.</div>
-              </div>
-              <div appCardContent class="space-y-4">
+            <argusx-card
+              class="h-full"
+              title="Date Picker in Popover"
+              description="Trigger calendar selection from an overlay panel."
+            >
+              <div class="space-y-4">
                 <div class="rounded-lg border border-dashed border-border p-4">
                   <app-popover [(open)]="popoverOpen">
                     <button
@@ -157,19 +132,15 @@ import {
                   </app-popover>
                 </div>
               </div>
-              <div appCardFooter class="text-xs text-muted-foreground">
+              <div card-footer class="w-full items-start text-xs text-muted-foreground">
                 Selected: {{ formatDate(popoverDate()) }}
               </div>
-            </div>
+            </argusx-card>
           </section>
 
           <section>
-            <div appCard class="h-full">
-              <div appCardHeader>
-                <div appCardTitle>With Constraints</div>
-                <div appCardDescription>Selection is limited to a rolling date window.</div>
-              </div>
-              <div appCardContent class="space-y-4">
+            <argusx-card class="h-full" title="With Constraints" description="Selection is limited to a rolling date window.">
+              <div class="space-y-4">
                 <div class="flex justify-center rounded-lg border border-dashed border-border p-4">
                   <app-calendar
                     [showMonthYearSelectors]="true"
@@ -179,52 +150,49 @@ import {
                   />
                 </div>
               </div>
-              <div appCardFooter class="text-xs text-muted-foreground">
+              <div card-footer class="w-full items-start text-xs text-muted-foreground">
                 Min: {{ formatDate(minDate()) }} | Max: {{ formatDate(maxDate()) }}
               </div>
-            </div>
+            </argusx-card>
           </section>
 
           <section class="xl:col-span-2">
-            <div appCard>
-              <div appCardHeader>
-                <div appCardTitle>In Card</div>
-                <div appCardDescription>
-                  Embedded card treatment similar to shadcn dashboard-style examples.
+            <argusx-card
+              title="In Card"
+              description="Embedded card treatment similar to shadcn dashboard-style examples."
+            >
+              <div class="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
+                <div class="rounded-xl border border-border bg-card p-3">
+                  <app-calendar [showMonthYearSelectors]="true" [(model)]="cardDate" />
                 </div>
-              </div>
-              <div appCardContent>
-                <div class="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
-                  <div class="rounded-xl border border-border bg-card p-3">
-                    <app-calendar [showMonthYearSelectors]="true" [(model)]="cardDate" />
-                  </div>
-                  <div class="rounded-xl border border-border bg-muted/30 p-4">
-                    <h3 class="mb-2 text-sm font-semibold">Selection Summary</h3>
-                    <p class="mb-4 text-sm text-muted-foreground">
-                      This area simulates downstream UI that reacts to date changes.
-                    </p>
-                    <div class="grid gap-2 text-xs">
-                      <div class="rounded-md border border-border bg-background px-3 py-2">
-                        Chosen date: {{ formatDate(cardDate()) }}
-                      </div>
-                      <div class="rounded-md border border-border bg-background px-3 py-2">
-                        Min bound: {{ formatDate(minDate()) }}
-                      </div>
-                      <div class="rounded-md border border-border bg-background px-3 py-2">
-                        Max bound: {{ formatDate(maxDate()) }}
-                      </div>
+                <div class="rounded-xl border border-border bg-muted/30 p-4">
+                  <h3 class="mb-2 text-sm font-semibold">Selection Summary</h3>
+                  <p class="mb-4 text-sm text-muted-foreground">
+                    This area simulates downstream UI that reacts to date changes.
+                  </p>
+                  <div class="grid gap-2 text-xs">
+                    <div class="rounded-md border border-border bg-background px-3 py-2">
+                      Chosen date: {{ formatDate(cardDate()) }}
+                    </div>
+                    <div class="rounded-md border border-border bg-background px-3 py-2">
+                      Min bound: {{ formatDate(minDate()) }}
+                    </div>
+                    <div class="rounded-md border border-border bg-background px-3 py-2">
+                      Max bound: {{ formatDate(maxDate()) }}
                     </div>
                   </div>
                 </div>
               </div>
-              <div appCardFooter class="flex-wrap gap-2 text-xs text-muted-foreground">
-                @for (item of roadmapItems; track item) {
-                  <span class="rounded-full border border-border bg-background px-2.5 py-1">
-                    {{ item }}
-                  </span>
-                }
+              <div card-footer class="w-full items-start text-xs text-muted-foreground">
+                <div class="flex flex-wrap gap-2">
+                  @for (item of roadmapItems; track item) {
+                    <span class="rounded-full border border-border bg-background px-2.5 py-1">
+                      {{ item }}
+                    </span>
+                  }
+                </div>
               </div>
-            </div>
+            </argusx-card>
           </section>
         </div>
       </div>

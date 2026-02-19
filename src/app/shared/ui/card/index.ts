@@ -1,11 +1,8 @@
+export { ArgusxCardActionDirective, ArgusxCardComponent } from './card.component';
 export {
-  CardDirective,
-  CardHeaderDirective,
-  CardTitleDirective,
-  CardDescriptionDirective,
-  CardActionDirective,
-  CardContentDirective,
-  CardFooterDirective,
   cardVariants,
-  type CardSize,
-} from './card.directive';
+  cardHeaderVariants,
+  cardBodyVariants,
+  cardFooterVariants,
+  type ArgusxCardSize,
+} from './card.variants';
