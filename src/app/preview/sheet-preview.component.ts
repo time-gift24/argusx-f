@@ -32,16 +32,16 @@ import { SheetComponents, type SheetSide } from '@app/shared/ui/sheet';
             }
           </div>
 
-          <app-sheet [side]="sheetSide()">
-            <button argusx-button appSheetTrigger>Open Sheet</button>
+          <argusx-sheet [side]="sheetSide()">
+            <button argusx-button argusxSheetTrigger>Open Sheet</button>
 
-            <app-sheet-content>
-              <app-sheet-header>
-                <app-sheet-title>Edit profile</app-sheet-title>
-                <app-sheet-description>
+            <argusx-sheet-content>
+              <argusx-sheet-header>
+                <argusx-sheet-title>Edit profile</argusx-sheet-title>
+                <argusx-sheet-description>
                   Update your profile information. Click save when you are done.
-                </app-sheet-description>
-              </app-sheet-header>
+                </argusx-sheet-description>
+              </argusx-sheet-header>
 
               <div class="px-6 space-y-3">
                 <div class="space-y-1">
@@ -54,12 +54,12 @@ import { SheetComponents, type SheetSide } from '@app/shared/ui/sheet';
                 </div>
               </div>
 
-              <app-sheet-footer>
-                <button argusx-button variant="outline" appSheetClose>Cancel</button>
-                <button argusx-button appSheetClose>Save changes</button>
-              </app-sheet-footer>
-            </app-sheet-content>
-          </app-sheet>
+              <argusx-sheet-footer>
+                <button argusx-button variant="outline" argusxSheetClose>Cancel</button>
+                <button argusx-button argusxSheetClose>Save changes</button>
+              </argusx-sheet-footer>
+            </argusx-sheet-content>
+          </argusx-sheet>
         </div>
       </section>
     </div>

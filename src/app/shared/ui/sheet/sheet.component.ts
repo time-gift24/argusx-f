@@ -44,8 +44,8 @@ let sheetIdCounter = 0;
  * - Click outside closes sheet by default
  */
 @Component({
-  selector: 'app-sheet',
-  exportAs: 'appSheet',
+  selector: 'argusx-sheet',
+  exportAs: 'argusxSheet',
   imports: [
     CommonModule,
     OverlayModule,
@@ -55,7 +55,7 @@ let sheetIdCounter = 0;
     <div class="inline-flex">
       <!-- Trigger element -->
       <div cdkOverlayOrigin #trigger="cdkOverlayOrigin">
-        <ng-content select="[appSheetTrigger]" />
+        <ng-content select="[argusxSheetTrigger]" />
       </div>
 
       <!-- Sheet overlay and content via CDK Overlay -->
@@ -216,7 +216,7 @@ export class SheetComponent implements OnDestroy {
  * Opens the sheet when clicked
  */
 @Directive({
-  selector: '[appSheetTrigger]',
+  selector: '[argusxSheetTrigger]',
   host: {
     '[attr.data-slot]': '"sheet-trigger"',
     '[attr.aria-haspopup]': '"dialog"',
@@ -241,7 +241,7 @@ export class SheetTriggerDirective {
  * In Angular CDK, portals are handled by the Overlay system
  */
 @Directive({
-  selector: 'app-sheet-portal',
+  selector: 'argusx-sheet-portal',
   host: {
     '[attr.data-slot]': '"sheet-portal"',
   },
@@ -259,7 +259,7 @@ export class SheetPortalComponent {
  * Closes the sheet when clicked
  */
 @Directive({
-  selector: '[appSheetClose]',
+  selector: '[argusxSheetClose]',
   host: {
     '[attr.data-slot]': '"sheet-close"',
     '(click)': 'onClick()',
@@ -282,7 +282,7 @@ export class SheetCloseDirective {
  * The semi-transparent background behind the sheet
  */
 @Component({
-  selector: 'app-sheet-overlay',
+  selector: 'argusx-sheet-overlay',
   imports: [CommonModule],
   template: '',
   host: {
@@ -316,7 +316,7 @@ export class SheetOverlayComponent {
  * The main sheet panel with optional close button
  */
 @Component({
-  selector: 'app-sheet-content',
+  selector: 'argusx-sheet-content',
   imports: [CommonModule, ArgusxButtonDirective, LucideAngularModule],
   template: `
     <ng-content />
@@ -327,7 +327,7 @@ export class SheetOverlayComponent {
         size="icon-sm"
         class="absolute top-4 right-4"
         aria-label="Close"
-        appSheetClose>
+        argusxSheetClose>
         <lucide-icon [img]="xIcon" class="size-3.5"></lucide-icon>
       </button>
     }
@@ -374,7 +374,7 @@ export class SheetContentComponent {
  * Container for title, description, and optional media
  */
 @Component({
-  selector: 'app-sheet-header',
+  selector: 'argusx-sheet-header',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -403,12 +403,12 @@ export class SheetHeaderComponent {
  * Container for action buttons
  */
 @Component({
-  selector: 'app-sheet-footer',
+  selector: 'argusx-sheet-footer',
   imports: [CommonModule],
   template: `
     <ng-content />
     @if (showCloseButton()) {
-      <button argusx-button variant="outline" appSheetClose>Close</button>
+      <button argusx-button variant="outline" argusxSheetClose>Close</button>
     }
   `,
   host: {
@@ -440,7 +440,7 @@ export class SheetFooterComponent {
  * Required for accessibility - provides the sheet's accessible name
  */
 @Component({
-  selector: 'app-sheet-title',
+  selector: 'argusx-sheet-title',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -480,7 +480,7 @@ export class SheetTitleComponent implements OnDestroy {
  * Provides additional context for the sheet
  */
 @Component({
-  selector: 'app-sheet-description',
+  selector: 'argusx-sheet-description',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
