@@ -13,7 +13,7 @@ import { cn } from '../../utils/cn';
  * @example
  * ```html
  * <app-field-label for="email">Email Address</app-field-label>
- * <input appInput id="email" type="email" />
+ * <input argusxInput id="email" type="email" />
  * ```
  */
 @Component({

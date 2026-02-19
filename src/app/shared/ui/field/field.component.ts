@@ -36,7 +36,7 @@ type FieldVariants = VariantProps<typeof fieldVariants>;
  * ```html
  * <app-field>
  *   <app-field-label>Email</app-field-label>
- *   <input appInput type="email" />
+ *   <input argusxInput type="email" />
  *   <app-field-description>Enter your email address.</app-field-description>
  * </app-field>
  * ```

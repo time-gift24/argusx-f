@@ -8,7 +8,7 @@ import {
   FieldSetComponent,
   type FieldErrorItem,
 } from '@app/shared/ui/field';
-import { InputDirective } from '@app/shared/ui/input';
+import { ArgusxInputDirective } from '@app/shared/ui/input';
 
 @Component({
   selector: 'app-field-preview',
@@ -20,7 +20,7 @@ import { InputDirective } from '@app/shared/ui/input';
     FieldLabelComponent,
     FieldDescriptionComponent,
     FieldErrorComponent,
-    InputDirective,
+    ArgusxInputDirective,
   ],
   template: `
     <div class="mx-auto max-w-3xl p-8 space-y-8">
@@ -36,7 +36,7 @@ import { InputDirective } from '@app/shared/ui/input';
         <div class="rounded-lg border border-dashed border-border p-6">
           <app-field>
             <app-field-label>Email address</app-field-label>
-            <input appInput type="email" placeholder="name@example.com" size="md" />
+            <input argusxInput type="email" placeholder="name@example.com" />
             <app-field-description>We'll only use this for security notifications.</app-field-description>
           </app-field>
         </div>
@@ -52,13 +52,13 @@ import { InputDirective } from '@app/shared/ui/input';
 
             <app-field>
               <app-field-label>Username</app-field-label>
-              <input appInput type="text" value="argus_admin" size="md" />
+              <input argusxInput type="text" value="argus_admin" />
               <app-field-description>Only letters, numbers, and underscore.</app-field-description>
             </app-field>
 
             <app-field>
               <app-field-label>Password</app-field-label>
-              <input appInput type="password" size="md" />
+              <input argusxInput type="password" />
               <app-field-error [errors]="passwordErrors" />
             </app-field>
           </app-field-set>

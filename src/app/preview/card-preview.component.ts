@@ -9,7 +9,7 @@ import {
 } from '../shared/ui/avatar';
 import { ArgusxButtonDirective } from '../shared/ui/button';
 import { ArgusxCardActionDirective, ArgusxCardComponent } from '../shared/ui/card';
-import { InputDirective } from '../shared/ui/input';
+import { ArgusxInputDirective } from '../shared/ui/input';
 import { LabelDirective } from '../shared/ui/label';
 
 @Component({
@@ -19,7 +19,7 @@ import { LabelDirective } from '../shared/ui/label';
     ArgusxCardComponent,
     ArgusxCardActionDirective,
     ArgusxButtonDirective,
-    InputDirective,
+    ArgusxInputDirective,
     LabelDirective,
     AvatarComponent,
     AvatarGroupComponent,
@@ -196,7 +196,7 @@ import { LabelDirective } from '../shared/ui/label';
                 <div class="grid gap-2">
                   <label appLabel for="email" class="items-center">Email</label>
                   <input
-                    appInput
+                    argusxInput
                     id="email"
                     type="email"
                     placeholder="m@example.com"
@@ -210,7 +210,7 @@ import { LabelDirective } from '../shared/ui/label';
                     <a href="#" class="ml-auto inline-block underline-offset-4 hover:underline">Forgot your password?</a>
                   </div>
                   <input
-                    appInput
+                    argusxInput
                     id="password"
                     type="password"
                     class="h-7 rounded-md px-2 py-0.5 text-xs/relaxed md:text-xs/relaxed"

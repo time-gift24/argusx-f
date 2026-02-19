@@ -1,11 +1,10 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { InputDirective, InputComponent } from '../shared/ui/input';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ArgusxInputDirective } from '../shared/ui/input';
 
 @Component({
   selector: 'app-input-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [InputDirective, InputComponent, FormsModule],
+  imports: [ArgusxInputDirective],
   template: `
     <div class="mx-auto max-w-6xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Input</h1>
@@ -14,160 +13,93 @@ import { InputDirective, InputComponent } from '../shared/ui/input';
       </p>
 
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-      <!-- Types -->
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">Types</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6 space-y-4">
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="input-text">Text</label>
-            <input appInput type="text" id="input-text" placeholder="Enter your name" />
+        <section>
+          <div class="mb-4">
+            <h2 class="text-sm font-medium text-muted-foreground">Default</h2>
           </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="input-email">Email</label>
-            <input appInput type="email" id="input-email" placeholder="email@example.com" />
+          <div class="space-y-4 rounded-lg border border-dashed border-border p-6">
+            <input argusxInput type="email" placeholder="Email" />
+            <input argusxInput type="password" placeholder="Password" />
+            <input argusxInput type="url" placeholder="https://example.com" />
           </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="input-password">Password</label>
-            <input appInput type="password" id="input-password" placeholder="Enter your password" />
-          </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="input-number">Number</label>
-            <input appInput type="number" id="input-number" placeholder="123" />
-          </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="input-tel">Telephone</label>
-            <input appInput type="tel" id="input-tel" placeholder="+1 (555) 000-0000" />
-          </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="input-url">URL</label>
-            <input appInput type="url" id="input-url" placeholder="https://example.com" />
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- States -->
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">States</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6 space-y-4">
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="input-disabled">Disabled</label>
-            <input
-              appInput
-              type="text"
-              id="input-disabled"
-              placeholder="Disabled input"
-              disabled
-            />
+        <section>
+          <div class="mb-4">
+            <h2 class="text-sm font-medium text-muted-foreground">States</h2>
           </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="input-readonly">Readonly</label>
-            <input
-              appInput
-              type="text"
-              id="input-readonly"
-              value="Readonly value"
-              readonly
-            />
+          <div class="space-y-4 rounded-lg border border-dashed border-border p-6">
+            <input argusxInput disabled type="email" placeholder="Disabled email" />
+            <input argusxInput readonly type="text" value="Readonly value" />
+            <input argusxInput aria-invalid="true" type="email" placeholder="Invalid email" />
           </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="input-invalid">Invalid</label>
-            <input
-              appInput
-              type="email"
-              id="input-invalid"
-              placeholder="Invalid email"
-              aria-invalid="true"
-            />
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Sizes -->
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">Sizes</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6 space-y-4">
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="input-size-sm">Small</label>
-            <input appInput type="text" id="input-size-sm" size="sm" value="Small input" />
+        <section>
+          <div class="mb-4">
+            <h2 class="text-sm font-medium text-muted-foreground">With Label</h2>
           </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="input-size-default">Default</label>
-            <input appInput type="text" id="input-size-default" value="Default input" />
-          </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="input-size-lg">Large</label>
-            <input appInput type="text" id="input-size-lg" size="lg" value="Large input" />
-          </div>
-        </div>
-      </section>
-
-      <!-- With Labels -->
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">With Labels</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
-          <div class="grid gap-4 max-w-sm">
-            <div class="grid gap-2">
-              <label class="text-sm font-medium" for="input-username">Username</label>
-              <input
-                appInput
-                type="text"
-                id="input-username"
-                placeholder="Enter your username"
-              />
-              <p class="text-xs text-muted-foreground">This is your public display name.</p>
-            </div>
-            <div class="grid gap-2">
-              <label class="text-sm font-medium" for="input-email-labeled">Email</label>
-              <input
-                appInput
-                type="email"
-                id="input-email-labeled"
-                placeholder="Enter your email"
-              />
+          <div class="rounded-lg border border-dashed border-border p-6">
+            <div class="grid max-w-sm gap-3">
+              <label class="text-sm font-medium" for="preview-email">Email</label>
+              <input argusxInput id="preview-email" type="email" placeholder="name@example.com" />
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- File Input -->
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">File Input</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6">
-          <input appInput type="file" id="input-file" />
-        </div>
-      </section>
+        <section>
+          <div class="mb-4">
+            <h2 class="text-sm font-medium text-muted-foreground">File Input</h2>
+          </div>
+          <div class="rounded-lg border border-dashed border-border p-6">
+            <div class="grid max-w-sm gap-3">
+              <label class="text-sm font-medium" for="preview-picture">Picture</label>
+              <input argusxInput id="preview-picture" type="file" />
+            </div>
+          </div>
+        </section>
 
-      <!-- Component Mode -->
-      <section>
-        <div class="mb-4">
-          <h2 class="text-sm font-medium text-muted-foreground">Component Mode</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6 space-y-4">
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="component-input">With ngModel</label>
-            <app-input id="component-input" placeholder="Component input" [(ngModel)]="componentValue" />
-            <p class="text-xs text-muted-foreground">Value: {{ componentValue() }}</p>
+        <section class="lg:col-span-2">
+          <div class="mb-4">
+            <h2 class="text-sm font-medium text-muted-foreground">Complex Form Combination</h2>
           </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium" for="component-input-error">Error State</label>
-            <app-input id="component-input-error" status="error" placeholder="Error input" />
+          <div class="rounded-lg border border-dashed border-border p-6">
+            <form class="grid gap-4 md:grid-cols-2" novalidate>
+              <div class="grid gap-2">
+                <label class="text-sm font-medium" for="complex-username">Username</label>
+                <input argusxInput id="complex-username" type="text" placeholder="peduarte" />
+                <p class="text-xs text-muted-foreground">This is your public identifier.</p>
+              </div>
+
+              <div class="grid gap-2">
+                <label class="text-sm font-medium" for="complex-email">Email</label>
+                <input
+                  argusxInput
+                  id="complex-email"
+                  type="email"
+                  aria-invalid="true"
+                  placeholder="account@example.com"
+                  aria-describedby="complex-email-error"
+                />
+                <p id="complex-email-error" class="text-xs text-destructive">
+                  Email already exists.
+                </p>
+              </div>
+
+              <div class="grid gap-2">
+                <label class="text-sm font-medium" for="complex-id">Workspace ID</label>
+                <input argusxInput id="complex-id" type="text" value="ax-prod-001" readonly />
+              </div>
+
+              <div class="grid gap-2">
+                <label class="text-sm font-medium" for="complex-api-key">API Key</label>
+                <input argusxInput id="complex-api-key" type="text" disabled value="••••••••••••••••" />
+              </div>
+            </form>
           </div>
-        </div>
-      </section>
+        </section>
       </div>
     </div>
   `,
 })
-export class InputPreviewComponent {
-  componentValue = signal('');
-}
+export class InputPreviewComponent {}
