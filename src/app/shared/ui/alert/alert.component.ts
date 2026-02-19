@@ -62,7 +62,7 @@ export type AlertVariant = NonNullable<AlertVariants['variant']>;
  * ```
  */
 @Component({
-  selector: 'app-alert',
+  selector: 'argusx-alert',
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './alert.component.html',
   host: {
@@ -73,7 +73,7 @@ export type AlertVariant = NonNullable<AlertVariants['variant']>;
     '[class]': 'computedClass()',
   },
 })
-export class AlertComponent {
+export class ArgusxAlertComponent {
   /**
    * Visual variant of the alert.
    * @default 'default'
