@@ -292,6 +292,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'sidebar',
+        loadComponent: () =>
+          import('./preview/sidebar-preview.component').then(
+            (m) => m.SidebarPreviewComponent
+          ),
+      },
+      {
         path: 'select',
         loadComponent: () =>
           import('./preview/select-preview.component').then(

@@ -15,7 +15,7 @@ export type SidebarState = 'expanded' | 'collapsed';
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar-provider',
+  selector: 'argusx-sidebar-provider',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -37,7 +37,7 @@ export class SidebarProviderComponent {
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar',
+  selector: 'argusx-sidebar',
   imports: [CommonModule],
   template: `
     <div [class]="containerClass()">
@@ -110,7 +110,7 @@ export class SidebarComponent {
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar-trigger',
+  selector: 'argusx-sidebar-trigger',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <button [class]="computedClass()" (click)="onClick()" aria-label="Toggle Sidebar">
@@ -145,7 +145,7 @@ export class SidebarTriggerComponent {
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar-inset',
+  selector: 'argusx-sidebar-inset',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -167,7 +167,7 @@ export class SidebarInsetComponent {
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar-header',
+  selector: 'argusx-sidebar-header',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -189,7 +189,7 @@ export class SidebarHeaderComponent {
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar-content',
+  selector: 'argusx-sidebar-content',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -211,7 +211,7 @@ export class SidebarContentComponent {
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar-footer',
+  selector: 'argusx-sidebar-footer',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -233,7 +233,7 @@ export class SidebarFooterComponent {
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar-group',
+  selector: 'argusx-sidebar-group',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -255,7 +255,7 @@ export class SidebarGroupComponent {
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar-group-label',
+  selector: 'argusx-sidebar-group-label',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -277,7 +277,7 @@ export class SidebarGroupLabelComponent {
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar-menu',
+  selector: 'argusx-sidebar-menu',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -299,7 +299,7 @@ export class SidebarMenuComponent {
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar-menu-item',
+  selector: 'argusx-sidebar-menu-item',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -321,7 +321,7 @@ export class SidebarMenuItemComponent {
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar-menu-button',
+  selector: 'argusx-sidebar-menu-button',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -348,7 +348,7 @@ export class SidebarMenuButtonComponent {
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar-separator',
+  selector: 'argusx-sidebar-separator',
   imports: [CommonModule],
   template: ``,
   host: {
@@ -370,7 +370,7 @@ export class SidebarSeparatorComponent {
 // ============================================================================
 
 @Component({
-  selector: 'app-sidebar-input',
+  selector: 'argusx-sidebar-input',
   imports: [CommonModule],
   template: `<input [class]="computedClass()" />`,
   host: {

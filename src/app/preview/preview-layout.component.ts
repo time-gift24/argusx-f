@@ -61,6 +61,7 @@ const PREVIEW_ITEMS = [
   { id: 'slider', label: 'Slider', reviewStatus: 'reviewed' },
   { id: 'separator', label: 'Separator', reviewStatus: 'not_processed' },
   { id: 'sheet', label: 'Sheet', reviewStatus: 'not_processed' },
+  { id: 'sidebar', label: 'Sidebar', reviewStatus: 'not_processed' },
   { id: 'skeleton', label: 'Skeleton', reviewStatus: 'not_processed' },
   { id: 'spinner', label: 'Spinner', reviewStatus: 'not_processed' },
   { id: 'table', label: 'Table', reviewStatus: 'not_processed' },
