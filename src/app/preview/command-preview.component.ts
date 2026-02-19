@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { CommandComponents } from '@app/shared/ui/command';
+import { ArgusxCommandComponents } from '@app/shared/ui/command';
 
 @Component({
   selector: 'app-command-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommandComponents],
+  imports: [ArgusxCommandComponents],
   template: `
     <div class="mx-auto max-w-3xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Command</h1>
@@ -17,41 +17,41 @@ import { CommandComponents } from '@app/shared/ui/command';
           <h2 class="text-sm font-medium text-muted-foreground">Command Palette</h2>
         </div>
         <div class="rounded-lg border border-dashed border-border p-4">
-          <app-command
+          <argusx-command
             [(value)]="selectedCommand"
             class="mx-auto max-w-lg rounded-lg border border-border"
           >
-            <app-command-input placeholder="Type a command or search..." />
-            <app-command-list>
-              <app-command-empty>No results found.</app-command-empty>
+            <argusx-command-input placeholder="Type a command or search..." />
+            <argusx-command-list>
+              <argusx-command-empty>No results found.</argusx-command-empty>
 
-              <app-command-group heading="Suggestions">
-                <app-command-item value="calendar">
+              <argusx-command-group heading="Suggestions">
+                <argusx-command-item value="calendar">
                   Calendar
-                  <app-command-shortcut>⌘K</app-command-shortcut>
-                </app-command-item>
-                <app-command-item value="search-emojis">
+                  <argusx-command-shortcut>⌘K</argusx-command-shortcut>
+                </argusx-command-item>
+                <argusx-command-item value="search-emojis">
                   Search Emojis
-                  <app-command-shortcut>⌘E</app-command-shortcut>
-                </app-command-item>
-                <app-command-item value="calculator">
+                  <argusx-command-shortcut>⌘E</argusx-command-shortcut>
+                </argusx-command-item>
+                <argusx-command-item value="calculator">
                   Calculator
-                  <app-command-shortcut>⌘C</app-command-shortcut>
-                </app-command-item>
-              </app-command-group>
+                  <argusx-command-shortcut>⌘C</argusx-command-shortcut>
+                </argusx-command-item>
+              </argusx-command-group>
 
-              <app-command-separator />
+              <argusx-command-separator />
 
-              <app-command-group heading="Settings">
-                <app-command-item value="profile">Profile</app-command-item>
-                <app-command-item value="billing">Billing</app-command-item>
-                <app-command-item value="team" [disabled]="true">
+              <argusx-command-group heading="Settings">
+                <argusx-command-item value="profile">Profile</argusx-command-item>
+                <argusx-command-item value="billing">Billing</argusx-command-item>
+                <argusx-command-item value="team" [disabled]="true">
                   Team
-                  <app-command-shortcut>Pro</app-command-shortcut>
-                </app-command-item>
-              </app-command-group>
-            </app-command-list>
-          </app-command>
+                  <argusx-command-shortcut>Pro</argusx-command-shortcut>
+                </argusx-command-item>
+              </argusx-command-group>
+            </argusx-command-list>
+          </argusx-command>
           <p class="mt-3 text-xs text-muted-foreground">
             Selected: <span class="font-medium text-foreground">{{ selectedCommand() ?? 'None' }}</span>
           </p>

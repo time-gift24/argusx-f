@@ -1,13 +1,13 @@
 export {
-  CommandComponent,
-  CommandInputComponent,
-  CommandListComponent,
-  CommandEmptyComponent,
-  CommandGroupComponent,
-  CommandItemComponent,
-  CommandShortcutComponent,
-  CommandSeparatorComponent,
-  CommandComponents,
+  ArgusxCommandComponent,
+  ArgusxCommandInputComponent,
+  ArgusxCommandListComponent,
+  ArgusxCommandEmptyComponent,
+  ArgusxCommandGroupComponent,
+  ArgusxCommandItemComponent,
+  ArgusxCommandShortcutComponent,
+  ArgusxCommandSeparatorComponent,
+  ArgusxCommandComponents,
   CommandRootToken,
 } from './command.component';
 

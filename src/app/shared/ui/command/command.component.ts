@@ -55,13 +55,14 @@ export abstract class CommandGroupToken {
 /**
  * Command Component
  * Main container for command palette functionality.
- * Aligned with official shadcn preset (.vendor/aim/components/ui/command.tsx)
+ * Aligned with shadcn/ui API
  *
- * Official comparison URL:
- * https://ui.shadcn.com/create?base=radix&style=mira&baseColor=neutral&theme=cyan&iconLibrary=lucide&font=nunito-sans&menuAccent=bold&menuColor=default&radius=medium&template=vite&rtl=false&item=command-example
+ * API:
+ * - selector: argusx-command
+ * - data-slot: command
  */
 @Component({
-  selector: 'app-command',
+  selector: 'argusx-command',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -71,12 +72,12 @@ export abstract class CommandGroupToken {
   providers: [
     {
       provide: CommandRootToken,
-      useExisting: forwardRef(() => CommandComponent),
+      useExisting: forwardRef(() => ArgusxCommandComponent),
     },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CommandComponent<T = unknown> implements CommandRootToken<T> {
+export class ArgusxCommandComponent<T = unknown> implements CommandRootToken<T> {
   readonly class = input<string>('');
   readonly value = model<T | undefined>(undefined);
   readonly disabled = input<boolean>(false);
@@ -101,7 +102,7 @@ export class CommandComponent<T = unknown> implements CommandRootToken<T> {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'bg-popover text-popover-foreground rounded-xl p-1 flex size-full flex-col overflow-hidden',
+      'bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md',
       this.class()
     )
   );
@@ -141,26 +142,28 @@ export class CommandComponent<T = unknown> implements CommandRootToken<T> {
 /**
  * Command Input Component
  * Search input for filtering command items.
+ * Aligned with shadcn/ui API
+ *
+ * API:
+ * - selector: argusx-command-input
+ * - data-slot: command-input (on input element)
+ * - data-slot: command-input-wrapper (on wrapper div)
  */
 @Component({
-  selector: 'app-command-input',
+  selector: 'argusx-command-input',
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <div data-slot="command-input-wrapper" class="p-1 pb-0">
-      <div
-        class="bg-input/20 dark:bg-input/30 h-8 flex items-center gap-3 rounded-md border border-input transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30"
-      >
-        <lucide-icon [img]="searchIcon" class="text-muted-foreground size-3.5 ml-2 shrink-0 opacity-50" />
-        <input
-          [class]="inputClass()"
-          [type]="'text'"
-          [placeholder]="placeholder()"
-          [disabled]="command.disabled()"
-          [value]="command.searchTerm()"
-          [attr.data-slot]="'command-input'"
-          (input)="onInput($event)"
-        />
-      </div>
+    <div data-slot="command-input-wrapper" class="flex h-9 items-center gap-2 border-b px-3">
+      <lucide-icon [img]="searchIcon" class="shrink-0 opacity-50 size-4" />
+      <input
+        [class]="inputClass()"
+        [type]="'text'"
+        [placeholder]="placeholder()"
+        [disabled]="command.disabled()"
+        [value]="command.searchTerm()"
+        data-slot="command-input"
+        (input)="onInput($event)"
+      />
     </div>
   `,
   host: {
@@ -168,7 +171,7 @@ export class CommandComponent<T = unknown> implements CommandRootToken<T> {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CommandInputComponent {
+export class ArgusxCommandInputComponent {
   readonly command = inject<CommandRootToken>(CommandRootToken);
 
   readonly placeholder = input<string>('Type a command or search...');
@@ -178,7 +181,7 @@ export class CommandInputComponent {
 
   protected readonly inputClass = computed(() =>
     cn(
-      'w-full text-xs/relaxed outline-hidden disabled:cursor-not-allowed disabled:opacity-50 bg-transparent border-0 pr-2 py-0.5',
+      'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
       this.class()
     )
   );
@@ -196,9 +199,14 @@ export class CommandInputComponent {
 /**
  * Command List Component
  * Scrollable container for command items.
+ * Aligned with shadcn/ui API
+ *
+ * API:
+ * - selector: argusx-command-list
+ * - data-slot: command-list
  */
 @Component({
-  selector: 'app-command-list',
+  selector: 'argusx-command-list',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -207,11 +215,11 @@ export class CommandInputComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CommandListComponent {
+export class ArgusxCommandListComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('no-scrollbar max-h-72 scroll-py-1 outline-none overflow-x-hidden overflow-y-auto', this.class())
+    cn('max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto', this.class())
   );
 }
 
@@ -222,9 +230,14 @@ export class CommandListComponent {
 /**
  * Command Empty Component
  * Shows when no results match the search term.
+ * Aligned with shadcn/ui API
+ *
+ * API:
+ * - selector: argusx-command-empty
+ * - data-slot: command-empty
  */
 @Component({
-  selector: 'app-command-empty',
+  selector: 'argusx-command-empty',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -234,12 +247,14 @@ export class CommandListComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CommandEmptyComponent {
+export class ArgusxCommandEmptyComponent {
   private readonly command = inject<CommandRootToken>(CommandRootToken);
 
   readonly class = input<string>('');
 
-  protected readonly computedClass = computed(() => cn('py-6 text-center text-xs/relaxed', this.class()));
+  protected readonly computedClass = computed(() =>
+    cn('py-6 text-center text-sm text-muted-foreground', this.class())
+  );
 }
 
 // ============================================================================
@@ -249,15 +264,20 @@ export class CommandEmptyComponent {
 /**
  * Command Group Component
  * Groups related command items with an optional heading.
+ * Aligned with shadcn/ui API
+ *
+ * API:
+ * - selector: argusx-command-group
+ * - data-slot: command-group
  */
 @Component({
-  selector: 'app-command-group',
+  selector: 'argusx-command-group',
   imports: [CommonModule],
   template: `
     @if (heading()) {
       <div
-        class="text-muted-foreground px-2.5 py-1.5 text-xs font-medium"
-        [attr.cmdk-group-heading]="true"
+        class="text-muted-foreground px-2 py-1.5 text-xs font-medium"
+        data-slot="command-group-heading"
       >
         {{ heading() }}
       </div>
@@ -273,12 +293,12 @@ export class CommandEmptyComponent {
   providers: [
     {
       provide: CommandGroupToken,
-      useExisting: forwardRef(() => CommandGroupComponent),
+      useExisting: forwardRef(() => ArgusxCommandGroupComponent),
     },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CommandGroupComponent implements CommandGroupToken {
+export class ArgusxCommandGroupComponent implements CommandGroupToken {
   readonly heading = input<string>('');
   readonly class = input<string>('');
 
@@ -295,7 +315,9 @@ export class CommandGroupComponent implements CommandGroupToken {
     return false;
   });
 
-  protected readonly computedClass = computed(() => cn('text-foreground overflow-hidden p-1', this.class()));
+  protected readonly computedClass = computed(() =>
+    cn('text-foreground overflow-hidden p-1', this.class())
+  );
 
   registerItem(isVisible: () => boolean): number {
     const id = this.nextItemId++;
@@ -323,9 +345,14 @@ export class CommandGroupComponent implements CommandGroupToken {
 /**
  * Command Separator Component
  * Visual divider between groups.
+ * Aligned with shadcn/ui API
+ *
+ * API:
+ * - selector: argusx-command-separator
+ * - data-slot: command-separator
  */
 @Component({
-  selector: 'app-command-separator',
+  selector: 'argusx-command-separator',
   imports: [CommonModule],
   template: '',
   host: {
@@ -335,10 +362,10 @@ export class CommandGroupComponent implements CommandGroupToken {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CommandSeparatorComponent {
+export class ArgusxCommandSeparatorComponent {
   readonly class = input<string>('');
 
-  protected readonly computedClass = computed(() => cn('bg-border/50 -mx-1 my-1 h-px', this.class()));
+  protected readonly computedClass = computed(() => cn('bg-border -mx-1 h-px', this.class()));
 }
 
 // ============================================================================
@@ -348,16 +375,23 @@ export class CommandSeparatorComponent {
 /**
  * Command Item Component
  * Selectable item in the command palette.
+ * Aligned with shadcn/ui API
+ *
+ * API:
+ * - selector: argusx-command-item
+ * - data-slot: command-item
+ * - data-selected: true/false
+ * - data-disabled: true/false
  */
 @Component({
-  selector: 'app-command-item',
+  selector: 'argusx-command-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <ng-content />
     @if (shortcut()) {
       <span
         data-slot="command-shortcut"
-        class="text-muted-foreground group-data-selected/command-item:text-foreground ml-auto text-[0.625rem] tracking-widest"
+        class="text-muted-foreground group-data-selected/command-item:text-foreground ml-auto text-xs tracking-widest"
       >
         {{ shortcut() }}
       </span>
@@ -374,7 +408,7 @@ export class CommandSeparatorComponent {
     '[attr.data-value]': 'stringValue()',
     '[attr.data-disabled]': 'disabled() ? "true" : null',
     '[attr.data-checked]': 'isSelected() ? "true" : "false"',
-    '[attr.data-selected]': 'isSelected() ? "" : null',
+    '[attr.data-selected]': 'isSelected() ? "true" : null',
     '[attr.aria-selected]': 'isSelected()',
     '[attr.aria-disabled]': 'disabled()',
     '[attr.hidden]': 'isVisible() ? null : ""',
@@ -383,7 +417,7 @@ export class CommandSeparatorComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CommandItemComponent<T = unknown> {
+export class ArgusxCommandItemComponent<T = unknown> {
   private readonly command = inject<CommandRootToken<T>>(CommandRootToken);
   private readonly group = inject<CommandGroupToken | null>(CommandGroupToken, {
     optional: true,
@@ -426,10 +460,8 @@ export class CommandItemComponent<T = unknown> {
 
   protected readonly computedClass = computed(() =>
     cn(
-      'data-selected:bg-muted data-selected:text-foreground data-selected:*:[svg]:text-foreground',
-      'relative flex min-h-7 cursor-default items-center gap-2 rounded-md px-2.5 py-1.5 text-xs/relaxed outline-hidden select-none',
-      'in-data-[slot=dialog-content]:rounded-md',
-      "[&_svg:not([class*='size-'])]:size-3.5",
+      'data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
+      '[&_svg:not([class*="size-"])]:size-4',
       'group/command-item',
       'data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50',
       '[&_svg]:pointer-events-none [&_svg]:shrink-0',
@@ -471,9 +503,14 @@ export class CommandItemComponent<T = unknown> {
 /**
  * Command Shortcut Component
  * Displays keyboard shortcut for a command.
+ * Aligned with shadcn/ui API
+ *
+ * API:
+ * - selector: argusx-command-shortcut
+ * - data-slot: command-shortcut
  */
 @Component({
-  selector: 'app-command-shortcut',
+  selector: 'argusx-command-shortcut',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -482,12 +519,12 @@ export class CommandItemComponent<T = unknown> {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CommandShortcutComponent {
+export class ArgusxCommandShortcutComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
     cn(
-      'text-muted-foreground group-data-selected/command-item:text-foreground ml-auto text-[0.625rem] tracking-widest',
+      'text-muted-foreground group-data-selected/command-item:text-foreground ml-auto text-xs tracking-widest',
       this.class()
     )
   );
@@ -497,13 +534,13 @@ export class CommandShortcutComponent {
 // Exports
 // ============================================================================
 
-export const CommandComponents = [
-  CommandComponent,
-  CommandInputComponent,
-  CommandListComponent,
-  CommandEmptyComponent,
-  CommandGroupComponent,
-  CommandItemComponent,
-  CommandShortcutComponent,
-  CommandSeparatorComponent,
+export const ArgusxCommandComponents = [
+  ArgusxCommandComponent,
+  ArgusxCommandInputComponent,
+  ArgusxCommandListComponent,
+  ArgusxCommandEmptyComponent,
+  ArgusxCommandGroupComponent,
+  ArgusxCommandItemComponent,
+  ArgusxCommandShortcutComponent,
+  ArgusxCommandSeparatorComponent,
 ];
