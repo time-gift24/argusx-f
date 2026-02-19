@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -11,6 +12,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule, UserCheck } from 'lucide-angular';
 import { distinctUntilChanged, filter, map } from 'rxjs';
+
+import { ArgusxCheckboxComponent } from '@app/shared/ui/checkbox';
 
 type ReviewStatus = 'not_processed' | 'ready_to_review' | 'reviewed';
 
@@ -88,7 +91,7 @@ function isPreviewItemId(id: string | null): id is PreviewItemId {
 @Component({
   selector: 'app-preview-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LucideAngularModule],
+  imports: [LucideAngularModule, ArgusxCheckboxComponent],
   template: `
     <div class="flex h-screen w-screen overflow-hidden">
       <nav class="flex h-full min-h-0 w-56 shrink-0 flex-col border-r border-border bg-sidebar">
@@ -102,6 +105,17 @@ function isPreviewItemId(id: string | null): id is PreviewItemId {
           <p class="mt-1 break-all text-[10px] text-muted-foreground">
             {{ currentRoute() }}
           </p>
+          <label
+            class="mt-2 flex cursor-pointer items-center gap-2 rounded-md border border-border/50 bg-background/50 px-2 py-1.5 text-[10px] text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          >
+            <input
+              type="checkbox"
+              [checked]="currentIsReviewed()"
+              (change)="toggleReviewed()"
+              class="size-3"
+            />
+            <span>人工审核通过</span>
+          </label>
         </div>
 
         <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-3">
@@ -118,7 +132,7 @@ function isPreviewItemId(id: string | null): id is PreviewItemId {
                 >
                   <span class="flex items-center justify-between gap-2">
                     <span class="truncate">{{ item.label }}</span>
-                    @if (item.reviewStatus === 'reviewed') {
+                    @if (reviewedComponents().has(item.id)) {
                       <lucide-icon
                         [img]="manualReviewIcon"
                         class="size-3.5 shrink-0 text-emerald-600"
@@ -153,6 +167,40 @@ export class PreviewLayoutComponent implements OnInit {
   readonly manualReviewIcon = UserCheck;
   readonly previewItems: readonly PreviewItem[] = PREVIEW_ITEMS;
   readonly currentPreview = signal<PreviewItemId>('button');
+
+  readonly reviewedComponents = signal<Set<PreviewItemId>>(new Set([
+    'button',
+    'input',
+    'card',
+    'context-menu',
+    'calendar',
+    'accordion',
+    'dialog',
+    'aspect-ratio',
+    'alert-dialog',
+    'breadcrumb',
+    'carousel',
+    'pagination',
+    'select',
+    'switch',
+    'slider',
+  ]));
+
+  readonly currentIsReviewed = computed(() =>
+    this.reviewedComponents().has(this.currentPreview())
+  );
+
+  toggleReviewed(): void {
+    this.reviewedComponents.update((set) => {
+      const newSet = new Set(set);
+      if (newSet.has(this.currentPreview())) {
+        newSet.delete(this.currentPreview());
+      } else {
+        newSet.add(this.currentPreview());
+      }
+      return newSet;
+    });
+  }
 
   readonly safeUrl = (): SafeResourceUrl => {
     const url = `/preview/${this.currentPreview()}?v=${this.iframeVersion()}`;
