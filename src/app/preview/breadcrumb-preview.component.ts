@@ -12,7 +12,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { ArgusxBreadcrumbComponents } from '@app/shared/ui/breadcrumb';
 import { DrawerComponents } from '@app/shared/ui/drawer';
-import { DropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
+import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
 
 const DESKTOP_MEDIA_QUERY = '(min-width: 768px)';
 
@@ -21,7 +21,7 @@ const DESKTOP_MEDIA_QUERY = '(min-width: 768px)';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ArgusxBreadcrumbComponents,
-    DropdownMenuComponents,
+    ArgusxDropdownMenuComponents,
     DrawerComponents,
     ArgusxButtonDirective,
     LucideAngularModule,
@@ -233,22 +233,22 @@ const DESKTOP_MEDIA_QUERY = '(min-width: 768px)';
 
                 <argusx-breadcrumb-item>
                   @if (isDesktop()) {
-                    <app-dropdown-menu>
+                    <argusx-dropdown-menu>
                       <button
                         argusx-button
                         variant="ghost"
                         class="h-auto px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
-                        appDropdownMenuTrigger
+                        argusxDropdownMenuTrigger
                       >
                         <span argusxBreadcrumbEllipsis class="size-4"></span>
                         <span class="sr-only">Toggle menu</span>
                       </button>
-                      <app-dropdown-menu-content align="start">
-                        <app-dropdown-menu-item>Documentation</app-dropdown-menu-item>
-                        <app-dropdown-menu-item>Themes</app-dropdown-menu-item>
-                        <app-dropdown-menu-item>GitHub</app-dropdown-menu-item>
-                      </app-dropdown-menu-content>
-                    </app-dropdown-menu>
+                      <argusx-dropdown-menu-content align="start">
+                        <argusx-dropdown-menu-item>Documentation</argusx-dropdown-menu-item>
+                        <argusx-dropdown-menu-item>Themes</argusx-dropdown-menu-item>
+                        <argusx-dropdown-menu-item>GitHub</argusx-dropdown-menu-item>
+                      </argusx-dropdown-menu-content>
+                    </argusx-dropdown-menu>
                   } @else {
                     <app-drawer direction="bottom" size="sm">
                       <button
