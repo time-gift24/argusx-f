@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { SeparatorComponent } from '@app/shared/ui/separator';
+import { ArgusxSeparatorComponent } from '@app/shared/ui/separator';
 
 @Component({
   selector: 'app-separator-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SeparatorComponent],
+  imports: [ArgusxSeparatorComponent],
   template: `
     <div class="mx-auto max-w-3xl p-8 space-y-8">
       <h1 class="mb-2 text-2xl font-semibold">Separator</h1>
@@ -19,7 +19,7 @@ import { SeparatorComponent } from '@app/shared/ui/separator';
         <div class="rounded-lg border border-dashed border-border p-6 space-y-3">
           <p class="text-xs font-medium">Account</p>
           <p class="text-xs text-muted-foreground">Manage your profile and security settings.</p>
-          <app-separator />
+          <argusx-separator />
           <p class="text-xs text-muted-foreground">Last synced 2 minutes ago.</p>
         </div>
       </section>
@@ -31,9 +31,9 @@ import { SeparatorComponent } from '@app/shared/ui/separator';
         <div class="rounded-lg border border-dashed border-border p-6">
           <div class="flex items-center gap-3 text-xs">
             <span>Overview</span>
-            <app-separator orientation="vertical" class="h-4" />
+            <argusx-separator orientation="vertical" class="h-4" />
             <span>Integrations</span>
-            <app-separator orientation="vertical" class="h-4" />
+            <argusx-separator orientation="vertical" class="h-4" />
             <span>Billing</span>
           </div>
         </div>

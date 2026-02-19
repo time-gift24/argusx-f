@@ -5,7 +5,7 @@ import {
   input,
 } from '@angular/core';
 import { cn } from '../../utils/cn';
-import { SeparatorComponent } from '../separator/separator.component';
+import { ArgusxSeparatorComponent } from '../separator/separator.component';
 
 /**
  * FieldSeparator component for separating field groups.
@@ -20,9 +20,9 @@ import { SeparatorComponent } from '../separator/separator.component';
 @Component({
   selector: 'argusx-field-separator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SeparatorComponent],
+  imports: [ArgusxSeparatorComponent],
   template: `
-    <app-separator class="absolute inset-0 top-1/2" />
+    <argusx-separator class="absolute inset-0 top-1/2" />
     @if (hasContent()) {
       <span
         class="text-muted-foreground px-2 bg-background relative mx-auto block w-fit"

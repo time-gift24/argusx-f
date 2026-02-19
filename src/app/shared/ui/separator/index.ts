@@ -1,1 +1,1 @@
-export { SeparatorComponent } from './separator.component';
+export { ArgusxSeparatorComponent } from './separator.component';

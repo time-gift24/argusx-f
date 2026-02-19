@@ -8,17 +8,17 @@ import { cn } from '../../utils/cn';
  * @example
  * ```html
  * <!-- Horizontal separator (default) -->
- * <app-separator />
+ * <argusx-separator />
  *
  * <!-- Vertical separator -->
- * <app-separator orientation="vertical" />
+ * <argusx-separator orientation="vertical" />
  *
  * <!-- Non-decorative (accessible) separator -->
- * <app-separator decorative="false" />
+ * <argusx-separator decorative="false" />
  * ```
  */
 @Component({
-  selector: 'app-separator',
+  selector: 'argusx-separator',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: '',
   host: {
@@ -30,7 +30,7 @@ import { cn } from '../../utils/cn';
     '[class]': 'computedClass()',
   },
 })
-export class SeparatorComponent {
+export class ArgusxSeparatorComponent {
   /**
    * Orientation of the separator.
    * @default 'horizontal'
