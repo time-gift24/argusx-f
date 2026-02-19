@@ -66,7 +66,7 @@ const PREVIEW_ITEMS = [
   { id: 'spinner', label: 'Spinner', reviewStatus: 'not_processed' },
   { id: 'table', label: 'Table', reviewStatus: 'not_processed' },
   { id: 'tabs', label: 'Tabs', reviewStatus: 'not_processed' },
-  { id: 'textarea', label: 'Textarea', reviewStatus: 'ready_to_review' },
+  { id: 'textarea', label: 'Textarea', reviewStatus: 'reviewed' },
   { id: 'toast', label: 'Toast', reviewStatus: 'not_processed' },
   { id: 'toggle', label: 'Toggle', reviewStatus: 'not_processed' },
   { id: 'toggle-group', label: 'Toggle Group', reviewStatus: 'not_processed' },
