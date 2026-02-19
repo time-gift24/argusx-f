@@ -14,7 +14,7 @@ import { cn } from '../../utils/cn';
  * ```html
  * <app-field>
  *   <app-field-label>Password</app-field-label>
- *   <input appInput type="password" />
+ *   <input argusxInput type="password" />
  *   <app-field-description>Must be at least 8 characters.</app-field-description>
  * </app-field>
  * ```

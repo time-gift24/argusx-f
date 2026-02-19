@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { InputDirective } from '@app/shared/ui/input';
+import { ArgusxInputDirective } from '@app/shared/ui/input';
 import { LabelDirective } from '@app/shared/ui/label';
 
 @Component({
   selector: 'app-label-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LabelDirective, InputDirective],
+  imports: [LabelDirective, ArgusxInputDirective],
   template: `
     <div class="mx-auto max-w-3xl p-8 space-y-8">
       <h1 class="mb-2 text-2xl font-semibold">Label</h1>
@@ -20,15 +20,15 @@ import { LabelDirective } from '@app/shared/ui/label';
         <div class="rounded-lg border border-dashed border-border p-6 space-y-4">
           <div class="space-y-1.5">
             <label appLabel for="label-email">Email</label>
-            <input appInput id="label-email" type="email" placeholder="name@example.com" size="md" />
+            <input argusxInput id="label-email" type="email" placeholder="name@example.com" />
           </div>
           <div class="space-y-1.5">
             <label appLabel for="label-password">Password</label>
-            <input appInput id="label-password" type="password" placeholder="••••••••" size="md" />
+            <input argusxInput id="label-password" type="password" placeholder="••••••••" />
           </div>
           <div class="space-y-1.5">
             <label appLabel class="peer-disabled:opacity-50" for="label-disabled">Disabled input</label>
-            <input appInput id="label-disabled" [disabled]="true" value="Locked field" size="md" />
+            <input argusxInput id="label-disabled" [disabled]="true" value="Locked field" />
           </div>
         </div>
       </section>

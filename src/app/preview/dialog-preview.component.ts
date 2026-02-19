@@ -9,7 +9,7 @@ import {
   DialogTitleComponent,
 } from '@app/shared/ui/dialog';
 import { ArgusxButtonDirective } from '@app/shared/ui/button';
-import { InputDirective } from '@app/shared/ui/input';
+import { ArgusxInputDirective } from '@app/shared/ui/input';
 import { LabelDirective } from '@app/shared/ui/label';
 
 type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
@@ -26,7 +26,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
     DialogFooterComponent,
     DialogCloseDirective,
     ArgusxButtonDirective,
-    InputDirective,
+    ArgusxInputDirective,
     LabelDirective,
   ],
   template: `
@@ -101,11 +101,11 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
             <div class="grid gap-3">
               <div class="grid gap-1.5">
                 <label appLabel for="dialog-form-name">Name</label>
-                <input appInput id="dialog-form-name" value="Pedro Duarte" size="md" />
+                <input argusxInput id="dialog-form-name" value="Pedro Duarte" />
               </div>
               <div class="grid gap-1.5">
                 <label appLabel for="dialog-form-username">Username</label>
-                <input appInput id="dialog-form-username" value="@peduarte" size="md" />
+                <input argusxInput id="dialog-form-username" value="@peduarte" />
               </div>
             </div>
 
@@ -119,7 +119,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
 
       @if (scrollableOpen()) {
         <div argus-dialog [(open)]="scrollableOpen">
-          <div argus-dialog-content size="lg">
+          <div argus-dialog-content>
             <div argus-dialog-header>
               <h3 argus-dialog-title>Scrollable Content</h3>
               <p argus-dialog-description>
@@ -142,7 +142,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
 
       @if (stickyFooterOpen()) {
         <div argus-dialog [(open)]="stickyFooterOpen">
-          <div argus-dialog-content size="lg">
+          <div argus-dialog-content>
             <div argus-dialog-header>
               <h3 argus-dialog-title>Scrollable Content</h3>
               <p argus-dialog-description>
@@ -186,7 +186,7 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
 
       @if (chatSettingsOpen()) {
         <div argus-dialog [(open)]="chatSettingsOpen">
-          <div argus-dialog-content size="lg">
+          <div argus-dialog-content>
             <div argus-dialog-header>
               <h3 argus-dialog-title>Chat Settings</h3>
               <p argus-dialog-description>
@@ -199,7 +199,6 @@ type ChatTab = 'general' | 'notifications' | 'personalization' | 'security';
                 @for (tab of chatTabs; track tab.id) {
                   <button
                     argusx-button
-                    size="sm"
                     [variant]="chatTab() === tab.id ? 'secondary' : 'ghost'"
                     class="justify-start"
                     (click)="chatTab.set(tab.id)"

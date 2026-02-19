@@ -25,7 +25,7 @@ import {
   FieldErrorComponent,
   FieldLabelComponent,
 } from '../shared/ui/field';
-import { InputDirective } from '../shared/ui/input';
+import { ArgusxInputDirective } from '../shared/ui/input';
 import {
   NativeSelectDirective,
   NativeSelectIconDirective,
@@ -71,7 +71,7 @@ interface PlanOption {
     FieldLabelComponent,
     FieldDescriptionComponent,
     FieldErrorComponent,
-    InputDirective,
+    ArgusxInputDirective,
     NativeSelectWrapperDirective,
     NativeSelectDirective,
     NativeSelectOptionDirective,
@@ -320,7 +320,7 @@ interface PlanOption {
         <section class="space-y-2 rounded-md border border-dashed p-4">
           <h2 class="text-muted-foreground text-xs">Inline with Input & NativeSelect</h2>
           <div class="flex items-center gap-2">
-            <input appInput placeholder="Search..." class="flex-1" />
+            <input argusxInput placeholder="Search..." class="flex-1" />
             <app-select [(value)]="inlineFilterValue" [class]="'w-[140px]'">
               <app-select-value>
                 {{ optionLabel(inlineFilters, inlineFilterValue(), 'Filter') }}

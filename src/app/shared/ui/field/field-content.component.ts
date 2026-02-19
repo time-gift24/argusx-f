@@ -15,7 +15,7 @@ import { cn } from '../../utils/cn';
  * <app-field>
  *   <app-field-label>Username</app-field-label>
  *   <app-field-content>
- *     <input appInput type="text" />
+ *     <input argusxInput type="text" />
  *   </app-field-content>
  * </app-field>
  * ```

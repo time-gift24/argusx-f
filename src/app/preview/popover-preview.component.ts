@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ArgusxButtonDirective } from '@app/shared/ui/button';
-import { InputDirective } from '@app/shared/ui/input';
+import { ArgusxInputDirective } from '@app/shared/ui/input';
 import { LabelDirective } from '@app/shared/ui/label';
 import { PopoverComponents } from '@app/shared/ui/popover';
 
 @Component({
   selector: 'app-popover-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PopoverComponents, ArgusxButtonDirective, LabelDirective, InputDirective],
+  imports: [PopoverComponents, ArgusxButtonDirective, LabelDirective, ArgusxInputDirective],
   template: `
     <div class="mx-auto max-w-3xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Popover</h1>
@@ -34,11 +34,11 @@ import { PopoverComponents } from '@app/shared/ui/popover';
               <div class="grid gap-2">
                 <div class="grid grid-cols-[72px_1fr] items-center gap-2">
                   <label appLabel for="popover-width">Width</label>
-                  <input appInput id="popover-width" size="md" [value]="width()" />
+                  <input argusxInput id="popover-width" [value]="width()" />
                 </div>
                 <div class="grid grid-cols-[72px_1fr] items-center gap-2">
                   <label appLabel for="popover-height">Height</label>
-                  <input appInput id="popover-height" size="md" [value]="height()" />
+                  <input argusxInput id="popover-height" [value]="height()" />
                 </div>
               </div>
             </app-popover-content>
