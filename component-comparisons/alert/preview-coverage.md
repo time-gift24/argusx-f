@@ -9,33 +9,31 @@
 
 ## Preview Coverage Details
 
-### Shadcn-aligned APIs
-- Basic alert (title only)
-- Alert with icon, title and description
-- Destructive variant
+### Conflict APIs (shadcn-aligned)
+- 基线默认态：icon + title + description（`Shadcn Baseline` 第一项）
+- 基线标题-only：icon + title（`Shadcn Baseline` 第二项）
+- destructive 场景：icon + title + rich description(list)（`Shadcn Baseline` 第三项）
 
 ### ArgusX Plain Extensions
-- Additional variants: info, warning, success
-- Alert action buttons
-- Long content handling
+- semantic variants：`info` / `warning` / `success`（`ArgusX Plain Extensions`）
+- plain + extension 叠加：`variant="plain"` + `argusx-alert-action`（`ArgusX Plain Extensions` 第四项）
+- action slot 组合：按钮组与 badge 操作区（`Complex Combination`）
 
-### State Combinations
-- Title only
-- Description only
-- Icon + title
-- Icon + description
-- Icon + title + description
-- With actions (buttons)
-- Extended content (long text)
+### Key States
+- title + description
+- title-only
+- destructive + list content
+- plain + action slot
+- semantic variant states (`info`/`warning`/`success`)
 
 ### Complex Combined Scenario
-- Extended content with multiple variants and actions
+- `warning` + icon + title + rich description(list) + `argusx-alert-action` + badge + multi-button actions
 
 ## Local Preview Routes
 - main: `/preview?component=alert`
 - reference: `https://ui.shadcn.com/preview/radix/alert-example`
 
 ## Verification Notes
-- build: PASSED
-- tests: N/A (no spec files for alert component)
-- manual check: Available at http://localhost:4200/preview/alert
+- build: `npm run build` passed (warnings in unrelated markdown/mermaid CommonJS deps and markdown CSS budget)
+- tests: `npx vitest run src/app/shared/ui/alert/alert.component.spec.ts` passed (3/3)
+- manual check: not executed in this session
