@@ -1,8 +1,8 @@
 export {
-  HoverCardComponent,
-  HoverCardTriggerDirective,
-  HoverCardContentComponent,
-  HoverCardComponents,
+  ArgusxHoverCardComponent,
+  ArgusxHoverCardTriggerDirective,
+  ArgusxHoverCardContentComponent,
+  ArgusxHoverCardComponents,
 } from './hover-card.component';
 
-export type { HoverCardSide, HoverCardAlign } from './hover-card.component';
+export type { ArgusxHoverCardSide, ArgusxHoverCardAlign } from './hover-card.component';

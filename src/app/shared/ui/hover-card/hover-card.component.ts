@@ -22,19 +22,19 @@ import { cn } from '../../utils/cn';
 // Types
 // ============================================================================
 
-export type HoverCardSide = 'top' | 'right' | 'bottom' | 'left';
-export type HoverCardAlign = 'start' | 'center' | 'end';
+export type ArgusxHoverCardSide = 'top' | 'right' | 'bottom' | 'left';
+export type ArgusxHoverCardAlign = 'start' | 'center' | 'end';
 
 // ============================================================================
-// Hover Card Trigger Directive
+// Argusx Hover Card Trigger Directive
 // ============================================================================
 
 /**
- * Hover Card Trigger Directive
+ * Argusx Hover Card Trigger Directive
  * Opens the hover card when mouse enters
  */
 @Directive({
-  selector: '[appHoverCardTrigger]',
+  selector: '[argusxHoverCardTrigger]',
   host: {
     '[attr.data-slot]': '"hover-card-trigger"',
     '[attr.aria-haspopup]': '"dialog"',
@@ -45,8 +45,8 @@ export type HoverCardAlign = 'start' | 'center' | 'end';
     '(blur)': 'onBlur()',
   },
 })
-export class HoverCardTriggerDirective {
-  readonly hoverCard = inject(HoverCardComponent);
+export class ArgusxHoverCardTriggerDirective {
+  readonly hoverCard = inject(ArgusxHoverCardComponent);
   readonly elementRef = inject(ElementRef<HTMLElement>);
 
   onMouseEnter(): void {
@@ -67,16 +67,16 @@ export class HoverCardTriggerDirective {
 }
 
 // ============================================================================
-// Hover Card Content Component
+// Argusx Hover Card Content Component
 // ============================================================================
 
 /**
- * Hover Card Content Component
+ * Argusx Hover Card Content Component
  * The content that appears when hovering
  * Wrapper component that configures the content in the parent
  */
 @Component({
-  selector: 'app-hover-card-content',
+  selector: 'argusx-hover-card-content',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -85,12 +85,12 @@ export class HoverCardTriggerDirective {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HoverCardContentComponent {
-  private readonly hoverCard = inject(HoverCardComponent);
+export class ArgusxHoverCardContentComponent {
+  private readonly hoverCard = inject(ArgusxHoverCardComponent);
 
-  readonly side = input<HoverCardSide>('bottom');
+  readonly side = input<ArgusxHoverCardSide>('bottom');
   readonly sideOffset = input<number>(4);
-  readonly align = input<HoverCardAlign>('center');
+  readonly align = input<ArgusxHoverCardAlign>('center');
   readonly alignOffset = input<number>(0);
   readonly class = input<string>('');
 
@@ -107,18 +107,18 @@ export class HoverCardContentComponent {
 }
 
 // ============================================================================
-// Hover Card Root Component
+// Argusx Hover Card Root Component
 // ============================================================================
 
 let hoverCardIdCounter = 0;
 
 /**
- * Hover Card Root Component
+ * Argusx Hover Card Root Component
  * Uses Angular CDK Overlay for positioning
  * Shows content on hover with configurable delay
  */
 @Component({
-  selector: 'app-hover-card',
+  selector: 'argusx-hover-card',
   imports: [
     CommonModule,
     OverlayModule,
@@ -127,7 +127,7 @@ let hoverCardIdCounter = 0;
     <div class="inline-flex">
       <!-- Trigger element -->
       <div cdkOverlayOrigin #trigger="cdkOverlayOrigin">
-        <ng-content select="[appHoverCardTrigger]" />
+        <ng-content select="[argusxHoverCardTrigger]" />
       </div>
 
       <!-- Hover card content via CDK Overlay -->
@@ -142,6 +142,7 @@ let hoverCardIdCounter = 0;
           [class]="contentClass()"
           role="dialog"
           [attr.data-state]="open() ? 'open' : 'closed'"
+          [attr.data-side]="contentSide()"
           (mouseenter)="onContentEnter()"
           (mouseleave)="onContentLeave()"
           (keydown)="onKeydown($event)">
@@ -155,7 +156,7 @@ let hoverCardIdCounter = 0;
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HoverCardComponent {
+export class ArgusxHoverCardComponent {
   readonly open = model<boolean>(false);
 
   readonly openDelay = input<number>(200);
@@ -166,9 +167,9 @@ export class HoverCardComponent {
   private openTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private closeTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
-  private readonly contentSide = signal<HoverCardSide>('bottom');
+  protected readonly contentSide = signal<ArgusxHoverCardSide>('bottom');
   private readonly contentSideOffset = signal<number>(4);
-  private readonly contentAlign = signal<HoverCardAlign>('center');
+  private readonly contentAlign = signal<ArgusxHoverCardAlign>('center');
   private readonly contentAlignOffset = signal<number>(0);
   private readonly contentClassOverride = signal<string>('');
 
@@ -261,9 +262,9 @@ export class HoverCardComponent {
   }
 
   registerContentConfig(config: {
-    side?: HoverCardSide;
+    side?: ArgusxHoverCardSide;
     sideOffset?: number;
-    align?: HoverCardAlign;
+    align?: ArgusxHoverCardAlign;
     alignOffset?: number;
     className?: string;
   }): void {
@@ -314,8 +315,8 @@ export class HoverCardComponent {
 // Exports
 // ============================================================================
 
-export const HoverCardComponents = [
-  HoverCardComponent,
-  HoverCardTriggerDirective,
-  HoverCardContentComponent,
+export const ArgusxHoverCardComponents = [
+  ArgusxHoverCardComponent,
+  ArgusxHoverCardTriggerDirective,
+  ArgusxHoverCardContentComponent,
 ];
