@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { ButtonComponent } from '@app/shared/ui/button';
+import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
 
 @Component({
   selector: 'app-dropdown-menu-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ArgusxDropdownMenuComponents, ButtonComponent],
+  imports: [ArgusxDropdownMenuComponents, ArgusxButtonDirective],
   template: `
     <div class="bg-background w-full">
       <div class="mx-auto grid w-full max-w-5xl min-w-0 content-start gap-8 p-4 sm:p-6 md:grid-cols-2 lg:p-12">
@@ -20,7 +20,7 @@ import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
           <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">Basic</div>
           <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-4 border border-dashed p-4 sm:p-6">
             <argusx-dropdown-menu>
-              <button argus-button variant="outline" argusxDropdownMenuTrigger>
+              <button argusx-button variant="outline" argusxDropdownMenuTrigger>
                 Open Menu
               </button>
               <argusx-dropdown-menu-content>
@@ -59,7 +59,7 @@ import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
           <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-4 border border-dashed p-4 sm:p-6">
             <div class="flex flex-wrap gap-3">
               <argusx-dropdown-menu>
-                <button argus-button variant="outline" argusxDropdownMenuTrigger>
+                <button argusx-button variant="outline" argusxDropdownMenuTrigger>
                   Directive Trigger
                 </button>
                 <argusx-dropdown-menu-content>
@@ -71,7 +71,7 @@ import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
 
               <argusx-dropdown-menu>
                 <argusx-dropdown-menu-trigger>
-                  <button argus-button variant="secondary">
+                  <button argusx-button variant="secondary">
                     Component Trigger
                   </button>
                 </argusx-dropdown-menu-trigger>
@@ -90,7 +90,7 @@ import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
           <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-4 border border-dashed p-4 sm:p-6">
             <div class="flex flex-wrap gap-3">
               <argusx-dropdown-menu>
-                <button argus-button variant="outline" argusxDropdownMenuTrigger>
+                <button argusx-button variant="outline" argusxDropdownMenuTrigger>
                   Start + 4
                 </button>
                 <argusx-dropdown-menu-content align="start" [sideOffset]="4">
@@ -100,7 +100,7 @@ import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
               </argusx-dropdown-menu>
 
               <argusx-dropdown-menu>
-                <button argus-button variant="outline" argusxDropdownMenuTrigger>
+                <button argusx-button variant="outline" argusxDropdownMenuTrigger>
                   Center + 12
                 </button>
                 <argusx-dropdown-menu-content align="center" [sideOffset]="12">
@@ -110,7 +110,7 @@ import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
               </argusx-dropdown-menu>
 
               <argusx-dropdown-menu>
-                <button argus-button variant="outline" argusxDropdownMenuTrigger>
+                <button argusx-button variant="outline" argusxDropdownMenuTrigger>
                   End + 4
                 </button>
                 <argusx-dropdown-menu-content align="end" [sideOffset]="4">
@@ -126,7 +126,7 @@ import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
           <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Shortcuts</div>
           <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-4 border border-dashed p-4 sm:p-6">
             <argusx-dropdown-menu>
-              <button argus-button variant="outline" argusxDropdownMenuTrigger>
+              <button argusx-button variant="outline" argusxDropdownMenuTrigger>
                 Open Menu
               </button>
               <argusx-dropdown-menu-content>
@@ -160,7 +160,7 @@ import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
           <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Submenu</div>
           <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-4 border border-dashed p-4 sm:p-6">
             <argusx-dropdown-menu>
-              <button argus-button variant="outline" argusxDropdownMenuTrigger>
+              <button argusx-button variant="outline" argusxDropdownMenuTrigger>
                 Open Menu
               </button>
               <argusx-dropdown-menu-content>
@@ -192,7 +192,7 @@ import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
           <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Checkboxes And Radio</div>
           <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-4 border border-dashed p-4 sm:p-6">
             <argusx-dropdown-menu>
-              <button argus-button variant="outline" argusxDropdownMenuTrigger>
+              <button argusx-button variant="outline" argusxDropdownMenuTrigger>
                 Open Preferences
               </button>
               <argusx-dropdown-menu-content>
@@ -235,7 +235,7 @@ import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
           <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">Disabled And Destructive</div>
           <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-4 border border-dashed p-4 sm:p-6">
             <argusx-dropdown-menu>
-              <button argus-button variant="outline" argusxDropdownMenuTrigger>
+              <button argusx-button variant="outline" argusxDropdownMenuTrigger>
                 Open Actions
               </button>
               <argusx-dropdown-menu-content>
@@ -253,7 +253,7 @@ import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
           <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Inset</div>
           <div class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-4 border border-dashed p-4 sm:p-6">
             <argusx-dropdown-menu>
-              <button argus-button variant="outline" argusxDropdownMenuTrigger>
+              <button argusx-button variant="outline" argusxDropdownMenuTrigger>
                 Open Menu
               </button>
               <argusx-dropdown-menu-content>
