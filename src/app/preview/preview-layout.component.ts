@@ -13,8 +13,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule, UserCheck } from 'lucide-angular';
 import { distinctUntilChanged, filter, map } from 'rxjs';
 
-import { ArgusxCheckboxComponent } from '@app/shared/ui/checkbox';
-
 type ReviewStatus = 'not_processed' | 'ready_to_review' | 'reviewed';
 
 const PREVIEW_ITEMS = [
@@ -91,7 +89,7 @@ function isPreviewItemId(id: string | null): id is PreviewItemId {
 @Component({
   selector: 'app-preview-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LucideAngularModule, ArgusxCheckboxComponent],
+  imports: [LucideAngularModule],
   template: `
     <div class="flex h-screen w-screen overflow-hidden">
       <nav class="flex h-full min-h-0 w-56 shrink-0 flex-col border-r border-border bg-sidebar">
