@@ -25,6 +25,8 @@ describe('ArgusxInputDirective', () => {
     expect(input.getAttribute('data-status')).toBeNull();
     expect(input.getAttribute('data-size')).toBeNull();
     expect(input.className).toContain('border-input');
+    expect(input.className).toContain('h-7');
+    expect(input.className).not.toContain('h-9');
   });
 
   it('keeps aria-invalid visual contract via class list', () => {

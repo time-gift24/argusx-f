@@ -32,7 +32,7 @@ const PREVIEW_ITEMS = [
   { id: 'alert-dialog', label: 'Alert Dialog', reviewStatus: 'reviewed' },
   { id: 'badge', label: 'Badge', reviewStatus: 'ready_to_review' },
   { id: 'breadcrumb', label: 'Breadcrumb', reviewStatus: 'reviewed' },
-  { id: 'button-group', label: 'Button Group', reviewStatus: 'not_processed' },
+  { id: 'button-group', label: 'Button Group', reviewStatus: 'reviewed' },
   { id: 'carousel', label: 'Carousel', reviewStatus: 'reviewed' },
   { id: 'chart', label: 'Chart', reviewStatus: 'reviewed' },
   { id: 'checkbox', label: 'Checkbox', reviewStatus: 'reviewed' },
