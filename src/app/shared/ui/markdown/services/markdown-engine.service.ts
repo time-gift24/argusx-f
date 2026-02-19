@@ -1,5 +1,12 @@
 import { Injectable, inject } from '@angular/core';
-import type { Element, Nodes, Parents, Root, RootContent } from 'hast';
+import type {
+  Element,
+  ElementContent,
+  Nodes,
+  Parents,
+  Root,
+  RootContent,
+} from 'hast';
 import { urlAttributes } from 'html-url-attributes';
 import type { HTML, Root as MdastRoot } from 'mdast';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
@@ -264,6 +271,7 @@ export class MarkdownEngineService {
       options.urlTransform !== DEFAULT_URL_TRANSFORM;
 
     if (!hasFiltering) {
+      this.normalizeTableRows(tree as Root);
       return tree as Root;
     }
 
@@ -301,6 +309,7 @@ export class MarkdownEngineService {
       return index;
     });
 
+    this.normalizeTableRows(tree as Root);
     return tree as Root;
   }
 
@@ -358,6 +367,148 @@ export class MarkdownEngineService {
     }
 
     return remove;
+  }
+
+  private normalizeTableRows(tree: Root): void {
+    visit(tree, 'element', (node: Element) => {
+      if (node.tagName !== 'table') {
+        return;
+      }
+
+      const columnCount = this.resolveTableColumnCount(node);
+      if (columnCount <= 1) {
+        return;
+      }
+
+      const tbody = node.children.find((child): child is Element =>
+        this.isElementTag(child, 'tbody')
+      );
+      if (!tbody || tbody.children.length === 0) {
+        return;
+      }
+
+      const normalizedRows: ElementContent[] = [];
+      let hasChanges = false;
+      let pendingCells: ElementContent[] = [];
+
+      const flushPendingCells = (): void => {
+        if (pendingCells.length === 0) {
+          return;
+        }
+
+        hasChanges = true;
+        if (pendingCells.length % columnCount === 0) {
+          for (let index = 0; index < pendingCells.length; index += columnCount) {
+            normalizedRows.push(
+              this.createTableRow(
+                pendingCells.slice(index, index + columnCount)
+              )
+            );
+          }
+        } else {
+          normalizedRows.push(this.createTableRow([...pendingCells]));
+        }
+
+        pendingCells = [];
+      };
+
+      for (const row of tbody.children) {
+        if (this.isWhitespaceTextNode(row)) {
+          continue;
+        }
+
+        if (this.isTableCell(row)) {
+          pendingCells.push(row);
+          continue;
+        }
+
+        flushPendingCells();
+
+        if (!this.isElementTag(row, 'tr')) {
+          normalizedRows.push(row);
+          continue;
+        }
+
+        const rowElement = row as Element;
+        const rowCells = rowElement.children.filter((cell: ElementContent) =>
+          this.isTableCell(cell)
+        );
+        const cellCount = rowCells.length;
+        const hasNonCellContent = rowElement.children.some(
+          (cell: ElementContent) =>
+            !this.isWhitespaceTextNode(cell) && !this.isTableCell(cell)
+        );
+        const shouldSplit =
+          !hasNonCellContent &&
+          cellCount > columnCount &&
+          cellCount % columnCount === 0;
+
+        if (!shouldSplit) {
+          normalizedRows.push(rowElement);
+          continue;
+        }
+
+        hasChanges = true;
+        for (let index = 0; index < cellCount; index += columnCount) {
+          normalizedRows.push({
+            type: 'element',
+            tagName: 'tr',
+            properties: { ...rowElement.properties },
+            children: rowCells.slice(index, index + columnCount),
+          });
+        }
+      }
+
+      flushPendingCells();
+
+      if (hasChanges) {
+        tbody.children = normalizedRows;
+      }
+    });
+  }
+
+  private resolveTableColumnCount(table: Element): number {
+    const thead = table.children.find((child): child is Element =>
+      this.isElementTag(child, 'thead')
+    );
+    if (!thead) {
+      return 0;
+    }
+
+    const headerRow = thead.children.find((child): child is Element =>
+      this.isElementTag(child, 'tr')
+    );
+    if (!headerRow) {
+      return 0;
+    }
+
+    return headerRow.children.filter(
+      (cell) => this.isTableCell(cell)
+    ).length;
+  }
+
+  private isTableCell(node: RootContent | ElementContent): node is Element {
+    return this.isElementTag(node, 'td') || this.isElementTag(node, 'th');
+  }
+
+  private isWhitespaceTextNode(node: RootContent | ElementContent): boolean {
+    return node.type === 'text' && node.value.trim().length === 0;
+  }
+
+  private isElementTag(
+    node: RootContent | ElementContent,
+    tagName: string
+  ): node is Element {
+    return node.type === 'element' && node.tagName === tagName;
+  }
+
+  private createTableRow(cells: ElementContent[]): Element {
+    return {
+      type: 'element',
+      tagName: 'tr',
+      properties: {},
+      children: cells,
+    };
   }
 
   private toRenderRoot(tree: Root): RenderRootNode {

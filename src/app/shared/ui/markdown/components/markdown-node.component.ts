@@ -3,9 +3,11 @@ import {
   Component,
   computed,
   forwardRef,
+  inject,
   input,
   signal,
 } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import type {
   RenderElementNode,
   RenderNode,
@@ -17,9 +19,28 @@ import { MermaidComponent } from './mermaid.component';
 import { TableControlsComponent } from './table-controls.component';
 
 const FILE_EXTENSION_PATTERN = /\.[^/.]+$/;
+const HTML_VOID_TAGS = new Set([
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+]);
 
 @Component({
   selector: 'sd-markdown-node',
+  host: {
+    'style': 'display: contents;',
+  },
   imports: [
     forwardRef(() => MarkdownNodeComponent),
     CodeBlockComponent,
@@ -210,11 +231,10 @@ const FILE_EXTENSION_PATTERN = /\.[^/.]+$/;
                 <sd-table-controls></sd-table-controls>
               }
               <div class="overflow-x-auto overscroll-y-auto">
-                <table [attr.style]="styleText()" [class]="className()">
-                  @for (child of children(); track $index) {
-                    <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
-                  }
-                </table>
+                <table
+                  [attr.style]="styleText()"
+                  [class]="className()"
+                  [innerHTML]="tableInnerSafeHtml()"></table>
               </div>
             </div>
           }
@@ -312,6 +332,7 @@ const FILE_EXTENSION_PATTERN = /\.[^/.]+$/;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MarkdownNodeComponent {
+  private readonly domSanitizer = inject(DomSanitizer);
   private readonly pendingLinkHref = signal<string | null>(null);
   private linkCheckVersion = 0;
 
@@ -356,6 +377,16 @@ export class MarkdownNodeComponent {
 
     return this.toStyleText(properties['style']);
   });
+  readonly tableInnerHtml = computed(() => {
+    if (this.tagName() !== 'table') {
+      return '';
+    }
+
+    return this.children().map((child) => this.serializeNodeToHtml(child)).join('');
+  });
+  readonly tableInnerSafeHtml = computed<SafeHtml>(() =>
+    this.domSanitizer.bypassSecurityTrustHtml(this.tableInnerHtml())
+  );
 
   readonly codeChild = computed<RenderElementNode | null>(() => {
     if (this.tagName() !== 'pre') {
@@ -622,5 +653,74 @@ export class MarkdownNodeComponent {
       .filter((item): item is string => item !== null);
 
     return styleEntries.length > 0 ? `${styleEntries.join(';')};` : null;
+  }
+
+  private serializeNodeToHtml(node: RenderNode): string {
+    if (node.kind === 'text') {
+      return this.escapeHtml(node.value);
+    }
+
+    if (node.kind === 'root') {
+      return node.children.map((child) => this.serializeNodeToHtml(child)).join('');
+    }
+
+    const tagName = node.tagName.toLowerCase();
+    const attributes = this.serializeHtmlAttributes(node.properties);
+    if (HTML_VOID_TAGS.has(tagName)) {
+      return `<${tagName}${attributes}>`;
+    }
+
+    const children = node.children
+      .map((child) => this.serializeNodeToHtml(child))
+      .join('');
+    return `<${tagName}${attributes}>${children}</${tagName}>`;
+  }
+
+  private serializeHtmlAttributes(properties: Record<string, unknown>): string {
+    let serialized = '';
+
+    for (const [rawKey, rawValue] of Object.entries(properties)) {
+      if (rawValue === null || rawValue === undefined || rawValue === false) {
+        continue;
+      }
+
+      const key = this.normalizeAttributeName(rawKey);
+      const value =
+        key === 'style'
+          ? this.toStyleText(rawValue)
+          : this.stringifyAttribute(rawValue);
+
+      if (!value) {
+        if (rawValue === true) {
+          serialized += ` ${key}`;
+        }
+        continue;
+      }
+
+      serialized += ` ${key}="${this.escapeHtmlAttribute(value)}"`;
+    }
+
+    return serialized;
+  }
+
+  private normalizeAttributeName(name: string): string {
+    if (name === 'className') {
+      return 'class';
+    }
+
+    return name.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`);
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;');
+  }
+
+  private escapeHtmlAttribute(value: string): string {
+    return this.escapeHtml(value)
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
   }
 }
