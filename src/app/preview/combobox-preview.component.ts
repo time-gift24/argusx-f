@@ -11,7 +11,7 @@ import {
   DialogTitleComponent,
 } from '@app/shared/ui/dialog';
 import { ArgusxInputDirective } from '@app/shared/ui/input';
-import { PopoverComponents } from '@app/shared/ui/popover';
+import { ArgusxPopoverComponents } from '@app/shared/ui/popover';
 import { ArgusxComboboxComponents } from '@app/shared/ui/combobox';
 
 interface PreviewOption {
@@ -34,7 +34,7 @@ interface PreviewGroup {
     ArgusxComboboxComponents,
     ArgusxButtonDirective,
     ArgusxInputDirective,
-    PopoverComponents,
+    ArgusxPopoverComponents,
     DialogComponent,
     DialogContentComponent,
     DialogHeaderComponent,
@@ -261,11 +261,11 @@ interface PreviewGroup {
         <section class="space-y-2 rounded-lg border border-dashed border-border p-4 lg:col-span-2">
           <h2 class="text-sm font-medium text-muted-foreground">Combobox in Popup</h2>
           <div class="flex flex-wrap items-center gap-2">
-            <app-popover [(open)]="popupOpen">
-              <button argusx-button variant="outline" appPopoverTrigger class="w-52 justify-between">
+            <argusx-popover [(open)]="popupOpen">
+              <button argusx-button variant="outline" argusxPopoverTrigger class="w-52 justify-between">
                 {{ optionLabel(popupCountry(), countries) ?? 'Select country' }}
               </button>
-              <app-popover-content class="w-80 p-3">
+              <argusx-popover-content class="w-80 p-3">
                 <argusx-combobox [(value)]="popupCountry" [autoHighlight]="true">
                   <argusx-combobox-input placeholder="Search countries..." />
                   <argusx-combobox-content>
@@ -282,8 +282,8 @@ interface PreviewGroup {
                     </argusx-combobox-list>
                   </argusx-combobox-content>
                 </argusx-combobox>
-              </app-popover-content>
-            </app-popover>
+              </argusx-popover-content>
+            </argusx-popover>
             <p class="text-muted-foreground text-xs">Open state: {{ popupOpen() }}</p>
           </div>
         </section>
