@@ -1,61 +1,239 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, TemplateRef, viewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ArgusxButtonDirective } from '@app/shared/ui/button';
-import { TooltipComponents } from '@app/shared/ui/tooltip';
+import {
+  ArgusxTooltipDirective,
+  ArgusxTooltipContentComponent,
+} from '@app/shared/ui/tooltip';
 
 @Component({
   selector: 'app-tooltip-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ArgusxButtonDirective, TooltipComponents],
+  imports: [CommonModule, ArgusxButtonDirective, ArgusxTooltipDirective, ArgusxTooltipContentComponent],
   template: `
     <div class="mx-auto max-w-3xl p-8 space-y-8">
       <h1 class="mb-2 text-2xl font-semibold">Tooltip</h1>
       <p class="mb-8 text-muted-foreground">
-        Contextual hints displayed on hover or focus.
+        Contextual hints displayed on hover or focus. ArgusX tooltip uses a directive-based API.
       </p>
 
-      <app-tooltip-provider [delayDuration]="180">
-        <section>
-          <div class="mb-3">
-            <h2 class="text-sm font-medium text-muted-foreground">Sides</h2>
-          </div>
-          <div class="rounded-lg border border-dashed border-border p-6 flex flex-wrap gap-3">
-            <app-tooltip side="top">
-              <button argusx-button variant="outline" size="sm" appTooltipTrigger>Top</button>
-              <app-tooltip-content>Tooltip from top</app-tooltip-content>
-            </app-tooltip>
+      <!-- Positions / Sides -->
+      <section>
+        <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">Positions</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6 flex flex-wrap gap-3">
+          <button
+            argusx-button
+            variant="outline"
+            size="sm"
+            [argusxTooltip]="'Tooltip from top'"
+            argusxTooltipPosition="top"
+          >
+            Top
+          </button>
 
-            <app-tooltip side="right">
-              <button argusx-button variant="outline" size="sm" appTooltipTrigger>Right</button>
-              <app-tooltip-content>Tooltip from right</app-tooltip-content>
-            </app-tooltip>
+          <button
+            argusx-button
+            variant="outline"
+            size="sm"
+            [argusxTooltip]="'Tooltip from right'"
+            argusxTooltipPosition="right"
+          >
+            Right
+          </button>
 
-            <app-tooltip side="bottom">
-              <button argusx-button variant="outline" size="sm" appTooltipTrigger>Bottom</button>
-              <app-tooltip-content>Tooltip from bottom</app-tooltip-content>
-            </app-tooltip>
+          <button
+            argusx-button
+            variant="outline"
+            size="sm"
+            [argusxTooltip]="'Tooltip from bottom'"
+            argusxTooltipPosition="bottom"
+          >
+            Bottom
+          </button>
 
-            <app-tooltip side="left">
-              <button argusx-button variant="outline" size="sm" appTooltipTrigger>Left</button>
-              <app-tooltip-content>Tooltip from left</app-tooltip-content>
-            </app-tooltip>
-          </div>
-        </section>
+          <button
+            argusx-button
+            variant="outline"
+            size="sm"
+            [argusxTooltip]="'Tooltip from left'"
+            argusxTooltipPosition="left"
+          >
+            Left
+          </button>
+        </div>
+      </section>
 
-        <section>
-          <div class="mb-3">
-            <h2 class="text-sm font-medium text-muted-foreground">Rich Content</h2>
+      <!-- Trigger Types -->
+      <section>
+        <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">Triggers</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6 flex flex-wrap gap-3">
+          <button
+            argusx-button
+            variant="outline"
+            [argusxTooltip]="'Hover trigger (default)'"
+            [argusxTooltipTrigger]="'hover'"
+          >
+            Hover (default)
+          </button>
+
+          <button
+            argusx-button
+            variant="outline"
+            [argusxTooltip]="'Click trigger'"
+            [argusxTooltipTrigger]="'click'"
+          >
+            Click
+          </button>
+        </div>
+      </section>
+
+      <!-- Controlled Mode -->
+      <section>
+        <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">Controlled Mode</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6 flex flex-wrap gap-3 items-center">
+          <button
+            argusx-button
+            variant="outline"
+            [argusxTooltip]="'Controlled tooltip'"
+            [argusxTooltipTrigger]="'click'"
+            [argusxTooltipOpen]="isOpen()"
+            (argusxTooltipShow)="onShow()"
+            (argusxTooltipHide)="onHide()"
+          >
+            {{ isOpen() ? 'Open' : 'Closed' }}
+          </button>
+
+          <button
+            argusx-button
+            variant="secondary"
+            (click)="toggleOpen()"
+          >
+            Toggle
+          </button>
+        </div>
+        <p class="mt-2 text-sm text-muted-foreground">Status: {{ isOpen() ? 'Open' : 'Closed' }}</p>
+      </section>
+
+      <!-- Rich Content with TemplateRef -->
+      <section>
+        <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">Rich Content (TemplateRef)</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6">
+          <button
+            argusx-button
+            [argusxTooltip]="richTooltipTemplate"
+            argusxTooltipPosition="top"
+          >
+            Hover for rich content
+          </button>
+        </div>
+        <ng-template #richTooltipTemplate>
+          <div class="text-center">
+            <p class="font-semibold">Custom Tooltip</p>
+            <p class="text-xs opacity-80">With multiple lines of content</p>
           </div>
-          <div class="rounded-lg border border-dashed border-border p-6">
-            <app-tooltip side="top" [sideOffset]="8">
-              <button argusx-button appTooltipTrigger>Hover to inspect</button>
-              <app-tooltip-content class="max-w-56">
-                Press <span class="font-semibold">Shift + K</span> to open command palette shortcuts.
-              </app-tooltip-content>
-            </app-tooltip>
-          </div>
-        </section>
-      </app-tooltip-provider>
+        </ng-template>
+      </section>
+
+      <!-- Delay Configuration -->
+      <section>
+        <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">Delay Configuration</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6 flex flex-wrap gap-3">
+          <button
+            argusx-button
+            variant="secondary"
+            [argusxTooltip]="'Quick show/hide (50ms)'"
+            [argusxShowDelay]="50"
+            [argusxHideDelay]="50"
+          >
+            50ms delay
+          </button>
+
+          <button
+            argusx-button
+            variant="secondary"
+            [argusxTooltip]="'Slow show/hide (800ms)'"
+            [argusxShowDelay]="800"
+            [argusxHideDelay]="800"
+          >
+            800ms delay
+          </button>
+        </div>
+      </section>
+
+      <!-- API Reference -->
+      <section>
+        <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">API Reference</h2>
+        </div>
+        <div class="rounded-lg border border-border p-4 bg-card">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b">
+                <th class="text-left py-2 pr-4 font-medium">Input</th>
+                <th class="text-left py-2 pr-4 font-medium">Type</th>
+                <th class="text-left py-2 font-medium">Default</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b">
+                <td class="py-2 pr-4 font-mono text-xs">argusxTooltip</td>
+                <td class="py-2 pr-4">string | TemplateRef</td>
+                <td class="py-2">null</td>
+              </tr>
+              <tr class="border-b">
+                <td class="py-2 pr-4 font-mono text-xs">argusxTooltipPosition</td>
+                <td class="py-2 pr-4">'top' | 'right' | 'bottom' | 'left'</td>
+                <td class="py-2">'top'</td>
+              </tr>
+              <tr class="border-b">
+                <td class="py-2 pr-4 font-mono text-xs">argusxTooltipTrigger</td>
+                <td class="py-2 pr-4">'hover' | 'click'</td>
+                <td class="py-2">'hover'</td>
+              </tr>
+              <tr class="border-b">
+                <td class="py-2 pr-4 font-mono text-xs">argusxTooltipOpen</td>
+                <td class="py-2 pr-4">boolean</td>
+                <td class="py-2">undefined (uncontrolled)</td>
+              </tr>
+              <tr class="border-b">
+                <td class="py-2 pr-4 font-mono text-xs">argusxShowDelay</td>
+                <td class="py-2 pr-4">number</td>
+                <td class="py-2">150</td>
+              </tr>
+              <tr>
+                <td class="py-2 pr-4 font-mono text-xs">argusxHideDelay</td>
+                <td class="py-2 pr-4">number</td>
+                <td class="py-2">100</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   `,
 })
-export class TooltipPreviewComponent {}
+export class TooltipPreviewComponent {
+  readonly isOpen = signal(false);
+
+  toggleOpen(): void {
+    this.isOpen.update((v) => !v);
+  }
+
+  onShow(): void {
+    console.log('Tooltip shown');
+  }
+
+  onHide(): void {
+    console.log('Tooltip hidden');
+  }
+}

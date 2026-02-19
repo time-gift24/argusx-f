@@ -1,189 +1,352 @@
+import { Overlay, OverlayPositionBuilder, type OverlayRef } from '@angular/cdk/overlay';
+import { ComponentPortal } from '@angular/cdk/portal';
+import { isPlatformBrowser, DOCUMENT, CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  type ComponentRef,
   computed,
+  DestroyRef,
   Directive,
   effect,
+  ElementRef,
   inject,
+  Injector,
   input,
-  model,
+  numberAttribute,
+  output,
+  PLATFORM_ID,
+  Renderer2,
+  runInInjectionContext,
+  signal,
+  TemplateRef,
   viewChild,
-  OnDestroy,
 } from '@angular/core';
-import { TooltipService } from './tooltip.service';
-import { CommonModule } from '@angular/common';
-import {
-  CdkOverlayOrigin,
-  OverlayModule,
-  ConnectedPosition,
-} from '@angular/cdk/overlay';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+
+import { filter, map, of, Subject, switchMap, tap, timer } from 'rxjs';
+
 import { cn } from '../../utils/cn';
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type TooltipSide = 'top' | 'right' | 'bottom' | 'left';
-export type TooltipAlign = 'start' | 'center' | 'end';
+export type ArgusxTooltipPosition = 'top' | 'right' | 'bottom' | 'left';
+export type ArgusxTooltipTrigger = 'hover' | 'click';
+export type ArgusxTooltipType = string | TemplateRef<void> | null;
+
+interface DelayConfig {
+  isShow: boolean;
+  delay: number;
+}
 
 // ============================================================================
-// Tooltip Root
+// Tooltip Directive
 // ============================================================================
 
-let tooltipIdCounter = 0;
+const TOOLTIP_POSITIONS_MAP: Record<ArgusxTooltipPosition, import('@angular/cdk/overlay').ConnectedPosition> = {
+  top: { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom', offsetY: -4 },
+  bottom: { originX: 'center', originY: 'bottom', overlayX: 'center', overlayY: 'top', offsetY: 4 },
+  left: { originX: 'start', originY: 'center', overlayX: 'end', overlayY: 'center', offsetX: -4 },
+  right: { originX: 'end', originY: 'center', overlayX: 'start', overlayY: 'center', offsetX: 4 },
+};
+
+const throttle = (callback: () => void, wait: number) => {
+  let time = Date.now();
+  return function () {
+    if (time + wait - Date.now() < 0) {
+      callback();
+      time = Date.now();
+    }
+  };
+};
 
 /**
- * Tooltip Root Component
- * Uses Angular CDK Overlay for positioning
+ * Tooltip Directive
+ * Shows tooltip on hover or click
  *
  * @example
  * ```html
- * <app-tooltip>
- *   <button appTooltipTrigger>Hover me</button>
- *   <app-tooltip-content>This is a tooltip</app-tooltip-content>
- * </app-tooltip>
+ * <button [argusxTooltip]="'Tooltip content'" argusxTooltipPosition="top">Hover me</button>
+ * ```
+ *
+ * @example
+ * ```html
+ * <button [argusxTooltip]="tooltipTemplate" [argusxTooltipTrigger]="'click'">Click me</button>
+ * <ng-template #tooltipTemplate>Custom content</ng-template>
  * ```
  */
-@Component({
-  selector: 'app-tooltip',
-  imports: [CommonModule, OverlayModule],
-  template: `
-    <div class="inline-flex">
-      <!-- Trigger element -->
-      <div cdkOverlayOrigin #trigger="cdkOverlayOrigin">
-        <ng-content select="[appTooltipTrigger]" />
-      </div>
-
-      <!-- Tooltip content via CDK Overlay -->
-      <ng-template
-        cdkConnectedOverlay
-        [cdkConnectedOverlayOrigin]="trigger"
-        [cdkConnectedOverlayOpen]="open()"
-        [cdkConnectedOverlayHasBackdrop]="false"
-        [cdkConnectedOverlayPanelClass]="'tooltip-panel'"
-        [cdkConnectedOverlayFlexibleDimensions]="true"
-        [cdkConnectedOverlayGrowAfterOpen]="true"
-        [cdkConnectedOverlayPositions]="positions()"
-        (mouseenter)="onMouseEnter()"
-        (mouseleave)="onMouseLeave()"
-        (detach)="onDetach()">
-        <ng-content />
-      </ng-template>
-    </div>
-  `,
-  host: {
-    '[attr.data-slot]': '"tooltip"',
-  },
-  changeDetection: ChangeDetectionStrategy.OnPush,
+@Directive({
+  selector: '[argusxTooltip]',
+  standalone: true,
 })
-export class TooltipComponent implements OnDestroy {
-  readonly tooltipService = inject(TooltipService);
+export class ArgusxTooltipDirective {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly document = inject(DOCUMENT);
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
+  private readonly injector = inject(Injector);
+  private readonly overlay = inject(Overlay);
+  private readonly overlayPositionBuilder = inject(OverlayPositionBuilder);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly renderer = inject(Renderer2);
 
-  readonly open = model<boolean>(false);
+  private delaySubject?: Subject<DelayConfig>;
+  private componentRef?: ComponentRef<ArgusxTooltipContentComponent>;
+  private listenersRefs: (() => void)[] = [];
+  private overlayRef?: OverlayRef;
+  private ariaEffectRef?: ReturnType<typeof effect>;
 
-  readonly side = input<TooltipSide>('top');
-  readonly sideOffset = input<number>(0);
+  /**
+   * Tooltip position relative to trigger element
+   */
+  readonly argusxTooltipPosition = input<ArgusxTooltipPosition>('top');
 
-  readonly id = `tooltip-${tooltipIdCounter++}`;
+  /**
+   * Trigger type: 'hover' or 'click'
+   */
+  readonly argusxTooltipTrigger = input<ArgusxTooltipTrigger>('hover');
 
-  private hideTimeout: ReturnType<typeof setTimeout> | null = null;
-  private showTimeout: ReturnType<typeof setTimeout> | null = null;
+  /**
+   * Tooltip content - string or TemplateRef
+   */
+  readonly argusxTooltip = input<ArgusxTooltipType>(null);
 
-  protected readonly trigger = viewChild(CdkOverlayOrigin);
+  /**
+   * Show delay in milliseconds
+   */
+  readonly argusxShowDelay = input(150, { transform: numberAttribute });
 
-  ngOnDestroy(): void {
-    if (this.hideTimeout) {
-      clearTimeout(this.hideTimeout);
+  /**
+   * Hide delay in milliseconds
+   */
+  readonly argusxHideDelay = input(100, { transform: numberAttribute });
+
+  /**
+   * Optional controlled open state
+   * Use argusxTooltipOpen as the input name for ArgusX consistency
+   */
+  readonly argusxTooltipOpen = input<boolean | undefined>(undefined);
+
+  /**
+   * Emitted when tooltip is shown
+   */
+  readonly show = output<void>();
+
+  /**
+   * Emitted when tooltip is hidden
+   */
+  readonly hide = output<void>();
+
+  private readonly tooltipText = computed(() => {
+    const tooltipText = this.argusxTooltip();
+    if (!tooltipText) {
+      return '';
+    } else if (typeof tooltipText === 'string') {
+      return tooltipText.trim();
     }
-    if (this.showTimeout) {
-      clearTimeout(this.showTimeout);
-    }
-  }
-
-  protected readonly positions = computed<ConnectedPosition[]>(() => {
-    const side = this.side();
-    const offset = this.sideOffset();
-
-    const positionMap: Record<TooltipSide, ConnectedPosition> = {
-      top: { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom', offsetY: -offset },
-      bottom: { originX: 'center', originY: 'bottom', overlayX: 'center', overlayY: 'top', offsetY: offset },
-      left: { originX: 'start', originY: 'center', overlayX: 'end', overlayY: 'center', offsetX: -offset },
-      right: { originX: 'end', originY: 'center', overlayX: 'start', overlayY: 'center', offsetX: offset },
-    };
-
-    return [positionMap[side]];
+    return tooltipText;
   });
 
-  onMouseEnter(): void {
-    if (this.hideTimeout) {
-      clearTimeout(this.hideTimeout);
-      this.hideTimeout = null;
-    }
+  private readonly isControlled = computed(() => this.argusxTooltipOpen() !== undefined);
 
-    const delay = this.tooltipService.delayDuration();
-    this.showTimeout = setTimeout(() => {
-      this.open.set(true);
-    }, delay);
+  ngOnInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      const positionStrategy = this.overlayPositionBuilder
+        .flexibleConnectedTo(this.elementRef)
+        .withPositions([TOOLTIP_POSITIONS_MAP[this.argusxTooltipPosition()]]);
+      this.overlayRef = this.overlay.create({ positionStrategy });
+
+      runInInjectionContext(this.injector, () => {
+        toObservable(this.argusxTooltipTrigger)
+          .pipe(
+            tap(() => {
+              this.setupDelayMechanism();
+              this.cleanupTriggerEvents();
+              this.initTriggers();
+            }),
+            filter(() => !!this.overlayRef),
+            switchMap(() => (this.overlayRef as OverlayRef).outsidePointerEvents()),
+            filter(event => !this.elementRef.nativeElement.contains(event.target)),
+            takeUntilDestroyed(this.destroyRef),
+          )
+          .subscribe(() => this.delay(false, 0));
+      });
+    }
   }
 
-  onMouseLeave(): void {
-    if (this.showTimeout) {
-      clearTimeout(this.showTimeout);
-      this.showTimeout = null;
+  ngOnDestroy(): void {
+    if (this.ariaEffectRef) {
+      this.ariaEffectRef.destroy();
+      this.ariaEffectRef = undefined;
     }
 
-    this.hideTimeout = setTimeout(() => {
-      this.open.set(false);
-    }, 100);
+    this.delaySubject?.complete();
+    this.cleanupTriggerEvents();
+    this.overlayRef?.dispose();
   }
 
-  protected onDetach(): void {
-    this.open.set(false);
+  private initTriggers(): void {
+    this.initScrollListener();
+    this.initClickListeners();
+    this.initHoverListeners();
+  }
+
+  private initClickListeners(): void {
+    if (this.argusxTooltipTrigger() !== 'click') {
+      return;
+    }
+
+    this.listenersRefs = [
+      ...this.listenersRefs,
+      this.renderer.listen(this.elementRef.nativeElement, 'click', () => {
+        if (this.isControlled()) {
+          // In controlled mode, toggle based on open input
+          const shouldShow = !this.argusxTooltipOpen();
+          this.handleOpenChange(shouldShow);
+        } else {
+          // In uncontrolled mode, toggle based on attached state
+          const shouldShowTooltip = !this.overlayRef?.hasAttached();
+          const delay = shouldShowTooltip ? this.argusxShowDelay() : this.argusxHideDelay();
+          this.delay(shouldShowTooltip, delay);
+        }
+      }),
+    ];
+  }
+
+  private initHoverListeners(): void {
+    if (this.argusxTooltipTrigger() !== 'hover') {
+      return;
+    }
+
+    this.listenersRefs = [
+      ...this.listenersRefs,
+      this.renderer.listen(this.elementRef.nativeElement, 'mouseenter', () => {
+        if (!this.isControlled()) {
+          this.delay(true, this.argusxShowDelay());
+        }
+      }),
+      this.renderer.listen(this.elementRef.nativeElement, 'mouseleave', () => {
+        if (!this.isControlled()) {
+          this.delay(false, this.argusxHideDelay());
+        }
+      }),
+      this.renderer.listen(this.elementRef.nativeElement, 'focus', () => {
+        if (!this.isControlled()) {
+          this.delay(true, this.argusxShowDelay());
+        }
+      }),
+      this.renderer.listen(this.elementRef.nativeElement, 'blur', () => {
+        if (!this.isControlled()) {
+          this.delay(false, this.argusxHideDelay());
+        }
+      }),
+    ];
+  }
+
+  private initScrollListener(): void {
+    this.listenersRefs = [
+      ...this.listenersRefs,
+      this.renderer.listen(
+        this.document.defaultView,
+        'scroll',
+        throttle(() => {
+          if (!this.isControlled()) {
+            this.delay(false, 0);
+          }
+        }, 100),
+      ),
+    ];
+  }
+
+  private cleanupTriggerEvents(): void {
+    for (const eventRef of this.listenersRefs) {
+      eventRef();
+    }
+    this.listenersRefs = [];
+  }
+
+  private delay(isShow: boolean, delay = -1): void {
+    this.delaySubject?.next({ isShow, delay });
+  }
+
+  private setupDelayMechanism(): void {
+    this.delaySubject?.complete();
+    this.delaySubject = new Subject<DelayConfig>();
+
+    this.delaySubject
+      .pipe(
+        switchMap(config => (config.delay < 0 ? of(config) : timer(config.delay).pipe(map(() => config)))),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(config => {
+        if (config.isShow) {
+          this.showTooltip();
+        } else {
+          this.hideTooltip();
+        }
+      });
+  }
+
+  private handleOpenChange(shouldShow: boolean): void {
+    if (shouldShow) {
+      this.showTooltip();
+    } else {
+      this.hideTooltip();
+    }
+  }
+
+  private showTooltip() {
+    // Check controlled mode
+    if (this.isControlled() && !this.argusxTooltipOpen()) {
+      return;
+    }
+
+    if (this.componentRef || !this.argusxTooltip()) {
+      return;
+    }
+
+    const tooltipPortal = new ComponentPortal(ArgusxTooltipContentComponent);
+    this.componentRef = this.overlayRef?.attach(tooltipPortal);
+    this.componentRef?.onDestroy(() => {
+      this.componentRef = undefined;
+    });
+    this.componentRef?.instance.state.set('opened');
+    this.componentRef?.instance.setProps(this.argusxTooltip(), this.argusxTooltipPosition());
+
+    runInInjectionContext(this.injector, () => {
+      this.ariaEffectRef = effect(() => {
+        const tooltipId = this.componentRef?.instance.getUniqueId();
+        if (tooltipId) {
+          this.renderer.setAttribute(this.elementRef.nativeElement, 'aria-describedby', tooltipId);
+          this.ariaEffectRef?.destroy();
+          this.ariaEffectRef = undefined;
+        }
+      });
+    });
+
+    this.show.emit();
+  }
+
+  private hideTooltip() {
+    if (!this.componentRef) {
+      return;
+    }
+
+    if (this.ariaEffectRef) {
+      this.ariaEffectRef.destroy();
+      this.ariaEffectRef = undefined;
+    }
+
+    this.renderer.removeAttribute(this.elementRef.nativeElement, 'aria-describedby');
+    this.componentRef.instance.state.set('closed');
+    this.hide.emit();
+    this.overlayRef?.detach();
   }
 }
 
 // ============================================================================
-// Tooltip Trigger
-// ============================================================================
-
-/**
- * Tooltip Trigger Directive
- * Shows tooltip on hover/focus
- */
-@Directive({
-  selector: '[appTooltipTrigger]',
-  host: {
-    '[attr.data-slot]': '"tooltip-trigger"',
-    '[attr.data-state]': 'tooltip.open() ? "open" : "closed"',
-    '[attr.aria-describedby]': 'tooltip.open() ? tooltip.id : null',
-    '(mouseenter)': 'onMouseEnter()',
-    '(mouseleave)': 'onMouseLeave()',
-    '(focus)': 'onFocus()',
-    '(blur)': 'onBlur()',
-  },
-})
-export class TooltipTriggerDirective {
-  readonly tooltip = inject(TooltipComponent);
-
-  protected onMouseEnter(): void {
-    this.tooltip.onMouseEnter();
-  }
-
-  protected onMouseLeave(): void {
-    this.tooltip.onMouseLeave();
-  }
-
-  protected onFocus(): void {
-    this.tooltip.onMouseEnter();
-  }
-
-  protected onBlur(): void {
-    this.tooltip.onMouseLeave();
-  }
-}
-
-// ============================================================================
-// Tooltip Content
+// Tooltip Content Component
 // ============================================================================
 
 /**
@@ -191,32 +354,68 @@ export class TooltipTriggerDirective {
  * The tooltip panel with arrow
  */
 @Component({
-  selector: 'app-tooltip-content',
+  selector: 'argusx-tooltip-content',
   imports: [CommonModule],
+  standalone: true,
   template: `
-    <div [class]="computedWrapperClass()">
-      <ng-content />
-      <div [class]="arrowClass()"></div>
+    <div [class]="wrapperClasses()">
+      @if (tooltipContent(); as content) {
+        @if (isTemplateRef(content); as tpl) {
+          <ng-container *ngTemplateOutlet="$any(content)"></ng-container>
+        } @else {
+          {{ content }}
+        }
+      }
+      <span [class]="arrowClasses()"></span>
     </div>
   `,
   host: {
     '[attr.data-slot]': '"tooltip-content"',
-    '[attr.data-state]': 'tooltip.open() ? "open" : "closed"',
-    '[attr.data-side]': 'tooltip.side()',
+    '[attr.data-side]': 'position()',
+    '[attr.data-state]': 'state()',
     '[attr.role]': '"tooltip"',
-    '[attr.id]': 'tooltip.id',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TooltipContentComponent {
-  readonly tooltip = inject(TooltipComponent);
+export class ArgusxTooltipContentComponent {
+  readonly tooltipContent = signal<ArgusxTooltipType>(null);
+  readonly position = signal<ArgusxTooltipPosition>('top');
+  readonly state = signal<'closed' | 'opened'>('closed');
+
   readonly class = input<string>('');
 
-  protected readonly computedWrapperClass = computed(() =>
+  readonly uniqueId = signal<string>('tooltip');
+
+  private static idCounter = 0;
+  private readonly id = `argusx-tooltip-${ArgusxTooltipContentComponent.idCounter++}`;
+
+  constructor() {
+    this.uniqueId.set(this.id);
+  }
+
+  getUniqueId(): string {
+    return this.uniqueId();
+  }
+
+  setProps(content: ArgusxTooltipType, newPosition: ArgusxTooltipPosition): void {
+    if (content) {
+      this.tooltipContent.set(content);
+    }
+    this.position.set(newPosition);
+  }
+
+  protected isTemplateRef(content: ArgusxTooltipType): content is TemplateRef<void> {
+    return content instanceof TemplateRef;
+  }
+
+  protected readonly wrapperClasses = computed(() =>
     cn(
+      // Base styles - Plain style
       'z-50 max-w-xs px-3 py-1.5 text-xs rounded-md bg-foreground text-background',
-      'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+      // Animation
+      'animate-in fade-in-0 zoom-in-95',
       'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
+      // Position animations
       'data-[side=bottom]:slide-in-from-top-2',
       'data-[side=left]:slide-in-from-right-2',
       'data-[side=right]:slide-in-from-left-2',
@@ -225,55 +424,24 @@ export class TooltipContentComponent {
     )
   );
 
-  protected readonly arrowClass = computed(() =>
-    cn(
-      'size-2.5 rotate-45 rounded-[2px] bg-foreground fill-foreground',
-      'z-50',
-      this.tooltip.side() === 'top' && 'translate-y-[calc(-50%_-_2px)] -translate-x-1/2 left-1/2 -bottom-1',
-      this.tooltip.side() === 'bottom' && 'translate-y-[50%] -translate-x-1/2 left-1/2 -top-1',
-      this.tooltip.side() === 'left' && 'translate-x-[calc(-50%_-_2px)] -right-1 top-1/2 -translate-y-1/2',
-      this.tooltip.side() === 'right' && 'translate-x-[50%] -left-1 top-1/2 -translate-y-1/2'
-    )
-  );
-}
-
-// ============================================================================
-// Tooltip Provider
-// ============================================================================
-
-/**
- * Tooltip Provider Component
- * Wrapper to configure tooltip delay duration globally
- */
-@Component({
-  selector: 'app-tooltip-provider',
-  imports: [CommonModule],
-  template: `<ng-content />`,
-  host: {
-    '[attr.data-slot]': '"tooltip-provider"',
-  },
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class TooltipProviderComponent {
-  readonly tooltipService = inject(TooltipService);
-  readonly delayDuration = input<number>(0);
-
-  constructor() {
-    effect(() => {
-      this.tooltipService.setDelayDuration(this.delayDuration());
-    });
-  }
+  protected readonly arrowClasses = computed(() => {
+    const pos = this.position();
+    return cn(
+      'size-2.5 rotate-45 rounded-[2px] bg-foreground z-50',
+      'absolute',
+      pos === 'top' && 'bottom-0 translate-y-[calc(50%_-_2px)] left-1/2 -translate-x-1/2',
+      pos === 'bottom' && 'top-0 -translate-y-[calc(50%_-_2px)] left-1/2 -translate-x-1/2',
+      pos === 'left' && 'right-0 translate-x-[calc(50%_-_2px)] top-1/2 -translate-y-1/2',
+      pos === 'right' && 'left-0 -translate-x-[calc(50%_-_2px)] top-1/2 -translate-y-1/2'
+    );
+  });
 }
 
 // ============================================================================
 // Exports
 // ============================================================================
 
-export const TooltipComponents = [
-  TooltipComponent,
-  TooltipTriggerDirective,
-  TooltipContentComponent,
-  TooltipProviderComponent,
+export const ArgusxTooltipComponents = [
+  ArgusxTooltipDirective,
+  ArgusxTooltipContentComponent,
 ];
-
-export { TooltipService } from './tooltip.service';
