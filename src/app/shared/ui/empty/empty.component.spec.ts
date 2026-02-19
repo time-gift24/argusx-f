@@ -50,7 +50,7 @@ describe('emptyMediaVariants', () => {
   });
 });
 
-describe('EmptyDirective API', () => {
+describe('ArgusxEmptyDirective API', () => {
   it('should export correct types', () => {
     // These are type-level tests - if they compile, they pass
     type TestVariant = 'default' | 'muted';
@@ -71,17 +71,17 @@ describe('EmptyDirective API', () => {
   });
 });
 
-describe('EmptyDirective exports', () => {
+describe('ArgusxEmptyDirective exports', () => {
   it('should export all required items', async () => {
     const module = await import('./empty.directive');
 
     // Directives
-    expect(module.EmptyDirective).toBeDefined();
-    expect(module.EmptyHeaderDirective).toBeDefined();
-    expect(module.EmptyMediaDirective).toBeDefined();
-    expect(module.EmptyTitleDirective).toBeDefined();
-    expect(module.EmptyDescriptionDirective).toBeDefined();
-    expect(module.EmptyContentDirective).toBeDefined();
+    expect(module.ArgusxEmptyDirective).toBeDefined();
+    expect(module.ArgusxEmptyHeaderDirective).toBeDefined();
+    expect(module.ArgusxEmptyMediaDirective).toBeDefined();
+    expect(module.ArgusxEmptyTitleDirective).toBeDefined();
+    expect(module.ArgusxEmptyDescriptionDirective).toBeDefined();
+    expect(module.ArgusxEmptyContentDirective).toBeDefined();
 
     // Variants
     expect(module.emptyMediaVariants).toBeDefined();

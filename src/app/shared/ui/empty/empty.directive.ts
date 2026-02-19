@@ -73,7 +73,7 @@ export type EmptySize = NonNullable<EmptyVariants['size']>;
  * ```
  */
 @Directive({
-  selector: '[appEmpty]',
+  selector: '[argusxEmpty]',
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"empty"',
@@ -83,7 +83,7 @@ export type EmptySize = NonNullable<EmptyVariants['size']>;
     '[attr.role]': '"status"',
   },
 })
-export class EmptyDirective {
+export class ArgusxEmptyDirective {
   readonly variant = input<EmptyVariant>('default');
   readonly size = input<EmptySize>('default');
   readonly class = input<string>('');
@@ -101,13 +101,13 @@ export class EmptyDirective {
  * EmptyHeader directive for the header section containing title and description.
  */
 @Directive({
-  selector: '[appEmptyHeader]',
+  selector: '[argusxEmptyHeader]',
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"empty-header"',
   },
 })
-export class EmptyHeaderDirective {
+export class ArgusxEmptyHeaderDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
@@ -121,7 +121,7 @@ export class EmptyHeaderDirective {
  * Icons are hidden from assistive tech by default since they're decorative.
  */
 @Directive({
-  selector: '[appEmptyMedia]',
+  selector: '[argusxEmptyMedia]',
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"empty-icon"',
@@ -130,7 +130,7 @@ export class EmptyHeaderDirective {
     '[attr.aria-hidden]': 'variant() === "icon" ? "true" : null',
   },
 })
-export class EmptyMediaDirective {
+export class ArgusxEmptyMediaDirective {
   readonly variant = input<EmptyMediaVariant>('default');
   readonly size = input<EmptyMediaSize>('default');
   readonly class = input<string>('');
@@ -144,13 +144,13 @@ export class EmptyMediaDirective {
  * EmptyTitle directive for the title text.
  */
 @Directive({
-  selector: '[appEmptyTitle]',
+  selector: '[argusxEmptyTitle]',
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"empty-title"',
   },
 })
-export class EmptyTitleDirective {
+export class ArgusxEmptyTitleDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() => cn('text-sm font-medium tracking-tight', this.class()));
@@ -160,13 +160,13 @@ export class EmptyTitleDirective {
  * EmptyDescription directive for the description text.
  */
 @Directive({
-  selector: '[appEmptyDescription]',
+  selector: '[argusxEmptyDescription]',
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"empty-description"',
   },
 })
-export class EmptyDescriptionDirective {
+export class ArgusxEmptyDescriptionDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
@@ -181,13 +181,13 @@ export class EmptyDescriptionDirective {
  * EmptyContent directive for additional content like action buttons.
  */
 @Directive({
-  selector: '[appEmptyContent]',
+  selector: '[argusxEmptyContent]',
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"empty-content"',
   },
 })
-export class EmptyContentDirective {
+export class ArgusxEmptyContentDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>

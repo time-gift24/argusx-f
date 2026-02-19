@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import {
-  EmptyContentDirective,
-  EmptyDescriptionDirective,
-  EmptyDirective,
-  EmptyHeaderDirective,
-  EmptyMediaDirective,
-  EmptyTitleDirective,
+  ArgusxEmptyContentDirective,
+  ArgusxEmptyDescriptionDirective,
+  ArgusxEmptyDirective,
+  ArgusxEmptyHeaderDirective,
+  ArgusxEmptyMediaDirective,
+  ArgusxEmptyTitleDirective,
 } from '@app/shared/ui/empty';
 import { ArgusxButtonDirective } from '@app/shared/ui/button';
 
@@ -13,12 +13,12 @@ import { ArgusxButtonDirective } from '@app/shared/ui/button';
   selector: 'app-empty-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    EmptyDirective,
-    EmptyHeaderDirective,
-    EmptyMediaDirective,
-    EmptyTitleDirective,
-    EmptyDescriptionDirective,
-    EmptyContentDirective,
+    ArgusxEmptyDirective,
+    ArgusxEmptyHeaderDirective,
+    ArgusxEmptyMediaDirective,
+    ArgusxEmptyTitleDirective,
+    ArgusxEmptyDescriptionDirective,
+    ArgusxEmptyContentDirective,
     ArgusxButtonDirective,
   ],
   template: `
@@ -33,8 +33,8 @@ import { ArgusxButtonDirective } from '@app/shared/ui/button';
         <div class="mb-3">
           <h2 class="text-sm font-medium text-muted-foreground">Default</h2>
         </div>
-        <div appEmpty>
-          <div appEmptyMedia variant="icon">
+        <div argusxEmpty>
+          <div argusxEmptyMedia variant="icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M16.5 9.4 7.55 4.24" />
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
@@ -42,13 +42,13 @@ import { ArgusxButtonDirective } from '@app/shared/ui/button';
               <line x1="12" x2="12" y1="22" y2="12" />
             </svg>
           </div>
-          <div appEmptyHeader>
-            <h3 appEmptyTitle>No conversations yet</h3>
-            <p appEmptyDescription>
+          <div argusxEmptyHeader>
+            <h3 argusxEmptyTitle>No conversations yet</h3>
+            <p argusxEmptyDescription>
               Start a new conversation with your team members
             </p>
           </div>
-          <div appEmptyContent>
+          <div argusxEmptyContent>
             <button argusx-button size="sm">Start new conversation</button>
           </div>
         </div>
@@ -59,10 +59,10 @@ import { ArgusxButtonDirective } from '@app/shared/ui/button';
         <div class="mb-3">
           <h2 class="text-sm font-medium text-muted-foreground">Description only</h2>
         </div>
-        <div appEmpty>
-          <div appEmptyHeader>
-            <h3 appEmptyTitle>No results found</h3>
-            <p appEmptyDescription>
+        <div argusxEmpty>
+          <div argusxEmptyHeader>
+            <h3 argusxEmptyTitle>No results found</h3>
+            <p argusxEmptyDescription>
               Try adjusting your search or filters to find what you're looking for.
             </p>
           </div>
@@ -74,11 +74,11 @@ import { ArgusxButtonDirective } from '@app/shared/ui/button';
         <div class="mb-3">
           <h2 class="text-sm font-medium text-muted-foreground">With action</h2>
         </div>
-        <div appEmpty>
-          <div appEmptyHeader>
-            <h3 appEmptyTitle>No items found</h3>
+        <div argusxEmpty>
+          <div argusxEmptyHeader>
+            <h3 argusxEmptyTitle>No items found</h3>
           </div>
-          <div appEmptyContent>
+          <div argusxEmptyContent>
             <button argusx-button variant="outline" size="sm">Clear filters</button>
           </div>
         </div>
