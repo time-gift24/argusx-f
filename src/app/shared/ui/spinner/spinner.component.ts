@@ -6,17 +6,17 @@ import { cn } from '../../utils/cn';
  * Spinner Component
  *
  * A loading spinner component using lucide icons.
- * Aligned with official shadcn preset (.vendor/aim/components/ui/spinner.tsx)
+ * Aligned with official shadcn spinner API.
  *
  * @example
  * ```html
- * <app-spinner />
- * <app-spinner class="size-6" />
- * <app-spinner class="size-8" />
+ * <argusx-spinner />
+ * <argusx-spinner class="size-6" />
+ * <argusx-spinner class="size-8" />
  * ```
  */
 @Component({
-  selector: 'app-spinner',
+  selector: 'argusx-spinner',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [LucideAngularModule],
   template: `
@@ -28,13 +28,12 @@ import { cn } from '../../utils/cn';
     />
   `,
 })
-export class SpinnerComponent {
-  readonly class = input<string>('');
-  readonly size = input<string | number>('size-4');
+export class ArgusxSpinnerComponent {
+  readonly class = input<string>('size-4');
 
   protected readonly loaderIcon = Loader2;
 
   protected readonly computedClass = computed(() =>
-    cn('animate-spin', this.size(), this.class())
+    cn('animate-spin', this.class())
   );
 }

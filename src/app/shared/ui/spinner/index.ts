@@ -1,1 +1,1 @@
-export { SpinnerComponent } from './spinner.component';
+export { ArgusxSpinnerComponent } from './spinner.component';
