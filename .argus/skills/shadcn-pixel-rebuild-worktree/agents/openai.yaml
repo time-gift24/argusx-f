@@ -1,4 +1,0 @@
-interface:
-  display_name: "Shadcn Pixel Rebuild Worktree"
-  short_description: "Pixel-accurate rebuild with query URL and worktree flow"
-  default_prompt: "Use $shadcn-pixel-rebuild-worktree to rebuild one component from previews/shadcn/{component} with branch-stable random localhost port and missing-baseline auto capture."
