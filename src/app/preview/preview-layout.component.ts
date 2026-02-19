@@ -103,17 +103,6 @@ function isPreviewItemId(id: string | null): id is PreviewItemId {
           <p class="mt-1 break-all text-[10px] text-muted-foreground">
             {{ currentRoute() }}
           </p>
-          <label
-            class="mt-2 flex cursor-pointer items-center gap-2 rounded-md border border-border/50 bg-background/50 px-2 py-1.5 text-[10px] text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-          >
-            <input
-              type="checkbox"
-              [checked]="currentIsReviewed()"
-              (change)="toggleReviewed()"
-              class="size-3"
-            />
-            <span>人工审核通过</span>
-          </label>
         </div>
 
         <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-3">
@@ -130,7 +119,7 @@ function isPreviewItemId(id: string | null): id is PreviewItemId {
                 >
                   <span class="flex items-center justify-between gap-2">
                     <span class="truncate">{{ item.label }}</span>
-                    @if (reviewedComponents().has(item.id)) {
+                    @if (item.reviewStatus === 'reviewed') {
                       <lucide-icon
                         [img]="manualReviewIcon"
                         class="size-3.5 shrink-0 text-emerald-600"
@@ -166,41 +155,13 @@ export class PreviewLayoutComponent implements OnInit {
   readonly previewItems: readonly PreviewItem[] = PREVIEW_ITEMS;
   readonly currentPreview = signal<PreviewItemId>('button');
 
-  readonly reviewedComponents = signal<Set<PreviewItemId>>(new Set([
-    'button',
-    'input',
-    'card',
-    'context-menu',
-    'calendar',
-    'accordion',
-    'dialog',
-    'aspect-ratio',
-    'alert-dialog',
-    'breadcrumb',
-    'carousel',
-    'pagination',
-    'dropdown-menu',
-    'menubar',
-    'select',
-    'switch',
-    'slider',
-  ]));
-
-  readonly currentIsReviewed = computed(() =>
-    this.reviewedComponents().has(this.currentPreview())
+  readonly currentItem = computed(() =>
+    this.previewItems.find((item) => item.id === this.currentPreview())
   );
 
-  toggleReviewed(): void {
-    this.reviewedComponents.update((set) => {
-      const newSet = new Set(set);
-      if (newSet.has(this.currentPreview())) {
-        newSet.delete(this.currentPreview());
-      } else {
-        newSet.add(this.currentPreview());
-      }
-      return newSet;
-    });
-  }
+  readonly currentIsReviewed = computed(() =>
+    this.currentItem()?.reviewStatus === 'reviewed'
+  );
 
   readonly safeUrl = (): SafeResourceUrl => {
     const url = `/preview/${this.currentPreview()}?v=${this.iframeVersion()}`;
