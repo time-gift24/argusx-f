@@ -268,8 +268,8 @@ interface PlanOption {
 
         <section class="space-y-2 rounded-md border border-dashed p-4">
           <h2 class="text-muted-foreground text-xs">With Field</h2>
-          <app-field>
-            <app-field-label>Favorite Fruit</app-field-label>
+          <argusx-field>
+            <argusx-field-label>Favorite Fruit</argusx-field-label>
             <app-select [(value)]="fieldValue">
               <app-select-value>
                 {{ optionLabel(fruits, fieldValue(), 'Select a fruit') }}
@@ -280,10 +280,10 @@ interface PlanOption {
                 }
               </app-select-group>
             </app-select>
-            <app-field-description>
+            <argusx-field-description>
               Choose your favorite fruit from the list.
-            </app-field-description>
-          </app-field>
+            </argusx-field-description>
+          </argusx-field>
         </section>
 
         <section class="space-y-2 rounded-md border border-dashed p-4">
@@ -300,8 +300,8 @@ interface PlanOption {
               </app-select-group>
             </app-select>
 
-            <app-field [attr.data-invalid]="true">
-              <app-field-label>Favorite Fruit</app-field-label>
+            <argusx-field [attr.data-invalid]="true">
+              <argusx-field-label>Favorite Fruit</argusx-field-label>
               <app-select [(value)]="invalidFieldValue" [invalid]="true">
                 <app-select-value>
                   {{ optionLabel(fruits, invalidFieldValue(), 'Select a fruit') }}
@@ -312,8 +312,8 @@ interface PlanOption {
                   }
                 </app-select-group>
               </app-select>
-              <app-field-error [errors]="invalidErrors"></app-field-error>
-            </app-field>
+              <argusx-field-error [errors]="invalidErrors"></argusx-field-error>
+            </argusx-field>
           </div>
         </section>
 

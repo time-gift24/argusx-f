@@ -21,7 +21,7 @@ import { cn } from '../../utils/cn';
  * ```
  */
 @Component({
-  selector: 'app-field-content',
+  selector: 'argusx-field-content',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: '<ng-content></ng-content>',
   host: {

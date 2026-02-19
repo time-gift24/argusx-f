@@ -17,7 +17,7 @@ import { cn } from '../../utils/cn';
  * ```
  */
 @Component({
-  selector: 'app-field-label',
+  selector: 'argusx-field-label',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: '<ng-content></ng-content>',
   host: {

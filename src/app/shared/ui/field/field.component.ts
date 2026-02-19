@@ -34,7 +34,7 @@ type FieldVariants = VariantProps<typeof fieldVariants>;
  *
  * @example
  * ```html
- * <app-field>
+ * <argusx-field>
  *   <app-field-label>Email</app-field-label>
  *   <input argusxInput type="email" />
  *   <app-field-description>Enter your email address.</app-field-description>
@@ -42,7 +42,7 @@ type FieldVariants = VariantProps<typeof fieldVariants>;
  * ```
  */
 @Component({
-  selector: 'app-field',
+  selector: 'argusx-field',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: '<ng-content></ng-content>',
   host: {

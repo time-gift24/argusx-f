@@ -20,7 +20,7 @@ import { cn } from '../../utils/cn';
  * ```
  */
 @Component({
-  selector: 'app-field-description',
+  selector: 'argusx-field-description',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: '<ng-content></ng-content>',
   host: {

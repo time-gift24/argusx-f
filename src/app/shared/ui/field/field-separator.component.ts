@@ -18,7 +18,7 @@ import { SeparatorComponent } from '../separator/separator.component';
  * ```
  */
 @Component({
-  selector: 'app-field-separator',
+  selector: 'argusx-field-separator',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SeparatorComponent],
   template: `

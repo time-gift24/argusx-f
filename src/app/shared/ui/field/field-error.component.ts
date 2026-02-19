@@ -27,7 +27,7 @@ export interface FieldErrorItem {
  * ```
  */
 @Component({
-  selector: 'app-field-error',
+  selector: 'argusx-field-error',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (content()) {

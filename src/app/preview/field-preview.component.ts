@@ -34,11 +34,11 @@ import { ArgusxInputDirective } from '@app/shared/ui/input';
           <h2 class="text-sm font-medium text-muted-foreground">Basic Field</h2>
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
-          <app-field>
-            <app-field-label>Email address</app-field-label>
+          <argusx-field>
+            <argusx-field-label>Email address</argusx-field-label>
             <input argusxInput type="email" placeholder="name@example.com" />
-            <app-field-description>We'll only use this for security notifications.</app-field-description>
-          </app-field>
+            <argusx-field-description>We'll only use this for security notifications.</argusx-field-description>
+          </argusx-field>
         </div>
       </section>
 
@@ -47,21 +47,45 @@ import { ArgusxInputDirective } from '@app/shared/ui/input';
           <h2 class="text-sm font-medium text-muted-foreground">Field Set + Error</h2>
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
-          <app-field-set>
-            <app-field-legend>Account setup</app-field-legend>
+          <argusx-field-set>
+            <argusx-field-legend>Account setup</argusx-field-legend>
 
-            <app-field>
-              <app-field-label>Username</app-field-label>
+            <argusx-field>
+              <argusx-field-label>Username</argusx-field-label>
               <input argusxInput type="text" value="argus_admin" />
-              <app-field-description>Only letters, numbers, and underscore.</app-field-description>
-            </app-field>
+              <argusx-field-description>Only letters, numbers, and underscore.</argusx-field-description>
+            </argusx-field>
 
-            <app-field>
-              <app-field-label>Password</app-field-label>
+            <argusx-field>
+              <argusx-field-label>Password</argusx-field-label>
               <input argusxInput type="password" />
-              <app-field-error [errors]="passwordErrors" />
-            </app-field>
-          </app-field-set>
+              <argusx-field-error [errors]="passwordErrors" />
+            </argusx-field>
+          </argusx-field-set>
+        </div>
+      </section>
+
+      <section>
+        <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">Horizontal Orientation</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6">
+          <argusx-field orientation="horizontal">
+            <input argusxInput type="checkbox" id="remember" />
+            <argusx-field-label for="remember">Remember me</argusx-field-label>
+          </argusx-field>
+        </div>
+      </section>
+
+      <section>
+        <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">Field Legend</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6">
+          <argusx-field-set>
+            <argusx-field-legend>Personal Information</argusx-field-legend>
+            <argusx-field-legend variant="label">Contact Details</argusx-field-legend>
+          </argusx-field-set>
         </div>
       </section>
     </div>
