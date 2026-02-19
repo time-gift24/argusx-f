@@ -1,185 +1,176 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  Directive,
+  ElementRef,
+  OnInit,
+  booleanAttribute,
   computed,
   forwardRef,
   inject,
   input,
   model,
-  OnInit,
   output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { cn } from '../../utils/cn';
 
-// ============================================================================
-// Collapsible Root Token for DI
-// ============================================================================
+export type ArgusxCollapsibleVariant = 'plain' | 'muted';
+type CollapsibleState = 'open' | 'closed';
 
-export abstract class CollapsibleRootToken {
+const CONTENT_VARIANT_CLASSES: Record<ArgusxCollapsibleVariant, string> = {
+  plain: '',
+  muted: 'rounded-md border border-border bg-muted/30 px-3 py-2',
+};
+
+export abstract class ArgusxCollapsibleRootToken {
   abstract open: ReturnType<typeof model<boolean>>;
   abstract disabled: () => boolean;
+  abstract argusxVariant: () => ArgusxCollapsibleVariant;
+  abstract state: () => CollapsibleState;
   abstract contentId: string;
   abstract triggerId: string;
   abstract toggle: () => void;
 }
 
-// ============================================================================
-// Collapsible Root Component
-// ============================================================================
-
 let collapsibleIdCounter = 0;
 
-/**
- * Collapsible Component
- *
- * A collapsible component that shows/hides content with smooth animations.
- *
- * @example
- * ```html
- * <app-collapsible [(open)]="isOpen">
- *   <app-collapsible-trigger>Toggle</app-collapsible-trigger>
- *   <app-collapsible-content>
- *     Content that can be collapsed
- *   </app-collapsible-content>
- * </app-collapsible>
- * ```
- *
- * Reference: .vendor/aim/components/ui/collapsible.tsx
- */
 @Component({
-  selector: 'app-collapsible',
-  imports: [CommonModule],
+  selector: 'argusx-collapsible',
   template: `<ng-content></ng-content>`,
   host: {
+    '[class]': 'computedClass()',
     '[attr.data-slot]': '"collapsible"',
     '[attr.data-state]': 'state()',
     '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.data-variant]': 'argusxVariant()',
   },
   providers: [
     {
-      provide: CollapsibleRootToken,
-      useExisting: forwardRef(() => CollapsibleComponent),
+      provide: ArgusxCollapsibleRootToken,
+      useExisting: forwardRef(() => ArgusxCollapsibleComponent),
     },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CollapsibleComponent implements CollapsibleRootToken, OnInit {
-  // ============================================================================
-  // Inputs
-  // ============================================================================
-  readonly open = model<boolean>(false);
-  readonly disabled = input<boolean>(false);
-  readonly defaultOpen = input<boolean>(false);
+export class ArgusxCollapsibleComponent implements ArgusxCollapsibleRootToken, OnInit {
+  readonly open = model(false);
+  readonly disabled = input(false, { transform: booleanAttribute });
+  readonly defaultOpen = input(false, { transform: booleanAttribute });
+  readonly argusxVariant = input<ArgusxCollapsibleVariant>('plain');
+  readonly class = input<string>('');
   readonly onOpenChange = output<boolean>();
 
-  // ============================================================================
-  // Internal State
-  // ============================================================================
   private readonly instanceId = collapsibleIdCounter++;
-  readonly contentId = `collapsible-content-${this.instanceId}`;
-  readonly triggerId = `collapsible-trigger-${this.instanceId}`;
 
-  // ============================================================================
-  // Computed Properties
-  // ============================================================================
+  readonly contentId = `argusx-collapsible-content-${this.instanceId}`;
+  readonly triggerId = `argusx-collapsible-trigger-${this.instanceId}`;
+  readonly state = computed<CollapsibleState>(() => (this.open() ? 'open' : 'closed'));
 
-  /**
-   * Visual state for styling
-   */
-  protected readonly state = computed<'open' | 'closed'>(() =>
-    this.open() ? 'open' : 'closed'
+  protected readonly computedClass = computed(() =>
+    cn('group/collapsible flex w-full flex-col gap-2', this.class())
   );
 
-  // ============================================================================
-  // Methods
-  // ============================================================================
-
-  /**
-   * Toggle collapsible state
-   */
-  toggle(): void {
-    if (this.disabled()) return;
-
-    this.open.update((value) => !value);
-    this.onOpenChange.emit(this.open());
-  }
-
-  // ============================================================================
-  // Lifecycle
-  // ============================================================================
-
   ngOnInit(): void {
-    // defaultOpen is only an initial state hint and should not override later updates.
     if (this.defaultOpen() && !this.open()) {
       this.open.set(true);
     }
   }
+
+  toggle(): void {
+    if (this.disabled()) {
+      return;
+    }
+
+    const next = !this.open();
+    this.open.set(next);
+    this.onOpenChange.emit(next);
+  }
 }
 
-// ============================================================================
-// Collapsible Trigger Component
-// ============================================================================
-
-/**
- * Collapsible Trigger Component
- *
- * A button that toggles the collapsible state.
- *
- * @example
- * ```html
- * <app-collapsible-trigger>
- *   <button>Toggle content</button>
- * </app-collapsible-trigger>
- * ```
- */
-@Component({
-  selector: 'app-collapsible-trigger',
-  imports: [CommonModule],
-  template: `<ng-content></ng-content>`,
+@Directive({
+  selector: '[argusxCollapsibleTrigger]',
+  exportAs: 'argusxCollapsibleTrigger',
   host: {
     '[attr.data-slot]': '"collapsible-trigger"',
     '[attr.data-state]': 'state()',
-    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.data-disabled]': 'isDisabled() ? "" : null',
     '[attr.id]': 'triggerId()',
-    '[attr.role]': '"button"',
-    '[attr.tabindex]': 'disabled() ? -1 : 0',
     '[attr.aria-expanded]': 'open()',
     '[attr.aria-controls]': 'contentId()',
-    '[attr.disabled]': 'disabled() ? "" : null',
-    '(click)': 'onClick()',
+    '[attr.aria-disabled]': 'isDisabled() ? "true" : null',
+    '[attr.disabled]': 'supportsDisabledAttribute() && isDisabled() ? "" : null',
+    '[attr.role]': 'role()',
+    '[attr.tabindex]': 'tabIndex()',
+    '(click)': 'onClick($event)',
     '(keydown)': 'onKeydown($event)',
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CollapsibleTriggerComponent {
-  // ============================================================================
-  // Dependency Injection
-  // ============================================================================
-  protected readonly collapsible = inject(CollapsibleRootToken);
+export class ArgusxCollapsibleTriggerDirective {
+  private readonly collapsible = inject(ArgusxCollapsibleRootToken);
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
 
-  // ============================================================================
-  // Computed Properties
-  // ============================================================================
+  readonly asChild = input(false, { transform: booleanAttribute });
+  readonly argusxCollapsibleTriggerAsChild = input(false, {
+    transform: booleanAttribute,
+  });
+  readonly disabled = input(false, { transform: booleanAttribute });
 
-  protected readonly open = computed(() => this.collapsible.open());
-  protected readonly disabled = computed(() => this.collapsible.disabled());
-  protected readonly contentId = computed(() => this.collapsible.contentId);
-  protected readonly triggerId = computed(() => this.collapsible.triggerId);
-
-  protected readonly state = computed<'open' | 'closed'>(() =>
-    this.open() ? 'open' : 'closed'
+  private readonly resolvedAsChild = computed(
+    () => this.asChild() || this.argusxCollapsibleTriggerAsChild()
   );
 
-  // ============================================================================
-  // Event Handlers
-  // ============================================================================
+  protected readonly open = computed(() => this.collapsible.open());
+  protected readonly state = computed<CollapsibleState>(() => this.collapsible.state());
+  protected readonly contentId = computed(() => this.collapsible.contentId);
+  protected readonly triggerId = computed(() => this.collapsible.triggerId);
+  protected readonly isDisabled = computed(() => this.collapsible.disabled() || this.disabled());
 
-  onClick(): void {
+  private readonly tagName = computed(() => this.elementRef.nativeElement.tagName.toLowerCase());
+
+  protected readonly supportsDisabledAttribute = computed(() => this.tagName() === 'button');
+  private readonly isNaturallyInteractive = computed(
+    () => this.tagName() === 'button' || this.tagName() === 'a'
+  );
+
+  protected readonly role = computed(() => {
+    if (this.resolvedAsChild() || this.isNaturallyInteractive()) {
+      return null;
+    }
+
+    return 'button';
+  });
+
+  protected readonly tabIndex = computed(() => {
+    if (this.isDisabled()) {
+      return -1;
+    }
+
+    if (this.resolvedAsChild() || this.isNaturallyInteractive()) {
+      return null;
+    }
+
+    return 0;
+  });
+
+  onClick(event: MouseEvent): void {
+    if (this.isDisabled()) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
     this.collapsible.toggle();
   }
 
   onKeydown(event: KeyboardEvent): void {
+    if (this.isDisabled()) {
+      return;
+    }
+
+    if (this.resolvedAsChild() || this.isNaturallyInteractive()) {
+      return;
+    }
+
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();
       this.collapsible.toggle();
@@ -187,94 +178,55 @@ export class CollapsibleTriggerComponent {
   }
 }
 
-// ============================================================================
-// Collapsible Content Component
-// ============================================================================
-
-/**
- * Collapsible Content Component
- *
- * The content area that can be shown/hidden.
- * Uses CSS transitions for smooth animations.
- *
- * @example
- * ```html
- * <app-collapsible-content>
- *   <p>Hidden content goes here</p>
- * </app-collapsible-content>
- * ```
- */
 @Component({
-  selector: 'app-collapsible-content',
-  imports: [CommonModule],
+  selector: 'argusx-collapsible-content',
   template: `
-    <div
-      [id]="contentId"
-      [class]="computedClass()"
-      [attr.data-state]="state()"
-      [attr.role]="'region'"
-      [attr.aria-labelledby]="triggerId"
-      [style.overflow]="'hidden'"
-      [style.max-height]="maxHeight()"
-      [style.transition]="'max-height 200ms ease-out'"
-    >
-      <div [class]="'collapsible-content-inner'">
+    <div class="min-h-0 overflow-hidden" [attr.inert]="open() ? null : ''">
+      <div [class]="contentClass()">
         <ng-content></ng-content>
       </div>
     </div>
   `,
   host: {
+    '[class]': 'wrapperClass()',
+    '[attr.id]': 'contentId',
     '[attr.data-slot]': '"collapsible-content"',
     '[attr.data-state]': 'state()',
+    '[attr.role]': '"region"',
+    '[attr.aria-labelledby]': 'triggerId',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CollapsibleContentComponent {
-  // ============================================================================
-  // Dependency Injection
-  // ============================================================================
-  protected readonly collapsible = inject(CollapsibleRootToken);
+export class ArgusxCollapsibleContentComponent {
+  private readonly collapsible = inject(ArgusxCollapsibleRootToken);
 
-  // ============================================================================
-  // Inputs
-  // ============================================================================
   readonly class = input<string>('');
 
-  // ============================================================================
-  // Computed Properties
-  // ============================================================================
+  protected readonly open = computed(() => this.collapsible.open());
+  protected readonly state = computed<CollapsibleState>(() => this.collapsible.state());
+  protected readonly variant = computed(() => this.collapsible.argusxVariant());
 
   protected readonly contentId = this.collapsible.contentId;
   protected readonly triggerId = this.collapsible.triggerId;
 
-  protected readonly open = computed(() => this.collapsible.open());
-
-  protected readonly state = computed<'open' | 'closed'>(() =>
-    this.open() ? 'open' : 'closed'
-  );
-
-  /**
-   * Max height for animation - 0 when closed, fit-content when open
-   * Note: For production, you'd want to measure actual content height
-   */
-  protected readonly maxHeight = computed(() =>
-    this.open() ? 'none' : '0px'
-  );
-
-  protected readonly computedClass = computed(() =>
+  protected readonly wrapperClass = computed(() =>
     cn(
-      'overflow-hidden transition-[max-height] duration-200 ease-out',
+      'grid overflow-hidden text-sm transition-[grid-template-rows] duration-200 ease-out',
+      this.open() ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+    )
+  );
+
+  protected readonly contentClass = computed(() =>
+    cn(
+      'min-h-0',
+      CONTENT_VARIANT_CLASSES[this.variant()],
       this.class()
     )
   );
 }
 
-// ============================================================================
-// Exports
-// ============================================================================
-
-export const CollapsibleComponents = [
-  CollapsibleComponent,
-  CollapsibleTriggerComponent,
-  CollapsibleContentComponent,
-];
+export const ArgusxCollapsibleImports = [
+  ArgusxCollapsibleComponent,
+  ArgusxCollapsibleTriggerDirective,
+  ArgusxCollapsibleContentComponent,
+] as const;
