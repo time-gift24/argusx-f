@@ -105,6 +105,9 @@ export class TabsComponent extends TabsRootToken {
   /** The value of the currently selected tab */
   readonly value = model<string>('');
 
+  /** The default value to use when the component is first rendered (shadcn-compatible) */
+  readonly defaultValue = input<string>('');
+
   /** The orientation of the tabs */
   readonly orientation = input<'horizontal' | 'vertical'>('horizontal');
 
@@ -127,6 +130,10 @@ export class TabsComponent extends TabsRootToken {
 
   constructor() {
     super();
+    // Apply defaultValue if value is not set
+    if (!this.value() && this.defaultValue()) {
+      this.value.set(this.defaultValue());
+    }
     afterNextRender(() => {
       this.ensureInitialTab();
     });

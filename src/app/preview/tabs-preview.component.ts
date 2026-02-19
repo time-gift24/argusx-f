@@ -39,6 +39,31 @@ import { TabsComponents } from '@app/shared/ui/tabs';
 
       <section>
         <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">Uncontrolled (defaultValue)</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6 space-y-4">
+          <app-tabs defaultValue="password" class="w-full">
+            <app-tabs-list>
+              <app-tabs-trigger value="account">Account</app-tabs-trigger>
+              <app-tabs-trigger value="password">Password</app-tabs-trigger>
+              <app-tabs-trigger value="team">Team</app-tabs-trigger>
+            </app-tabs-list>
+
+            <app-tabs-content value="account" class="rounded-md border p-4 text-xs">
+              Manage your account profile, contact details, and language settings.
+            </app-tabs-content>
+            <app-tabs-content value="password" class="rounded-md border p-4 text-xs">
+              Update password policy and configure 2FA preferences.
+            </app-tabs-content>
+            <app-tabs-content value="team" class="rounded-md border p-4 text-xs">
+              Invite members and configure organization access roles.
+            </app-tabs-content>
+          </app-tabs>
+        </div>
+      </section>
+
+      <section>
+        <div class="mb-3">
           <h2 class="text-sm font-medium text-muted-foreground">Line Variant</h2>
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
@@ -61,10 +86,61 @@ import { TabsComponents } from '@app/shared/ui/tabs';
           </app-tabs>
         </div>
       </section>
+
+      <section>
+        <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">Vertical Orientation</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6">
+          <app-tabs [(value)]="verticalTab" orientation="vertical" class="w-full">
+            <app-tabs-list>
+              <app-tabs-trigger value="account">Account</app-tabs-trigger>
+              <app-tabs-trigger value="password">Password</app-tabs-trigger>
+              <app-tabs-trigger value="team">Team</app-tabs-trigger>
+            </app-tabs-list>
+
+            <app-tabs-content value="account" class="rounded-md border p-4 text-xs">
+              Manage your account profile, contact details, and language settings.
+            </app-tabs-content>
+            <app-tabs-content value="password" class="rounded-md border p-4 text-xs">
+              Update password policy and configure 2FA preferences.
+            </app-tabs-content>
+            <app-tabs-content value="team" class="rounded-md border p-4 text-xs">
+              Invite members and configure organization access roles.
+            </app-tabs-content>
+          </app-tabs>
+        </div>
+      </section>
+
+      <section>
+        <div class="mb-3">
+          <h2 class="text-sm font-medium text-muted-foreground">Disabled</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6">
+          <app-tabs value="account" [disabled]="true" class="w-full">
+            <app-tabs-list>
+              <app-tabs-trigger value="account">Account</app-tabs-trigger>
+              <app-tabs-trigger value="password">Password</app-tabs-trigger>
+              <app-tabs-trigger value="team">Team</app-tabs-trigger>
+            </app-tabs-list>
+
+            <app-tabs-content value="account" class="rounded-md border p-4 text-xs">
+              This entire tabs component is disabled.
+            </app-tabs-content>
+            <app-tabs-content value="password" class="rounded-md border p-4 text-xs">
+              Update password policy and configure 2FA preferences.
+            </app-tabs-content>
+            <app-tabs-content value="team" class="rounded-md border p-4 text-xs">
+              Invite members and configure organization access roles.
+            </app-tabs-content>
+          </app-tabs>
+        </div>
+      </section>
     </div>
   `,
 })
 export class TabsPreviewComponent {
   readonly mainTab = signal('account');
   readonly lineTab = signal('overview');
+  readonly verticalTab = signal('account');
 }
