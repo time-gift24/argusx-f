@@ -23,7 +23,6 @@ import { cn } from '../../utils/cn';
 
 export type ArgusxPopoverAlign = 'start' | 'center' | 'end';
 export type ArgusxPopoverSide = 'top' | 'right' | 'bottom' | 'left';
-export type ArgusxPopoverVariant = 'plain' | 'glass';
 
 // ============================================================================
 // Trigger
@@ -88,7 +87,6 @@ export class ArgusxPopoverAnchorDirective {
     '[attr.data-state]': 'popover.open() ? "open" : "closed"',
     '[attr.data-side]': 'side()',
     '[attr.data-align]': 'align()',
-    '[attr.data-variant]': 'variant()',
     '[attr.role]': '"dialog"',
     '[attr.tabindex]': '-1',
     '(keydown.escape)': 'popover.closePopover()',
@@ -102,12 +100,11 @@ export class ArgusxPopoverContentComponent {
   readonly side = input<ArgusxPopoverSide>('bottom');
   readonly sideOffset = input<number>(4);
   readonly alignOffset = input<number>(0);
-  readonly variant = input<ArgusxPopoverVariant>('plain');
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
     cn(
-      'z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-md p-4 outline-hidden',
+      'z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-md outline-hidden',
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -115,9 +112,7 @@ export class ArgusxPopoverContentComponent {
       'data-[side=left]:slide-in-from-right-2',
       'data-[side=right]:slide-in-from-left-2',
       'data-[side=top]:slide-in-from-bottom-2',
-      this.variant() === 'glass'
-        ? 'border border-white/15 bg-black/40 text-white shadow-lg backdrop-blur-md'
-        : 'border bg-popover text-popover-foreground shadow-md',
+      'border bg-popover text-popover-foreground shadow-md',
       this.class()
     )
   );
