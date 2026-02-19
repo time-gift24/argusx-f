@@ -35,7 +35,7 @@ const PREVIEW_ITEMS = [
   { id: 'button-group', label: 'Button Group', reviewStatus: 'not_processed' },
   { id: 'carousel', label: 'Carousel', reviewStatus: 'reviewed' },
   { id: 'chart', label: 'Chart', reviewStatus: 'reviewed' },
-  { id: 'checkbox', label: 'Checkbox', reviewStatus: 'not_processed' },
+  { id: 'checkbox', label: 'Checkbox', reviewStatus: 'reviewed' },
   { id: 'collapsible', label: 'Collapsible', reviewStatus: 'not_processed' },
   { id: 'combobox', label: 'Combobox', reviewStatus: 'not_processed' },
   { id: 'command', label: 'Command', reviewStatus: 'not_processed' },
