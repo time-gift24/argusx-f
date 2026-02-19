@@ -69,7 +69,7 @@ const PREVIEW_ITEMS = [
   { id: 'textarea', label: 'Textarea', reviewStatus: 'reviewed' },
   { id: 'toast', label: 'Toast', reviewStatus: 'not_processed' },
   { id: 'toggle', label: 'Toggle', reviewStatus: 'not_processed' },
-  { id: 'toggle-group', label: 'Toggle Group', reviewStatus: 'not_processed' },
+  { id: 'toggle-group', label: 'Toggle Group', reviewStatus: 'reviewed' },
   { id: 'tooltip', label: 'Tooltip', reviewStatus: 'not_processed' },
 ] as const;
 

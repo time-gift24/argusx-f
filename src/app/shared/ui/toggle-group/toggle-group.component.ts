@@ -45,7 +45,7 @@ type ToggleGroupVariants = VariantProps<typeof toggleGroupVariants>;
  * Supports single selection (radio-like) and multiple selection (checkbox-like).
  */
 @Component({
-  selector: 'app-toggle-group',
+  selector: 'argusx-toggle-group',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
@@ -54,6 +54,7 @@ type ToggleGroupVariants = VariantProps<typeof toggleGroupVariants>;
       [attr.data-variant]="variant()"
       [attr.data-size]="size()"
       [attr.data-orientation]="orientation()"
+      [attr.data-disabled]="disabled()"
       role="group"
     >
       <ng-content />
@@ -62,6 +63,7 @@ type ToggleGroupVariants = VariantProps<typeof toggleGroupVariants>;
   host: {
     '[attr.data-variant]': 'variant()',
     '[attr.data-size]': 'size()',
+    '[attr.data-disabled]': 'disabled()',
   },
 })
 export class ToggleGroupComponent {
@@ -72,6 +74,7 @@ export class ToggleGroupComponent {
   readonly orientation = input<ToggleGroupOrientation>('horizontal');
   readonly spacing = input<number>(0);
   readonly value = input<string[]>([]);
+  readonly disabled = input<boolean>(false);
   readonly valueChange = output<string[]>();
 
   protected readonly computedClass = computed(() =>
@@ -104,7 +107,7 @@ export class ToggleGroupComponent {
  * Apply to buttons inside ToggleGroup to make them toggle items.
  */
 @Component({
-  selector: 'app-toggle-group-item',
+  selector: 'argusx-toggle-group-item',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button
@@ -113,6 +116,7 @@ export class ToggleGroupComponent {
       [attr.data-variant]="variant()"
       [attr.data-size]="size()"
       [attr.aria-pressed]="isPressed()"
+      [disabled]="isDisabled()"
       (click)="onClick()"
     >
       <ng-content />
@@ -137,6 +141,8 @@ export class ToggleGroupItemComponent {
     return group.getSingleValue() === this.value();
   });
 
+  protected readonly isDisabled = computed(() => this.group().disabled());
+
   protected readonly computedClass = computed(() => {
     const group = this.group();
     const baseClass = toggleVariants({
@@ -153,6 +159,8 @@ export class ToggleGroupItemComponent {
 
   protected onClick(): void {
     const group = this.group();
+    if (group.disabled()) return;
+
     const val = this.value();
 
     if (group.type() === 'multiple') {
