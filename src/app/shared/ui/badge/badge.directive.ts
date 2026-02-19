@@ -20,9 +20,15 @@ export const argusxBadgeVariants = cva(
           '[a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 [a&]:hover:underline',
       },
+      shape: {
+        default: '',
+        square: 'rounded-none',
+        pill: 'rounded-full',
+      },
     },
     defaultVariants: {
       variant: 'default',
+      shape: 'default',
     },
   },
 );
@@ -30,6 +36,7 @@ export const argusxBadgeVariants = cva(
 type ArgusxBadgeVariants = VariantProps<typeof argusxBadgeVariants>;
 
 export type ArgusxBadgeVariant = NonNullable<ArgusxBadgeVariants['variant']>;
+export type ArgusxBadgeShape = NonNullable<ArgusxBadgeVariants['shape']>;
 
 /**
  * Directive that applies badge styles to any element.
@@ -49,13 +56,21 @@ export type ArgusxBadgeVariant = NonNullable<ArgusxBadgeVariants['variant']>;
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"badge"',
     '[attr.data-variant]': 'variant()',
+    '[attr.data-shape]': 'shape()',
   },
 })
 export class ArgusxBadgeDirective {
   readonly variant = input<ArgusxBadgeVariant>('default');
+  readonly shape = input<ArgusxBadgeShape>('default');
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(argusxBadgeVariants({ variant: this.variant() }), this.class()),
+    cn(
+      argusxBadgeVariants({
+        variant: this.variant(),
+        shape: this.shape(),
+      }),
+      this.class(),
+    ),
   );
 }

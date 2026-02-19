@@ -1,17 +1,22 @@
 # badge Preview Coverage
 
 ## Required Scenarios
-- [x] all conflict APIs with shadcn-aligned behavior (all 6 variants displayed)
-- [x] all non-conflict extension APIs in plain style (none applicable)
-- [x] all key state combinations (focus-visible ring, aria-invalid state)
-- [x] shadcn preview parity examples (basic variants, icon badges, numeric counters)
-- [x] one complex combined scenario (badges with icons + custom class overrides + multiple variants together)
+- [x] all conflict APIs with shadcn-aligned behavior
+- [x] all non-conflict extension APIs in plain style (`shape`)
+- [x] all key state combinations
+- [x] shadcn preview parity examples
+- [x] one complex combined scenario
 
 ## Local Preview Routes
 - main: `/preview?component=badge`
 - reference: `https://ui.shadcn.com/preview/radix/badge-example`
 
 ## Verification Notes
-- build: must pass `ng build`
-- tests: no existing spec file for badge
-- manual check: verify all 6 variants render correctly, icon badges display properly, link badges are interactive
+- build: pass (`npm run build`, Angular build success, existing workspace warnings only: markdown css budget + CommonJS dependency notices)
+- tests: no `src/app/shared/ui/badge/**/*.spec.ts`
+- manual check:
+  - core variants: `default/secondary/destructive/outline/ghost/link`
+  - extension: `shape=default/square/pill`
+  - a11y: `tabindex="0"` focus ring and `aria-invalid="true"` ring/border state
+  - complex: link + icon + numeric + shape in same composition
+  - status: browser manual check not executed in this terminal session
