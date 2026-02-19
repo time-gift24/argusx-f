@@ -61,6 +61,38 @@ import {
         </div>
       </section>
 
+      <!-- Shape Extension (ArgusX, plain-friendly) -->
+      <section class="mb-8">
+        <div class="mb-4">
+          <h2 class="text-sm font-medium text-muted-foreground">Shape Extension</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6">
+          <div class="flex flex-wrap gap-2">
+            <span argusx-badge>Default Shape</span>
+            <span argusx-badge shape="square">Square</span>
+            <span argusx-badge shape="pill">Pill</span>
+            <span argusx-badge variant="outline" shape="square">Outline Square</span>
+            <span argusx-badge variant="secondary" shape="pill">Secondary Pill</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Accessibility and State Contract -->
+      <section class="mb-8">
+        <div class="mb-4">
+          <h2 class="text-sm font-medium text-muted-foreground">Accessibility Contract</h2>
+        </div>
+        <div class="rounded-lg border border-dashed border-border p-6">
+          <div class="flex flex-wrap items-center gap-2">
+            <span argusx-badge tabindex="0">Focusable</span>
+            <span argusx-badge aria-invalid="true">Aria Invalid</span>
+            <a argusx-badge variant="outline" href="#" aria-invalid="true" (click)="$event.preventDefault()">
+              Invalid Link
+            </a>
+          </div>
+        </div>
+      </section>
+
       <!-- With Icons (shadcn demo parity) -->
       <section class="mb-8">
         <div class="mb-4">
@@ -130,11 +162,11 @@ import {
                 <lucide-icon [img]="circleDotIcon" />
                 Open
               </span>
-              <span argusx-badge variant="outline" class="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums">42</span>
+              <span argusx-badge variant="outline" shape="square" class="h-5 min-w-5 px-1 font-mono tabular-nums">42</span>
             </div>
             <div class="flex items-center gap-2">
               <a argusx-badge variant="link" href="#" (click)="$event.preventDefault()">View all</a>
-              <span argusx-badge variant="destructive">
+              <span argusx-badge variant="destructive" shape="pill">
                 <lucide-icon [img]="zapIcon" />
                 Urgent
               </span>
