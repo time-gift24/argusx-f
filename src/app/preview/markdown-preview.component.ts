@@ -6,8 +6,11 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import type { MermaidConfig } from 'mermaid';
+import type { Plugin } from 'unified';
 import { ButtonComponent } from '@app/shared/ui/button';
 import { SdMarkdownComponent } from '../shared/ui/markdown/markdown.component';
+import type { MarkdownPlugins } from '../shared/ui/markdown/models/markdown-plugin.models';
 
 @Component({
   selector: 'app-markdown-preview',
@@ -75,6 +78,45 @@ import { SdMarkdownComponent } from '../shared/ui/markdown/markdown.component';
         <p class="mb-4 text-sm text-muted-foreground">
           Simulate token-by-token updates to preview the real streaming rendering process.
         </p>
+
+        <div class="mb-4 grid gap-3 md:grid-cols-3">
+          <label class="flex flex-col gap-1 text-xs text-muted-foreground">
+            Payload size
+            <select
+              class="rounded border bg-background px-2 py-1 text-xs"
+              [value]="streamPayloadSize()"
+              (change)="setPayloadSize($any($event.target).value)">
+              <option [value]="10">10KB</option>
+              <option [value]="100">100KB</option>
+              <option [value]="500">500KB</option>
+            </select>
+          </label>
+
+          <label class="flex flex-col gap-1 text-xs text-muted-foreground">
+            Stream rate
+            <select
+              class="rounded border bg-background px-2 py-1 text-xs"
+              [value]="streamRate()"
+              (change)="setStreamRate($any($event.target).value)">
+              <option [value]="10">10 chunk/s</option>
+              <option [value]="30">30 chunk/s</option>
+              <option [value]="60">60 chunk/s</option>
+            </select>
+          </label>
+
+          <label class="flex flex-col gap-1 text-xs text-muted-foreground">
+            Plugin preset
+            <select
+              class="rounded border bg-background px-2 py-1 text-xs"
+              [value]="pluginPreset()"
+              (change)="setPluginPreset($any($event.target).value)">
+              <option value="base">base</option>
+              <option value="mermaid">mermaid</option>
+              <option value="math+cjk">math+cjk</option>
+              <option value="full">full</option>
+            </select>
+          </label>
+        </div>
 
         <div class="flex flex-wrap gap-2">
           <button argus-button (click)="startLiveStreaming()">
@@ -147,6 +189,7 @@ import { SdMarkdownComponent } from '../shared/ui/markdown/markdown.component';
               [content]="content()"
               [mode]="mode()"
               [capabilities]="markdownCapabilities()"
+              [plugins]="markdownPlugins()"
               [autoScroll]="autoScroll()"
               [autoScrollBehavior]="autoScrollBehavior()" />
           </div>
@@ -159,19 +202,27 @@ import { SdMarkdownComponent } from '../shared/ui/markdown/markdown.component';
 export class MarkdownPreviewComponent {
   private readonly destroyRef = inject(DestroyRef);
   private streamTimer: ReturnType<typeof setTimeout> | null = null;
-  private streamSource = STREAMING_RESPONSE;
+  private streamSource = buildStreamingPayload(10, 'base');
 
   readonly mode = signal<'streaming' | 'static'>('streaming');
   readonly content = signal<string>(DEMOS.basic);
   readonly autoScroll = signal(true);
   readonly autoScrollBehavior = signal<ScrollBehavior>('auto');
   readonly capabilityTableControls = signal(true);
+  readonly streamPayloadSize = signal<10 | 100 | 500>(10);
+  readonly streamRate = signal<10 | 30 | 60>(30);
+  readonly pluginPreset = signal<PluginPreset>('base');
+  readonly markdownPlugins = computed(() =>
+    createPreviewPlugins(this.pluginPreset())
+  );
   readonly markdownCapabilities = computed(() => ({
     controls: { table: this.capabilityTableControls() },
     image: { download: true },
     linkSafety: {
       enabled: true,
       trustedPrefixes: ['https://argusx.ai'],
+      onLinkCheck: (url: string) =>
+        url.startsWith('https://argusx.ai') || url.startsWith('https://streamdown.ai'),
     },
   }));
 
@@ -231,7 +282,10 @@ export class MarkdownPreviewComponent {
   startLiveStreaming() {
     this.clearStreamTimer();
 
-    this.streamSource = STREAMING_RESPONSE;
+    this.streamSource = buildStreamingPayload(
+      this.streamPayloadSize(),
+      this.pluginPreset()
+    );
     this.mode.set('streaming');
     this.content.set('');
     this.streamCursor.set(0);
@@ -268,11 +322,15 @@ export class MarkdownPreviewComponent {
 
   showFullStreamingResult() {
     this.clearStreamTimer();
+    this.streamSource = buildStreamingPayload(
+      this.streamPayloadSize(),
+      this.pluginPreset()
+    );
 
     this.mode.set('streaming');
-    this.content.set(STREAMING_RESPONSE);
-    this.streamCursor.set(STREAMING_RESPONSE.length);
-    this.streamTotal.set(STREAMING_RESPONSE.length);
+    this.content.set(this.streamSource);
+    this.streamCursor.set(this.streamSource.length);
+    this.streamTotal.set(this.streamSource.length);
     this.streamFinished.set(true);
     this.isStreaming.set(false);
   }
@@ -283,6 +341,31 @@ export class MarkdownPreviewComponent {
     this.streamCursor.set(0);
     this.streamTotal.set(0);
     this.content.set(nextValue);
+  }
+
+  setPayloadSize(value: string): void {
+    const parsed = Number(value);
+    if (parsed === 10 || parsed === 100 || parsed === 500) {
+      this.streamPayloadSize.set(parsed);
+    }
+  }
+
+  setStreamRate(value: string): void {
+    const parsed = Number(value);
+    if (parsed === 10 || parsed === 30 || parsed === 60) {
+      this.streamRate.set(parsed);
+    }
+  }
+
+  setPluginPreset(value: string): void {
+    if (
+      value === 'base' ||
+      value === 'mermaid' ||
+      value === 'math+cjk' ||
+      value === 'full'
+    ) {
+      this.pluginPreset.set(value);
+    }
   }
 
   private pushNextChunk() {
@@ -329,11 +412,16 @@ export class MarkdownPreviewComponent {
   }
 
   private nextChunkSize(): number {
-    return 2 + Math.floor(Math.random() * 10);
+    const chunkRate = this.streamRate();
+    const windowSeconds = 12;
+    const averageChunkSize = Math.ceil(
+      this.streamSource.length / Math.max(1, chunkRate * windowSeconds)
+    );
+    return Math.max(2, averageChunkSize);
   }
 
   private nextDelayMs(): number {
-    return 35 + Math.floor(Math.random() * 90);
+    return Math.max(8, Math.floor(1000 / this.streamRate()));
   }
 }
 
@@ -424,17 +512,80 @@ sequenceDiagram
 `,
 };
 
-const STREAMING_RESPONSE = `# Streaming Demo (Live)
+type PluginPreset = 'base' | 'mermaid' | 'math+cjk' | 'full';
 
-This section is produced chunk by chunk, just like an actual LLM streaming response.
+const noopPlugin: Plugin<[], any> = () => () => undefined;
 
-## Partial Plan
+const previewMermaidPlugin = {
+  name: 'mermaid' as const,
+  type: 'diagram' as const,
+  language: 'mermaid',
+  getMermaid(config?: MermaidConfig) {
+    return {
+      initialize(_cfg: MermaidConfig) {
+        void _cfg;
+      },
+      async render(_id: string, source: string) {
+        if (config) {
+          void config;
+        }
+        return {
+          svg: `<svg xmlns="http://www.w3.org/2000/svg"><text x="8" y="16">nodes:${source.length}</text></svg>`,
+        };
+      },
+    };
+  },
+};
 
-1. Read the request and identify constraints.
-2. Propose a practical implementation path.
-3. Execute incrementally and verify each step.
+const createPreviewPlugins = (preset: PluginPreset): MarkdownPlugins | undefined => {
+  if (preset === 'base') {
+    return undefined;
+  }
 
-## Example Output
+  if (preset === 'mermaid') {
+    return { mermaid: previewMermaidPlugin };
+  }
+
+  if (preset === 'math+cjk') {
+    return {
+      math: {
+        name: 'katex',
+        type: 'math',
+        remarkPlugin: noopPlugin,
+        rehypePlugin: noopPlugin,
+      },
+      cjk: {
+        name: 'cjk',
+        type: 'cjk',
+        remarkPluginsBefore: [noopPlugin],
+        remarkPluginsAfter: [noopPlugin],
+        remarkPlugins: [noopPlugin, noopPlugin],
+      },
+    };
+  }
+
+  return {
+    mermaid: previewMermaidPlugin,
+    math: {
+      name: 'katex',
+      type: 'math',
+      remarkPlugin: noopPlugin,
+      rehypePlugin: noopPlugin,
+    },
+    cjk: {
+      name: 'cjk',
+      type: 'cjk',
+      remarkPluginsBefore: [noopPlugin],
+      remarkPluginsAfter: [noopPlugin],
+      remarkPlugins: [noopPlugin, noopPlugin],
+    },
+  };
+};
+
+const STREAMING_BASE_SECTION = `
+## Streaming Segment
+
+This section is produced chunk by chunk, similar to an actual LLM response.
 
 \`\`\`ts
 export async function streamAnswer(push: (chunk: string) => void) {
@@ -445,4 +596,46 @@ export async function streamAnswer(push: (chunk: string) => void) {
 }
 \`\`\`
 
-The final sentence arrives at the end, confirming the response is complete.`;
+| Step | Status |
+| ---- | ------ |
+| Parse | Done |
+| Render | Running |
+| Verify | Pending |
+`;
+
+const MERMAID_SECTION = `
+\`\`\`mermaid
+graph TD
+  A[Input] --> B[Parse]
+  B --> C[Render]
+  C --> D[Output]
+\`\`\`
+`;
+
+const MATH_SECTION = `
+Inline math: $E = mc^2$
+
+$$
+f(x) = \\frac{1}{\\sqrt{2\\pi}} e^{-\\frac{x^2}{2}}
+$$
+`;
+
+const buildStreamingPayload = (sizeKb: 10 | 100 | 500, preset: PluginPreset): string => {
+  const targetChars = sizeKb * 1024;
+  let section = `# Streaming Demo (${sizeKb}KB | ${preset})\n\n${STREAMING_BASE_SECTION}`;
+
+  if (preset === 'mermaid' || preset === 'full') {
+    section += MERMAID_SECTION;
+  }
+  if (preset === 'math+cjk' || preset === 'full') {
+    section += MATH_SECTION;
+    section += '\n中文链接：https://streamdown.ai，处理中。\n';
+  }
+
+  let output = '';
+  while (output.length < targetChars) {
+    output += section;
+  }
+
+  return output.slice(0, targetChars);
+};

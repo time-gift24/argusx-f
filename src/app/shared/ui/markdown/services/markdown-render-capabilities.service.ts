@@ -1,9 +1,14 @@
 import { Injectable } from '@angular/core';
 import type { MarkdownCapabilities } from '../models/markdown-capabilities.models';
+import type { MarkdownMermaidPlugin } from '../models/markdown-plugin.models';
 
 export interface MarkdownRenderCapabilities {
   controls: { table: boolean; code: boolean; mermaid: boolean };
-  linkSafety: { enabled: boolean; trustedPrefixes: string[] };
+  linkSafety: {
+    enabled: boolean;
+    trustedPrefixes: string[];
+    onLinkCheck?: (url: string) => boolean | Promise<boolean>;
+  };
   image: { download: boolean };
   code: { copy: boolean; download: boolean; showLanguageLabel: boolean };
   mermaid: {
@@ -12,6 +17,9 @@ export interface MarkdownRenderCapabilities {
     download: boolean;
     fullscreen: boolean;
     panZoom: boolean;
+  };
+  plugins: {
+    mermaid?: MarkdownMermaidPlugin;
   };
 }
 
@@ -27,6 +35,7 @@ export class MarkdownRenderCapabilitiesService {
       linkSafety: {
         enabled: capabilities.linkSafety?.enabled ?? false,
         trustedPrefixes: capabilities.linkSafety?.trustedPrefixes ?? [],
+        onLinkCheck: capabilities.linkSafety?.onLinkCheck,
       },
       image: { download: capabilities.image?.download ?? false },
       code: {
@@ -40,6 +49,9 @@ export class MarkdownRenderCapabilitiesService {
         download: capabilities.mermaid?.download ?? false,
         fullscreen: capabilities.mermaid?.fullscreen ?? false,
         panZoom: capabilities.mermaid?.panZoom ?? true,
+      },
+      plugins: {
+        mermaid: capabilities.plugins?.mermaid,
       },
     };
   }

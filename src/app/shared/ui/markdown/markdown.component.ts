@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import type { PluggableList } from 'unified';
 import type { MarkdownCapabilities } from './models/markdown-capabilities.models';
+import type { MarkdownPlugins } from './models/markdown-plugin.models';
 import type {
   AllowElement,
   AllowedTags,
@@ -74,6 +75,7 @@ export class SdMarkdownComponent {
   readonly unwrapDisallowed = input(false);
   readonly className = input<string>('');
   readonly capabilities = input<MarkdownCapabilities | undefined>(undefined);
+  readonly plugins = input<MarkdownPlugins | undefined>(undefined);
 
   readonly allowedElements = input<readonly string[] | undefined>(undefined);
   readonly disallowedElements = input<readonly string[] | undefined>(undefined);
@@ -92,6 +94,7 @@ export class SdMarkdownComponent {
   readonly normalizedCapabilities = computed(() =>
     normalizeCapabilities({
       capabilities: this.capabilities(),
+      plugins: this.plugins(),
       remarkPlugins: this.remarkPlugins(),
       rehypePlugins: this.rehypePlugins(),
       allowedTags: this.allowedTags(),
@@ -127,7 +130,7 @@ export class SdMarkdownComponent {
       const content = this.content();
 
       if (mode !== 'streaming') {
-        this.destroyStreamCoalescer();
+        this.destroyStreamCoalescer(true);
         this.renderedContent.set(content);
         return;
       }
@@ -146,7 +149,7 @@ export class SdMarkdownComponent {
     });
 
     this.destroyRef.onDestroy(() => {
-      this.destroyStreamCoalescer();
+      this.destroyStreamCoalescer(true);
     });
   }
 
@@ -239,7 +242,7 @@ export class SdMarkdownComponent {
       this.coalescerThrottleMs !== throttleMs ||
       this.coalescerDebounceMs !== debounceMs
     ) {
-      this.destroyStreamCoalescer();
+      this.destroyStreamCoalescer(true);
       this.streamCoalescer = createStreamUpdateCoalescer(
         (value) => this.renderedContent.set(value),
         throttleMs,
@@ -252,11 +255,14 @@ export class SdMarkdownComponent {
     return this.streamCoalescer;
   }
 
-  private destroyStreamCoalescer(): void {
+  private destroyStreamCoalescer(flushPending = false): void {
     if (!this.streamCoalescer) {
       return;
     }
 
+    if (flushPending) {
+      this.streamCoalescer.flush();
+    }
     this.streamCoalescer.destroy();
     this.streamCoalescer = null;
     this.coalescerThrottleMs = -1;

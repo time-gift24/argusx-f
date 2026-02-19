@@ -1,19 +1,40 @@
 #!/usr/bin/env node
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(scriptDir, '..');
-const thresholdsPath = resolve(projectRoot, 'docs/perf/markdown-thresholds.json');
 const reportPath = resolve(projectRoot, process.argv[2] ?? '.tmp/markdown-bench.json');
+const defaultThresholds = {
+  maxP95Ms: 3000,
+  maxHeapDeltaMb: 256,
+  maxStreamingStepMs: 2000,
+};
 
 const parseJsonFile = (path) => JSON.parse(readFileSync(path, 'utf8'));
 const asNumber = (value, fallback = NaN) =>
   typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+const resolveExistingPath = (path) =>
+  path && existsSync(resolve(projectRoot, path))
+    ? resolve(projectRoot, path)
+    : null;
 
-const thresholds = parseJsonFile(thresholdsPath);
+const findThresholdsPath = () => {
+  const cliPath = process.argv[3];
+  const envPath = process.env.MARKDOWN_PERF_THRESHOLDS;
+  return (
+    resolveExistingPath(cliPath) ??
+    resolveExistingPath(envPath) ??
+    resolveExistingPath('.tmp/markdown-thresholds.json')
+  );
+};
+
+const thresholdsPath = findThresholdsPath();
+const thresholds = thresholdsPath
+  ? { ...defaultThresholds, ...parseJsonFile(thresholdsPath) }
+  : defaultThresholds;
 const report = parseJsonFile(reportPath);
 
 const benches = (report.files ?? []).flatMap((file) =>

@@ -3,6 +3,7 @@ import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { RemendOptions } from 'remend';
 import type { PluggableList } from 'unified';
 import type { MarkdownCapabilities } from './markdown-capabilities.models';
+import type { MarkdownPlugins } from './markdown-plugin.models';
 
 export type StreamMode = 'streaming' | 'static';
 
@@ -47,6 +48,7 @@ export interface RenderBlock {
 
 export interface RenderOptions {
   capabilities?: MarkdownCapabilities;
+  plugins?: MarkdownPlugins;
   mode?: StreamMode;
   parseIncompleteMarkdown?: boolean;
   remendOptions?: RemendOptions;

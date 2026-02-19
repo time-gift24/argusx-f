@@ -205,3 +205,8 @@ sd-markdown {
 .dark .sd-root sd-code-block .token.keyword {
   color: oklch(0.8 0.16 275);
 }
+
+.sd-root .sd-heavy-content {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 220px;
+}

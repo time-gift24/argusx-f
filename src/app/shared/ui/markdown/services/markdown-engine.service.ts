@@ -10,6 +10,7 @@ import type { Parent } from 'unist';
 import type { PluggableList, Processor } from 'unified';
 import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
+import type { MarkdownCapabilities } from '../models/markdown-capabilities.models';
 import type {
   AllowElement,
   RenderBlock,
@@ -63,6 +64,12 @@ interface NormalizedOptions {
   urlTransform: UrlTransform;
 }
 
+interface StreamingRenderCache {
+  optionsKey: string;
+  rawBlocks: string[];
+  renderedBlocks: RenderBlock[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class MarkdownEngineService {
   private readonly parser = inject(MarkdownParserService);
@@ -71,6 +78,7 @@ export class MarkdownEngineService {
     inject(MarkdownCapabilitiesResolverService, { optional: true }) ??
     new MarkdownCapabilitiesResolverService();
   private readonly processorCache = new ProcessorCache<CachedProcessor>();
+  private streamingRenderCache: StreamingRenderCache | null = null;
 
   renderBlocks(markdown: string, options: RenderOptions = {}): RenderBlock[] {
     if (!markdown) {
@@ -90,29 +98,32 @@ export class MarkdownEngineService {
 
     const blocks = rawBlocks.filter((block) => block.trim().length > 0);
     if (blocks.length === 0) {
+      this.streamingRenderCache = null;
       return [];
     }
 
     const processor = this.getProcessor(normalized);
+    if (normalized.mode !== 'streaming' || !this.canReuseStreamingBlocks(normalized)) {
+      this.streamingRenderCache = null;
+      return this.renderAllBlocks(blocks, normalized, processor);
+    }
 
-    return blocks.map((block, index) => {
-      const tree = processor.runSync(processor.parse(block), block) as Nodes;
-      const filteredTree = this.postProcessTree(tree, normalized);
-
-      return {
-        id: String(index),
-        raw: block,
-        root: this.toRenderRoot(filteredTree),
-      };
-    });
+    return this.renderStreamingBlocksWithReuse(blocks, normalized, processor);
   }
 
   private normalizeOptions(options: RenderOptions): NormalizedOptions {
-    const capabilities = options.capabilities ?? {
+    const baseCapabilities = options.capabilities ?? {
       pipeline: {
         remarkPlugins: options.remarkPlugins,
         rehypePlugins: options.rehypePlugins,
         allowedTags: options.allowedTags,
+      },
+    };
+    const capabilities: MarkdownCapabilities = {
+      ...baseCapabilities,
+      plugins: {
+        ...(options.plugins ?? {}),
+        ...(baseCapabilities.plugins ?? {}),
       },
     };
 
@@ -141,6 +152,85 @@ export class MarkdownEngineService {
       unwrapDisallowed: options.unwrapDisallowed === true,
       urlTransform: options.urlTransform ?? DEFAULT_URL_TRANSFORM,
     };
+  }
+
+  private renderStreamingBlocksWithReuse(
+    blocks: string[],
+    options: NormalizedOptions,
+    processor: CachedProcessor
+  ): RenderBlock[] {
+    const optionsKey = this.makeStreamingCacheKey(options);
+    const previous = this.streamingRenderCache;
+    const renderedBlocks = new Array<RenderBlock>(blocks.length);
+    let startIndex = 0;
+
+    if (previous && previous.optionsKey === optionsKey) {
+      const maxPrefix = Math.min(previous.rawBlocks.length, blocks.length);
+      while (
+        startIndex < maxPrefix &&
+        previous.rawBlocks[startIndex] === blocks[startIndex]
+      ) {
+        renderedBlocks[startIndex] = previous.renderedBlocks[startIndex];
+        startIndex += 1;
+      }
+    }
+
+    for (let index = startIndex; index < blocks.length; index += 1) {
+      renderedBlocks[index] = this.renderBlock(blocks[index], index, options, processor);
+    }
+
+    this.streamingRenderCache = {
+      optionsKey,
+      rawBlocks: [...blocks],
+      renderedBlocks,
+    };
+
+    return renderedBlocks;
+  }
+
+  private renderAllBlocks(
+    blocks: string[],
+    options: NormalizedOptions,
+    processor: CachedProcessor
+  ): RenderBlock[] {
+    return blocks.map((block, index) =>
+      this.renderBlock(block, index, options, processor)
+    );
+  }
+
+  private renderBlock(
+    block: string,
+    index: number,
+    options: NormalizedOptions,
+    processor: CachedProcessor
+  ): RenderBlock {
+    const tree = processor.runSync(processor.parse(block), block) as Nodes;
+    const filteredTree = this.postProcessTree(tree, options);
+
+    return {
+      id: String(index),
+      raw: block,
+      root: this.toRenderRoot(filteredTree),
+    };
+  }
+
+  private canReuseStreamingBlocks(options: NormalizedOptions): boolean {
+    return (
+      options.allowElement === undefined &&
+      options.allowedElements === undefined &&
+      options.disallowedElements === undefined &&
+      options.skipHtml === false &&
+      options.unwrapDisallowed === false &&
+      options.urlTransform === DEFAULT_URL_TRANSFORM
+    );
+  }
+
+  private makeStreamingCacheKey(options: NormalizedOptions): string {
+    return this.processorCache.makeKey({
+      remarkPlugins: options.remarkPlugins,
+      rehypePlugins: options.rehypePlugins,
+      remarkRehypeOptions: options.remarkRehypeOptions,
+    });
   }
 
   private getProcessor(options: NormalizedOptions): CachedProcessor {

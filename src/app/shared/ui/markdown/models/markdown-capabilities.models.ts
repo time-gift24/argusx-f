@@ -1,5 +1,6 @@
 import type { PluggableList } from 'unified';
 import type { AllowedTags } from './markdown.models';
+import type { MarkdownPlugins } from './markdown-plugin.models';
 
 export interface MarkdownPipelineCapabilities {
   remarkPlugins?: PluggableList;
@@ -34,6 +35,7 @@ export interface MarkdownImageCapabilities {
 export interface MarkdownLinkSafetyCapabilities {
   enabled?: boolean;
   trustedPrefixes?: string[];
+  onLinkCheck?: (url: string) => boolean | Promise<boolean>;
 }
 
 export interface MarkdownMathCapabilities {
@@ -55,4 +57,5 @@ export interface MarkdownCapabilities {
   linkSafety?: MarkdownLinkSafetyCapabilities;
   math?: MarkdownMathCapabilities;
   cjk?: MarkdownCjkCapabilities;
+  plugins?: MarkdownPlugins;
 }

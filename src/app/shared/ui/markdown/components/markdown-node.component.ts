@@ -9,13 +9,14 @@ import {
 import type {
   RenderElementNode,
   RenderNode,
-  RenderTextNode,
 } from '../models/markdown.models';
 import type { MarkdownRenderCapabilities } from '../services/markdown-render-capabilities.service';
 import { CodeBlockComponent } from './code-block.component';
 import { LinkSafetyDialogComponent } from './link-safety-dialog.component';
 import { MermaidComponent } from './mermaid.component';
 import { TableControlsComponent } from './table-controls.component';
+
+const FILE_EXTENSION_PATTERN = /\.[^/.]+$/;
 
 @Component({
   selector: 'sd-markdown-node',
@@ -167,6 +168,7 @@ import { TableControlsComponent } from './table-controls.component';
                   [allowCopy]="renderCapabilities().mermaid.copy"
                   [allowDownload]="renderCapabilities().mermaid.download"
                   [allowFullscreen]="renderCapabilities().mermaid.fullscreen"
+                  [plugin]="renderCapabilities().plugins.mermaid"
                   [showControlsBar]="renderCapabilities().controls.mermaid"
                   [showPanZoom]="renderCapabilities().mermaid.panZoom"></sd-mermaid>
               } @placeholder {
@@ -203,14 +205,18 @@ import { TableControlsComponent } from './table-controls.component';
             </code>
           }
           @case ('table') {
-            @if (renderCapabilities().controls.table) {
-              <sd-table-controls [tableMarkdown]="tableMarkdown()"></sd-table-controls>
-            }
-            <table [attr.style]="styleText()" [class]="className()">
-              @for (child of children(); track $index) {
-                <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
+            <div class="sd-table-wrapper my-4 flex flex-col gap-2">
+              @if (renderCapabilities().controls.table) {
+                <sd-table-controls></sd-table-controls>
               }
-            </table>
+              <div class="overflow-x-auto overscroll-y-auto">
+                <table [attr.style]="styleText()" [class]="className()">
+                  @for (child of children(); track $index) {
+                    <sd-markdown-node [node]="child" [renderCapabilities]="renderCapabilities()"></sd-markdown-node>
+                  }
+                </table>
+              </div>
+            </div>
           }
           @case ('thead') {
             <thead [attr.style]="styleText()" [class]="className()">
@@ -307,6 +313,7 @@ import { TableControlsComponent } from './table-controls.component';
 })
 export class MarkdownNodeComponent {
   private readonly pendingLinkHref = signal<string | null>(null);
+  private linkCheckVersion = 0;
 
   readonly node = input.required<RenderNode>();
   readonly renderCapabilities = input.required<MarkdownRenderCapabilities>();
@@ -387,14 +394,6 @@ export class MarkdownNodeComponent {
     return this.collectText(codeNode.children);
   });
 
-  readonly tableMarkdown = computed(() => {
-    if (this.tagName() !== 'table') {
-      return '';
-    }
-
-    return this.collectText(this.children());
-  });
-
   readonly isIncompleteLink = computed(() => {
     if (this.tagName() !== 'a') {
       return false;
@@ -433,7 +432,7 @@ export class MarkdownNodeComponent {
 
   readonly imgAlt = computed(() => this.attr('alt') ?? '');
 
-  onLinkClick(event: MouseEvent): void {
+  async onLinkClick(event: MouseEvent): Promise<void> {
     const href = this.linkHref();
     if (
       this.tagName() !== 'a' ||
@@ -445,6 +444,24 @@ export class MarkdownNodeComponent {
     }
 
     event.preventDefault();
+    const currentCheckVersion = ++this.linkCheckVersion;
+    const onLinkCheck = this.renderCapabilities().linkSafety.onLinkCheck;
+
+    if (onLinkCheck) {
+      try {
+        const shouldAllow = await onLinkCheck(href);
+        if (currentCheckVersion !== this.linkCheckVersion) {
+          return;
+        }
+        if (shouldAllow) {
+          this.openExternalLink(href);
+          return;
+        }
+      } catch {
+        // Fall back to safety modal.
+      }
+    }
+
     this.pendingLinkHref.set(href);
   }
 
@@ -454,32 +471,36 @@ export class MarkdownNodeComponent {
       return;
     }
 
-    const target = this.linkTarget() ?? '_blank';
-    const features = 'noopener,noreferrer';
-
-    if (typeof window === 'undefined' || typeof window.open !== 'function') {
-      this.pendingLinkHref.set(null);
-      return;
-    }
-
-    window.open(href, target, features);
+    this.openExternalLink(href);
     this.pendingLinkHref.set(null);
   }
 
   cancelLinkNavigation(): void {
+    this.linkCheckVersion += 1;
     this.pendingLinkHref.set(null);
   }
 
-  downloadImage(): void {
+  async downloadImage(): Promise<void> {
     const src = this.attr('src');
     if (!src) {
       return;
     }
 
-    const anchor = document.createElement('a');
-    anchor.href = src;
-    anchor.download = src.split('/').pop() || 'image';
-    anchor.click();
+    try {
+      const response = await fetch(src);
+      const blob = await response.blob();
+      const filename = this.resolveImageFilename(src, blob.type);
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      if (typeof window !== 'undefined' && typeof window.open === 'function') {
+        window.open(src, '_blank', 'noopener,noreferrer');
+      }
+    }
   }
 
   attr(name: string): string | null {
@@ -494,6 +515,55 @@ export class MarkdownNodeComponent {
   private isTrustedLink(href: string): boolean {
     const trustedPrefixes = this.renderCapabilities().linkSafety.trustedPrefixes;
     return trustedPrefixes.some((prefix) => href.startsWith(prefix));
+  }
+
+  private openExternalLink(href: string): void {
+    if (typeof window === 'undefined' || typeof window.open !== 'function') {
+      return;
+    }
+
+    const target = this.linkTarget() ?? '_blank';
+    window.open(href, target, 'noopener,noreferrer');
+  }
+
+  private resolveImageFilename(src: string, mimeType: string): string {
+    const fallbackBaseName = this.imgAlt() || 'image';
+
+    let parsedPath = '';
+    try {
+      parsedPath = new URL(src, window.location.origin).pathname;
+    } catch {
+      parsedPath = src;
+    }
+
+    const originalFilename = parsedPath.split('/').pop() || '';
+    const extension = originalFilename.split('.').pop();
+    const hasExtension =
+      originalFilename.includes('.') &&
+      extension !== undefined &&
+      extension.length > 0 &&
+      extension.length <= 4;
+
+    if (hasExtension) {
+      return originalFilename;
+    }
+
+    let inferredExtension = 'png';
+    if (mimeType.includes('jpeg') || mimeType.includes('jpg')) {
+      inferredExtension = 'jpg';
+    } else if (mimeType.includes('svg')) {
+      inferredExtension = 'svg';
+    } else if (mimeType.includes('gif')) {
+      inferredExtension = 'gif';
+    } else if (mimeType.includes('webp')) {
+      inferredExtension = 'webp';
+    }
+
+    const baseName = (originalFilename || fallbackBaseName).replace(
+      FILE_EXTENSION_PATTERN,
+      ''
+    );
+    return `${baseName || 'image'}.${inferredExtension}`;
   }
 
   private collectText(nodes: RenderNode[]): string {

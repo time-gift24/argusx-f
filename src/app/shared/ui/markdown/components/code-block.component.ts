@@ -57,7 +57,7 @@ const loadingLanguages = new Map<string, Promise<void>>();
 @Component({
   selector: 'sd-code-block',
   template: `
-    <div class="my-4 w-full overflow-hidden rounded-xl border border-border bg-card">
+    <div class="sd-heavy-content my-4 w-full overflow-hidden rounded-xl border border-border bg-card">
       @if (showHeaderBar()) {
         <div class="flex items-center justify-between border-b bg-muted/80 p-3 text-xs">
           @if (showLanguageLabel()) {
