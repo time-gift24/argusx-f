@@ -7,11 +7,11 @@ import { cn } from '../../utils/cn';
  *
  * @example
  * ```html
- * <app-input-group-textarea placeholder="Enter message" [(value)]="message" [rows]="4" />
+ * <argusx-input-group-textarea placeholder="Enter message" [(value)]="message" [rows]="4" />
  * ```
  */
 @Component({
-  selector: 'app-input-group-textarea',
+  selector: 'argusx-input-group-textarea',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <textarea

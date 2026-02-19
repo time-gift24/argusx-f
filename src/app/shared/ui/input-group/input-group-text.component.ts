@@ -7,14 +7,14 @@ import { cn } from '../../utils/cn';
  *
  * @example
  * ```html
- * <app-input-group-text>
+ * <argusx-input-group-text>
  *   <lucide-icon [img]="searchIcon"></lucide-icon>
  *   Search
- * </app-input-group-text>
+ * </argusx-input-group-text>
  * ```
  */
 @Component({
-  selector: 'app-input-group-text',
+  selector: 'argusx-input-group-text',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span [class]="computedClass()">

@@ -7,11 +7,11 @@ import { cn } from '../../utils/cn';
  *
  * @example
  * ```html
- * <app-input-group-input placeholder="Enter email" [(value)]="email" />
+ * <argusx-input-group-input placeholder="Enter email" [(value)]="email" />
  * ```
  */
 @Component({
-  selector: 'app-input-group-input',
+  selector: 'argusx-input-group-input',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <input

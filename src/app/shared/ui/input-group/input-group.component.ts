@@ -10,22 +10,23 @@ import { cn } from '../../utils/cn';
  *
  * @example
  * ```html
- * <app-input-group>
- *   <app-input-group-addon align="inline-start">
+ * <argusx-input-group>
+ *   <argusx-input-group-addon align="inline-start">
  *     <lucide-icon [img]="mailIcon"></lucide-icon>
- *   </app-input-group-addon>
- *   <app-input-group-input placeholder="Email" />
- * </app-input-group>
+ *   </argusx-input-group-addon>
+ *   <argusx-input-group-input placeholder="Email" />
+ * </argusx-input-group>
  * ```
  */
 @Component({
-  selector: 'app-input-group',
+  selector: 'argusx-input-group',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       [class]="computedClass()"
       [attr.data-slot]="'input-group'"
       [attr.role]="'group'"
+      [attr.aria-disabled]="disabled() || loading()"
     >
       <ng-content />
     </div>
@@ -36,6 +37,9 @@ import { cn } from '../../utils/cn';
 })
 export class InputGroupComponent {
   readonly class = input<string>('');
+  readonly disabled = input<boolean>(false);
+  readonly loading = input<boolean>(false);
+  readonly size = input<'default' | 'sm' | 'lg' | 'xs'>('default');
 
   protected readonly computedClass = computed(() =>
     cn(

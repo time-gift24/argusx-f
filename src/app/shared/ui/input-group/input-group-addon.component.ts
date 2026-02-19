@@ -30,13 +30,13 @@ type InputGroupAddonAlign = NonNullable<VariantProps<typeof inputGroupAddonVaria
  *
  * @example
  * ```html
- * <app-input-group-addon align="inline-start">
+ * <argusx-input-group-addon align="inline-start">
  *   <lucide-icon [img]="mailIcon"></lucide-icon>
- * </app-input-group-addon>
+ * </argusx-input-group-addon>
  * ```
  */
 @Component({
-  selector: 'app-input-group-addon',
+  selector: 'argusx-input-group-addon',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div

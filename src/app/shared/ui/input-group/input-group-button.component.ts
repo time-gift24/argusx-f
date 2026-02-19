@@ -32,13 +32,13 @@ type InputGroupButtonSize = NonNullable<VariantProps<typeof inputGroupButtonVari
  *
  * @example
  * ```html
- * <app-input-group-button variant="ghost" size="icon-xs" aria-label="Search">
+ * <button argusxInputGroupButton variant="ghost" size="icon-xs" aria-label="Search">
  *   <lucide-icon [img]="searchIcon"></lucide-icon>
- * </app-input-group-button>
+ * </button>
  * ```
  */
 @Component({
-  selector: 'button[appInputGroupButton]',
+  selector: 'button[argusxInputGroupButton]',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ng-content />

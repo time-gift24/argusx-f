@@ -31,15 +31,15 @@ import {
           <h2 class="text-sm font-medium text-muted-foreground">URL Input</h2>
         </div>
         <div class="rounded-lg border border-dashed border-border p-6 space-y-3">
-          <app-input-group>
-            <app-input-group-addon align="inline-start">
-              <app-input-group-text>https://</app-input-group-text>
-            </app-input-group-addon>
-            <app-input-group-input [(value)]="website" placeholder="example" />
-            <app-input-group-addon align="inline-end">
-              <app-input-group-text>.com</app-input-group-text>
-            </app-input-group-addon>
-          </app-input-group>
+          <argusx-input-group>
+            <argusx-input-group-addon align="inline-start">
+              <argusx-input-group-text>https://</argusx-input-group-text>
+            </argusx-input-group-addon>
+            <argusx-input-group-input [(value)]="website" placeholder="example" />
+            <argusx-input-group-addon align="inline-end">
+              <argusx-input-group-text>.com</argusx-input-group-text>
+            </argusx-input-group-addon>
+          </argusx-input-group>
           <p class="text-xs text-muted-foreground">Value: {{ website() }}.com</p>
         </div>
       </section>
@@ -49,13 +49,13 @@ import {
           <h2 class="text-sm font-medium text-muted-foreground">Search Input</h2>
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
-          <app-input-group>
-            <app-input-group-addon align="inline-start">
-              <app-input-group-text>🔍</app-input-group-text>
-            </app-input-group-addon>
-            <app-input-group-input [(value)]="keyword" placeholder="Search..." />
-            <button appInputGroupButton variant="ghost" size="xs">Go</button>
-          </app-input-group>
+          <argusx-input-group>
+            <argusx-input-group-addon align="inline-start">
+              <argusx-input-group-text>🔍</argusx-input-group-text>
+            </argusx-input-group-addon>
+            <argusx-input-group-input [(value)]="keyword" placeholder="Search..." />
+            <button argusxInputGroupButton variant="ghost" size="xs">Go</button>
+          </argusx-input-group>
         </div>
       </section>
 
@@ -64,13 +64,13 @@ import {
           <h2 class="text-sm font-medium text-muted-foreground">Textarea Group</h2>
         </div>
         <div class="rounded-lg border border-dashed border-border p-6">
-          <app-input-group class="h-auto">
-            <app-input-group-textarea
+          <argusx-input-group class="h-auto">
+            <argusx-input-group-textarea
               [(value)]="message"
               [rows]="4"
               placeholder="Type your message..."
             />
-          </app-input-group>
+          </argusx-input-group>
         </div>
       </section>
     </div>
