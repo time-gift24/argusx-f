@@ -30,7 +30,7 @@ const PREVIEW_ITEMS = [
   { id: 'markdown', label: 'Markdown', reviewStatus: 'not_processed' },
   { id: 'alert-dialog', label: 'Alert Dialog', reviewStatus: 'reviewed' },
   { id: 'badge', label: 'Badge', reviewStatus: 'not_processed' },
-  { id: 'breadcrumb', label: 'Breadcrumb', reviewStatus: 'not_processed' },
+  { id: 'breadcrumb', label: 'Breadcrumb', reviewStatus: 'reviewed' },
   { id: 'button-group', label: 'Button Group', reviewStatus: 'not_processed' },
   { id: 'carousel', label: 'Carousel', reviewStatus: 'reviewed' },
   { id: 'chart', label: 'Chart', reviewStatus: 'not_processed' },
