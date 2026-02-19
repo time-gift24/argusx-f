@@ -1,1 +1,1 @@
-export { SkeletonDirective } from './skeleton.directive';
+export { ArgusxSkeletonComponent } from './skeleton.component';
