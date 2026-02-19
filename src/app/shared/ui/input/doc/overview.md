@@ -12,6 +12,7 @@
 - native `<input>` attributes as the primary contract
 - no wrapper component
 - no variant API (`status`, `size`, `borderless`)
+- default size aligns to the current shadcn compact baseline (`h-7`)
 
 ## Quick Usage
 
