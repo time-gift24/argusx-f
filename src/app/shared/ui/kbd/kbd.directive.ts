@@ -1,18 +1,20 @@
 import { computed, Directive, input } from '@angular/core';
 import { cn } from '../../utils/cn';
 
-// Aligned with official shadcn preset (.vendor/aim/components/ui/kbd.tsx)
-const kbdBaseClasses = "bg-muted text-muted-foreground in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 h-5 w-fit min-w-5 gap-1 rounded-xs px-1 font-sans text-[0.625rem] font-medium [&_svg:not([class*='size-'])]:size-3 pointer-events-none inline-flex items-center justify-center select-none";
+// Aligned with shadcn kbd (registry/new-york-v4/ui/kbd.tsx)
+const argusxKbdBaseClasses =
+  "bg-muted text-muted-foreground pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm px-1 font-sans text-xs font-medium select-none [&_svg:not([class*='size-'])]:size-3 [[data-slot=tooltip-content]_&]:bg-background/20 [[data-slot=tooltip-content]_&]:text-background dark:[[data-slot=tooltip-content]_&]:bg-background/10";
 
-const kbdGroupBaseClasses = "gap-1 inline-flex items-center";
+const argusxKbdGroupBaseClasses = 'inline-flex items-center gap-1';
 
-export const kbdSizes = {
-  sm: "h-4 text-[0.5rem] min-w-4",
-  default: "h-5 text-[0.625rem] min-w-5",
-  lg: "h-6 text-[0.75rem] min-w-6",
+// ArgusX extension: optional size scale while keeping shadcn default shape.
+export const argusxKbdSizes = {
+  sm: 'h-4 min-w-4 text-[0.625rem]',
+  default: '',
+  lg: 'h-6 min-w-6 text-sm',
 } as const;
 
-export type KbdSize = keyof typeof kbdSizes;
+export type ArgusxKbdSize = keyof typeof argusxKbdSizes;
 
 /**
  * Directive that applies keyboard key styling to kbd elements.
@@ -20,24 +22,26 @@ export type KbdSize = keyof typeof kbdSizes;
  *
  * @example
  * ```html
- * <kbd appKbd>⌘</kbd>
- * <kbd appKbd>Ctrl</kbd> + <kbd appKbd>K</kbd>
- * <kbd appKbd size="lg">⌘K</kbd>
+ * <kbd argusx-kbd>⌘</kbd>
+ * <kbd argusx-kbd>Ctrl</kbd> + <kbd argusx-kbd>K</kbd>
+ * <kbd argusx-kbd size="lg">⌘K</kbd>
  * ```
  */
 @Directive({
-  selector: 'kbd[appKbd]',
+  selector: 'kbd[argusx-kbd]',
+  exportAs: 'argusxKbd',
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"kbd"',
+    '[attr.data-size]': 'size()',
   },
 })
-export class KbdDirective {
-  readonly size = input<KbdSize>('default');
+export class ArgusxKbdDirective {
+  readonly size = input<ArgusxKbdSize>('default');
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(kbdBaseClasses, kbdSizes[this.size()], this.class())
+    cn(argusxKbdBaseClasses, argusxKbdSizes[this.size()], this.class())
   );
 }
 
@@ -47,24 +51,25 @@ export class KbdDirective {
  *
  * @example
  * ```html
- * <kbd appKbdGroup>
- *   <kbd appKbd>Ctrl</kbd>
+ * <kbd argusx-kbd-group>
+ *   <kbd argusx-kbd>Ctrl</kbd>
  *   <span>+</span>
- *   <kbd appKbd>K</kbd>
+ *   <kbd argusx-kbd>K</kbd>
  * </kbd>
  * ```
  */
 @Directive({
-  selector: 'kbd[appKbdGroup]',
+  selector: 'kbd[argusx-kbd-group]',
+  exportAs: 'argusxKbdGroup',
   host: {
     '[class]': 'computedClass()',
     '[attr.data-slot]': '"kbd-group"',
   },
 })
-export class KbdGroupDirective {
+export class ArgusxKbdGroupDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn(kbdGroupBaseClasses, this.class())
+    cn(argusxKbdGroupBaseClasses, this.class())
   );
 }

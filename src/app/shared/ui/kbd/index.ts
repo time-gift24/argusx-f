@@ -1,1 +1,6 @@
-export { KbdDirective, KbdGroupDirective, kbdSizes, type KbdSize } from './kbd.directive';
+export {
+  ArgusxKbdDirective,
+  ArgusxKbdGroupDirective,
+  argusxKbdSizes,
+  type ArgusxKbdSize,
+} from './kbd.directive';

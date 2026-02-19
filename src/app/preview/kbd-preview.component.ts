@@ -1,89 +1,172 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ArgusxButtonDirective } from '@app/shared/ui/button';
-import { KbdDirective, KbdGroupDirective } from '@app/shared/ui/kbd';
+import { InputGroupAddonComponent, InputGroupComponent, InputGroupInputComponent } from '@app/shared/ui/input-group';
+import { ArgusxKbdDirective, ArgusxKbdGroupDirective } from '@app/shared/ui/kbd';
+import { TooltipComponents } from '@app/shared/ui/tooltip';
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CircleDashedIcon,
+  LucideAngularModule,
+  SaveIcon,
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-kbd-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ArgusxButtonDirective, KbdDirective, KbdGroupDirective],
+  imports: [
+    LucideAngularModule,
+    ArgusxButtonDirective,
+    ArgusxKbdDirective,
+    ArgusxKbdGroupDirective,
+    TooltipComponents,
+    InputGroupComponent,
+    InputGroupAddonComponent,
+    InputGroupInputComponent,
+  ],
   template: `
-    <div class="mx-auto max-w-3xl p-8 space-y-8">
-      <h1 class="mb-2 text-2xl font-semibold">Kbd</h1>
-      <p class="mb-8 text-muted-foreground">
-        Keyboard key tokens for shortcut hints and command references.
-      </p>
-
-      <section>
-        <div class="mb-3">
-          <h2 class="text-sm font-medium text-muted-foreground">Single Keys</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6 flex flex-wrap gap-2">
-          <kbd appKbd>⌘</kbd>
-          <kbd appKbd>K</kbd>
-          <kbd appKbd>Shift</kbd>
-          <kbd appKbd>Esc</kbd>
-        </div>
-      </section>
-
-      <section>
-        <div class="mb-3">
-          <h2 class="text-sm font-medium text-muted-foreground">Shortcut Group</h2>
-        </div>
-        <div class="rounded-lg border border-dashed border-border p-6 space-y-2 text-xs text-muted-foreground">
-          <div class="flex items-center justify-between">
-            <span>Search</span>
-            <kbd appKbdGroup>
-              <kbd appKbd>⌘</kbd>
-              <span>+</span>
-              <kbd appKbd>K</kbd>
-            </kbd>
-          </div>
-          <div class="flex items-center justify-between">
-            <span>Close dialog</span>
-            <kbd appKbd>Esc</kbd>
+    <div
+      class="mx-auto grid min-h-screen w-full max-w-5xl min-w-0 content-center items-start gap-8 p-4 pt-2 sm:gap-12 sm:p-6 md:grid-cols-2 md:gap-8 lg:p-12 2xl:max-w-6xl"
+    >
+      <div class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">Basic</div>
+        <div
+          class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full"
+        >
+          <div class="flex items-center gap-2">
+            <kbd argusx-kbd>Ctrl</kbd>
+            <kbd argusx-kbd>⌘K</kbd>
+            <kbd argusx-kbd>Ctrl + B</kbd>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section>
-        <div class="mb-3">
-          <h2 class="text-sm font-medium text-muted-foreground">With Button</h2>
+      <div class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">Modifier Keys</div>
+        <div
+          class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full"
+        >
+          <div class="flex items-center gap-2">
+            <kbd argusx-kbd>⌘</kbd>
+            <kbd argusx-kbd>C</kbd>
+          </div>
         </div>
-        <div class="rounded-lg border border-dashed border-border p-6 flex flex-wrap items-center gap-4">
-          <button argusx-button variant="outline" size="sm" class="pr-2">
-            Accept <kbd appKbd>⏎</kbd>
-          </button>
-          <button argusx-button variant="outline" size="sm" class="pr-2">
-            Cancel <kbd appKbd>Esc</kbd>
-          </button>
-          <button argusx-button variant="outline" size="sm" class="pr-2">
-            Copy link <kbd appKbdGroup>
-              <kbd appKbd>⌘</kbd>
-              <span>+</span>
-              <kbd appKbd>C</kbd>
-            </kbd>
-          </button>
-          <button argusx-button variant="outline" size="sm" class="pr-2">
-            Paste <kbd appKbdGroup>
-              <kbd appKbd>⌘</kbd>
-              <span>+</span>
-              <kbd appKbd>V</kbd>
-            </kbd>
-          </button>
-        </div>
-      </section>
+      </div>
 
-      <section>
-        <div class="mb-3">
-          <h2 class="text-sm font-medium text-muted-foreground">Sizes</h2>
+      <div class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">KbdGroup</div>
+        <div
+          class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full"
+        >
+          <kbd argusx-kbd-group class="inline-flex items-center">
+            <kbd argusx-kbd>Ctrl</kbd>
+            <kbd argusx-kbd>Shift</kbd>
+            <kbd argusx-kbd>P</kbd>
+          </kbd>
         </div>
-        <div class="rounded-lg border border-dashed border-border p-6 flex flex-wrap items-center gap-2">
-          <kbd appKbd size="sm">⌘</kbd>
-          <kbd appKbd size="default">⌘</kbd>
-          <kbd appKbd size="lg">⌘</kbd>
+      </div>
+
+      <div class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">Arrow Keys</div>
+        <div
+          class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full"
+        >
+          <div class="flex items-center gap-2">
+            <kbd argusx-kbd>↑</kbd>
+            <kbd argusx-kbd>↓</kbd>
+            <kbd argusx-kbd>←</kbd>
+            <kbd argusx-kbd>→</kbd>
+          </div>
         </div>
-      </section>
+      </div>
+
+      <div class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With Icons</div>
+        <div
+          class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full"
+        >
+          <kbd argusx-kbd-group class="inline-flex items-center">
+            <kbd argusx-kbd>
+              <lucide-icon [img]="circleDashedIcon"></lucide-icon>
+            </kbd>
+            <kbd argusx-kbd>
+              <lucide-icon [img]="arrowLeftIcon"></lucide-icon>
+            </kbd>
+            <kbd argusx-kbd>
+              <lucide-icon [img]="arrowRightIcon"></lucide-icon>
+            </kbd>
+          </kbd>
+        </div>
+      </div>
+
+      <div class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">
+          With Icons and Text
+        </div>
+        <div
+          class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full"
+        >
+          <kbd argusx-kbd-group class="inline-flex items-center">
+            <kbd argusx-kbd>
+              <lucide-icon [img]="arrowLeftIcon"></lucide-icon>
+              Left
+            </kbd>
+            <kbd argusx-kbd>
+              <lucide-icon [img]="circleDashedIcon"></lucide-icon>
+              Voice Enabled
+            </kbd>
+          </kbd>
+        </div>
+      </div>
+
+      <div class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">InputGroup</div>
+        <div
+          class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full"
+        >
+          <argusx-input-group>
+            <argusx-input-group-input />
+            <argusx-input-group-addon align="inline-start">
+              <kbd argusx-kbd>Space</kbd>
+            </argusx-input-group-addon>
+          </argusx-input-group>
+        </div>
+      </div>
+
+      <div class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">Tooltip</div>
+        <div
+          class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full"
+        >
+          <app-tooltip-provider>
+            <app-tooltip>
+              <button argusx-button size="icon-sm" variant="outline" appTooltipTrigger>
+                <lucide-icon [img]="saveIcon"></lucide-icon>
+              </button>
+              <app-tooltip-content class="pr-1.5">
+                <div class="flex items-center gap-2">
+                  Save Changes <kbd argusx-kbd>S</kbd>
+                </div>
+              </app-tooltip-content>
+            </app-tooltip>
+          </app-tooltip-provider>
+        </div>
+      </div>
+
+      <div class="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-1 self-stretch lg:max-w-none">
+        <div class="text-muted-foreground px-1.5 py-2 text-xs font-medium">With samp</div>
+        <div
+          class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full"
+        >
+          <kbd argusx-kbd><samp>File</samp></kbd>
+        </div>
+      </div>
     </div>
   `,
 })
-export class KbdPreviewComponent {}
+export class KbdPreviewComponent {
+  protected readonly arrowLeftIcon = ArrowLeftIcon;
+  protected readonly arrowRightIcon = ArrowRightIcon;
+  protected readonly circleDashedIcon = CircleDashedIcon;
+  protected readonly saveIcon = SaveIcon;
+}
