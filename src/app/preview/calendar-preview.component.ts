@@ -4,11 +4,7 @@ import { Calendar as CalendarIcon, LucideAngularModule } from 'lucide-angular';
 import { ArgusxButtonDirective } from '../shared/ui/button';
 import { CalendarComponent } from '../shared/ui/calendar/calendar.component';
 import { ArgusxCardComponent } from '../shared/ui/card';
-import {
-  ArgusxPopoverComponent,
-  ArgusxPopoverContentComponent,
-  ArgusxPopoverTriggerDirective,
-} from '../shared/ui/popover';
+import { ArgusxPopoverComponents } from '../shared/ui/popover';
 
 @Component({
   selector: 'app-calendar-preview',
@@ -16,9 +12,7 @@ import {
   imports: [
     CalendarComponent,
     ArgusxButtonDirective,
-    ArgusxPopoverComponent,
-    ArgusxPopoverContentComponent,
-    ArgusxPopoverTriggerDirective,
+    ArgusxPopoverComponents,
     ArgusxCardComponent,
     LucideAngularModule,
   ],

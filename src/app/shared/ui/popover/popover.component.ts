@@ -2,19 +2,18 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  contentChild,
   Directive,
+  ElementRef,
   inject,
   input,
   model,
-  output,
-  signal,
-  viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   CdkOverlayOrigin,
-  OverlayModule,
   ConnectedPosition,
+  OverlayModule,
 } from '@angular/cdk/overlay';
 import { cn } from '../../utils/cn';
 
@@ -22,191 +21,13 @@ import { cn } from '../../utils/cn';
 // Types
 // ============================================================================
 
-export type PopoverAlign = 'start' | 'center' | 'end';
-export type PopoverSide = 'top' | 'right' | 'bottom' | 'left';
-export type PopoverVariant = 'plain' | 'glass';
+export type ArgusxPopoverAlign = 'start' | 'center' | 'end';
+export type ArgusxPopoverSide = 'top' | 'right' | 'bottom' | 'left';
 
 // ============================================================================
-// Popover Root
+// Trigger
 // ============================================================================
 
-let popoverIdCounter = 0;
-
-/**
- * Popover Root Component
- * Uses Angular CDK Overlay for positioning
- *
- * @example
- * ```html
- * <argusx-popover [open]="open()" (openChange)="open.set($event)">
- *   <button argusxPopoverTrigger>Open</button>
- *   <argusx-popover-content>
- *     <argusx-popover-header>
- *       <argusx-popover-title>Title</argusx-popover-title>
- *       <argusx-popover-description>Description</argusx-popover-description>
- *     </argusx-popover-header>
- *   </argusx-popover-content>
- * </argusx-popover>
- * ```
- */
-@Component({
-  selector: 'argusx-popover',
-  imports: [CommonModule, OverlayModule],
-  template: `
-    <div class="inline-flex">
-      <!-- Trigger element -->
-      <div cdkOverlayOrigin #trigger="cdkOverlayOrigin">
-        <ng-content select="[argusxPopoverTrigger]" />
-      </div>
-
-      <!-- Popover content via CDK Overlay -->
-      <ng-template
-        cdkConnectedOverlay
-        [cdkConnectedOverlayOrigin]="trigger"
-        [cdkConnectedOverlayOpen]="open()"
-        [cdkConnectedOverlayHasBackdrop]="false"
-        [cdkConnectedOverlayPanelClass]="'popover-panel'"
-        [cdkConnectedOverlayFlexibleDimensions]="true"
-        [cdkConnectedOverlayGrowAfterOpen]="true"
-        [cdkConnectedOverlayPositions]="positions()"
-        (overlayOutsideClick)="onOutsideClick($event)"
-        (detach)="onDetach()">
-        <ng-content />
-      </ng-template>
-    </div>
-  `,
-  host: {
-    '[attr.data-slot]': '"popover"',
-  },
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class ArgusxPopoverComponent {
-  readonly open = model<boolean>(false);
-
-  readonly align = input<PopoverAlign>('center');
-  readonly side = input<PopoverSide>('bottom');
-  readonly sideOffset = input<number>(4);
-
-  readonly openChange = output<boolean>();
-
-  readonly id = `popover-${popoverIdCounter++}`;
-
-  protected readonly trigger = viewChild(CdkOverlayOrigin);
-
-  protected readonly positions = computed<ConnectedPosition[]>(() => {
-    const side = this.side();
-    const align = this.align();
-    const offset = this.sideOffset();
-    const horizontalAlign = align === 'center' ? 'center' : align;
-    const verticalAlign =
-      align === 'start' ? 'top' : align === 'end' ? 'bottom' : 'center';
-
-    const primaryMap: Record<PopoverSide, ConnectedPosition> = {
-      top: {
-        originX: horizontalAlign,
-        originY: 'top',
-        overlayX: horizontalAlign,
-        overlayY: 'bottom',
-        offsetY: -offset,
-      },
-      bottom: {
-        originX: horizontalAlign,
-        originY: 'bottom',
-        overlayX: horizontalAlign,
-        overlayY: 'top',
-        offsetY: offset,
-      },
-      left: {
-        originX: 'start',
-        originY: verticalAlign,
-        overlayX: 'end',
-        overlayY: verticalAlign,
-        offsetX: -offset,
-      },
-      right: {
-        originX: 'end',
-        originY: verticalAlign,
-        overlayX: 'start',
-        overlayY: verticalAlign,
-        offsetX: offset,
-      },
-    };
-
-    const fallbackMap: Record<PopoverSide, ConnectedPosition> = {
-      top: {
-        originX: horizontalAlign,
-        originY: 'bottom',
-        overlayX: horizontalAlign,
-        overlayY: 'top',
-        offsetY: offset,
-      },
-      bottom: {
-        originX: horizontalAlign,
-        originY: 'top',
-        overlayX: horizontalAlign,
-        overlayY: 'bottom',
-        offsetY: -offset,
-      },
-      left: {
-        originX: 'end',
-        originY: verticalAlign,
-        overlayX: 'start',
-        overlayY: verticalAlign,
-        offsetX: offset,
-      },
-      right: {
-        originX: 'start',
-        originY: verticalAlign,
-        overlayX: 'end',
-        overlayY: verticalAlign,
-        offsetX: -offset,
-      },
-    };
-
-    return [primaryMap[side], fallbackMap[side]];
-  });
-
-  openPopover(): void {
-    if (this.open()) return;
-    this.open.set(true);
-    this.openChange.emit(true);
-  }
-
-  closePopover(): void {
-    if (!this.open()) return;
-    this.open.set(false);
-    this.openChange.emit(false);
-  }
-
-  togglePopover(): void {
-    if (this.open()) {
-      this.closePopover();
-    } else {
-      this.openPopover();
-    }
-  }
-
-  protected onDetach(): void {
-    this.open.set(false);
-    this.openChange.emit(false);
-  }
-
-  protected onOutsideClick(event: MouseEvent): void {
-    const triggerEl = this.trigger()?.elementRef?.nativeElement;
-    if (triggerEl && !triggerEl.contains(event.target as Node)) {
-      this.closePopover();
-    }
-  }
-}
-
-// ============================================================================
-// Popover Trigger
-// ============================================================================
-
-/**
- * Popover Trigger Directive
- * Opens the popover when clicked
- */
 @Directive({
   selector: '[argusxPopoverTrigger]',
   host: {
@@ -215,96 +36,75 @@ export class ArgusxPopoverComponent {
     '[attr.aria-haspopup]': '"dialog"',
     '[attr.aria-controls]': 'popover.open() ? popover.id : null',
     '(click)': 'onClick()',
+    '(keydown.escape)': 'onEscape()',
   },
 })
 export class ArgusxPopoverTriggerDirective {
   readonly popover = inject(ArgusxPopoverComponent);
+  readonly elementRef = inject(ElementRef<HTMLElement>);
 
   onClick(): void {
+    if (this.elementRef.nativeElement.hasAttribute('disabled')) {
+      return;
+    }
+
     this.popover.togglePopover();
+  }
+
+  onEscape(): void {
+    this.popover.closePopover();
   }
 }
 
 // ============================================================================
-// Popover Anchor
+// Anchor
 // ============================================================================
 
-/**
- * Popover Anchor Directive
- * Anchors the popover to a specific element
- */
 @Directive({
   selector: '[argusxPopoverAnchor]',
+  hostDirectives: [CdkOverlayOrigin],
   host: {
     '[attr.data-slot]': '"popover-anchor"',
   },
 })
 export class ArgusxPopoverAnchorDirective {
-  readonly popover = inject(ArgusxPopoverComponent);
+  readonly elementRef = inject(ElementRef<HTMLElement>);
+  readonly overlayOrigin = inject(CdkOverlayOrigin);
 }
 
 // ============================================================================
-// Popover Content
+// Content
 // ============================================================================
 
-/**
- * Popover Content Component
- * The main popover panel
- */
 @Component({
   selector: 'argusx-popover-content',
   imports: [CommonModule],
-  template: `
-    <div [class]="variant() === 'glass' ? glassClass() : computedClass()" (keydown.escape)="popover.closePopover()">
-      <ng-content />
-    </div>
-  `,
+  template: `<ng-content />`,
   host: {
+    '[class]': 'computedClass()',
     '[attr.data-slot]': '"popover-content"',
     '[attr.id]': 'popover.id',
     '[attr.data-state]': 'popover.open() ? "open" : "closed"',
-    '[attr.data-side]': 'popover.side()',
-    '[style.background]': 'variant() === "glass" ? "transparent" : "var(--popover)"',
-    '[style.color]': 'variant() === "glass" ? "inherit" : "var(--popover-foreground)"',
+    '[attr.data-side]': 'side()',
+    '[attr.data-align]': 'align()',
+    '[attr.role]': '"dialog"',
+    '[attr.tabindex]': '-1',
+    '(keydown.escape)': 'popover.closePopover()',
   },
-  styles: [`
-    :host {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      padding: 0.625rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      z-index: 50;
-      outline: none;
-    }
-  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArgusxPopoverContentComponent {
   readonly popover = inject(ArgusxPopoverComponent);
-  readonly class = input<string>('');
-  readonly variant = input<PopoverVariant>('plain');
 
-  protected readonly glassClass = computed(() =>
-    cn(
-      'bg-black/40 text-white border border-white/10 w-72',
-      'shadow-2xl',
-      'data-[state=open]:animate-in data-[state=closed]:animate-out',
-      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-      'data-[side=bottom]:slide-in-from-top-2',
-      'data-[side=left]:slide-in-from-right-2',
-      'data-[side=right]:slide-in-from-left-2',
-      'data-[side=top]:slide-in-from-bottom-2',
-      'duration-100',
-      this.class()
-    )
-  );
+  readonly align = input<ArgusxPopoverAlign>('center');
+  readonly side = input<ArgusxPopoverSide>('bottom');
+  readonly sideOffset = input<number>(4);
+  readonly alignOffset = input<number>(0);
+  readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
     cn(
-      'bg-popover text-popover-foreground border border-border w-72',
+      'z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-md outline-hidden',
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -312,20 +112,16 @@ export class ArgusxPopoverContentComponent {
       'data-[side=left]:slide-in-from-right-2',
       'data-[side=right]:slide-in-from-left-2',
       'data-[side=top]:slide-in-from-bottom-2',
-      'duration-100',
+      'border bg-popover text-popover-foreground shadow-md',
       this.class()
     )
   );
 }
 
 // ============================================================================
-// Popover Header
+// Header
 // ============================================================================
 
-/**
- * Popover Header Component
- * Container for title and description
- */
 @Component({
   selector: 'argusx-popover-header',
   imports: [CommonModule],
@@ -340,18 +136,14 @@ export class ArgusxPopoverHeaderComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('flex flex-col gap-1 text-xs', this.class())
+    cn('flex flex-col gap-1 text-sm', this.class())
   );
 }
 
 // ============================================================================
-// Popover Title
+// Title
 // ============================================================================
 
-/**
- * Popover Title Component
- * Title text for the popover
- */
 @Component({
   selector: 'argusx-popover-title',
   imports: [CommonModule],
@@ -366,18 +158,14 @@ export class ArgusxPopoverTitleComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
-    cn('text-sm font-medium', this.class())
+    cn('font-medium', this.class())
   );
 }
 
 // ============================================================================
-// Popover Description
+// Description
 // ============================================================================
 
-/**
- * Popover Description Component
- * Description text for the popover
- */
 @Component({
   selector: 'argusx-popover-description',
   imports: [CommonModule],
@@ -394,6 +182,170 @@ export class ArgusxPopoverDescriptionComponent {
   protected readonly computedClass = computed(() =>
     cn('text-muted-foreground', this.class())
   );
+}
+
+// ============================================================================
+// Root
+// ============================================================================
+
+let argusxPopoverIdCounter = 0;
+
+@Component({
+  selector: 'argusx-popover',
+  imports: [CommonModule, OverlayModule],
+  template: `
+    <div class="inline-flex">
+      <div cdkOverlayOrigin #triggerOrigin="cdkOverlayOrigin">
+        <ng-content select="[argusxPopoverTrigger]" />
+      </div>
+      <ng-content select="[argusxPopoverAnchor]" />
+
+      <ng-template
+        cdkConnectedOverlay
+        [cdkConnectedOverlayOrigin]="anchor()?.overlayOrigin ?? triggerOrigin"
+        [cdkConnectedOverlayOpen]="open()"
+        [cdkConnectedOverlayHasBackdrop]="false"
+        [cdkConnectedOverlayFlexibleDimensions]="true"
+        [cdkConnectedOverlayGrowAfterOpen]="true"
+        [cdkConnectedOverlayPositions]="positions()"
+        (overlayOutsideClick)="onOutsideClick($event)"
+        (detach)="onDetach()">
+        <ng-content select="argusx-popover-content" />
+      </ng-template>
+    </div>
+  `,
+  host: {
+    '[attr.data-slot]': '"popover"',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ArgusxPopoverComponent {
+  readonly open = model<boolean>(false);
+  readonly id = `argusx-popover-${argusxPopoverIdCounter++}`;
+
+  protected readonly trigger = contentChild(ArgusxPopoverTriggerDirective);
+  protected readonly anchor = contentChild(ArgusxPopoverAnchorDirective);
+  protected readonly content = contentChild(ArgusxPopoverContentComponent);
+
+  protected readonly positions = computed<ConnectedPosition[]>(() => {
+    const content = this.content();
+    const side = content?.side() ?? 'bottom';
+    const align = content?.align() ?? 'center';
+    const sideOffset = content?.sideOffset() ?? 4;
+    const alignOffset = content?.alignOffset() ?? 0;
+
+    const horizontalAlign: ConnectedPosition['originX'] =
+      align === 'center' ? 'center' : align === 'start' ? 'start' : 'end';
+    const verticalAlign: ConnectedPosition['originY'] =
+      align === 'center' ? 'center' : align === 'start' ? 'top' : 'bottom';
+
+    const primaryMap: Record<ArgusxPopoverSide, ConnectedPosition> = {
+      top: {
+        originX: horizontalAlign,
+        originY: 'top',
+        overlayX: horizontalAlign,
+        overlayY: 'bottom',
+        offsetX: alignOffset,
+        offsetY: -sideOffset,
+      },
+      bottom: {
+        originX: horizontalAlign,
+        originY: 'bottom',
+        overlayX: horizontalAlign,
+        overlayY: 'top',
+        offsetX: alignOffset,
+        offsetY: sideOffset,
+      },
+      left: {
+        originX: 'start',
+        originY: verticalAlign,
+        overlayX: 'end',
+        overlayY: verticalAlign,
+        offsetX: -sideOffset,
+        offsetY: alignOffset,
+      },
+      right: {
+        originX: 'end',
+        originY: verticalAlign,
+        overlayX: 'start',
+        overlayY: verticalAlign,
+        offsetX: sideOffset,
+        offsetY: alignOffset,
+      },
+    };
+
+    const fallbackMap: Record<ArgusxPopoverSide, ConnectedPosition> = {
+      top: {
+        originX: horizontalAlign,
+        originY: 'bottom',
+        overlayX: horizontalAlign,
+        overlayY: 'top',
+        offsetX: alignOffset,
+        offsetY: sideOffset,
+      },
+      bottom: {
+        originX: horizontalAlign,
+        originY: 'top',
+        overlayX: horizontalAlign,
+        overlayY: 'bottom',
+        offsetX: alignOffset,
+        offsetY: -sideOffset,
+      },
+      left: {
+        originX: 'end',
+        originY: verticalAlign,
+        overlayX: 'start',
+        overlayY: verticalAlign,
+        offsetX: sideOffset,
+        offsetY: alignOffset,
+      },
+      right: {
+        originX: 'start',
+        originY: verticalAlign,
+        overlayX: 'end',
+        overlayY: verticalAlign,
+        offsetX: -sideOffset,
+        offsetY: alignOffset,
+      },
+    };
+
+    return [primaryMap[side], fallbackMap[side]];
+  });
+
+  openPopover(): void {
+    this.open.set(true);
+  }
+
+  closePopover(): void {
+    this.open.set(false);
+  }
+
+  togglePopover(): void {
+    this.open.update(isOpen => !isOpen);
+  }
+
+  protected onDetach(): void {
+    this.open.set(false);
+  }
+
+  protected onOutsideClick(event: MouseEvent): void {
+    const target = event.target as Node | null;
+    if (!target) {
+      return;
+    }
+
+    const triggerElement = this.trigger()?.elementRef.nativeElement;
+    if (triggerElement?.contains(target)) {
+      return;
+    }
+
+    const anchorElement = this.anchor()?.elementRef.nativeElement;
+    if (anchorElement?.contains(target)) {
+      return;
+    }
+
+    this.closePopover();
+  }
 }
 
 // ============================================================================
