@@ -87,7 +87,7 @@ sd-markdown {
 
 .sd-root li.task-list-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.625rem;
 }
 
@@ -102,6 +102,7 @@ sd-markdown {
 .sd-root li.task-list-item > input[type='checkbox'][disabled] {
   opacity: 1;
 }
+
 
 .sd-root blockquote {
   margin: 1rem 0;

@@ -13,6 +13,7 @@ import type {
   RenderNode,
 } from '../models/markdown.models';
 import type { MarkdownRenderCapabilities } from '../services/markdown-render-capabilities.service';
+import { ArgusxCheckboxComponent } from '../../checkbox';
 import { CodeBlockComponent } from './code-block.component';
 import { LinkSafetyDialogComponent } from './link-safety-dialog.component';
 import { MermaidComponent } from './mermaid.component';
@@ -43,6 +44,7 @@ const HTML_VOID_TAGS = new Set([
   },
   imports: [
     forwardRef(() => MarkdownNodeComponent),
+    ArgusxCheckboxComponent,
     CodeBlockComponent,
     LinkSafetyDialogComponent,
     MermaidComponent,
@@ -182,17 +184,25 @@ const HTML_VOID_TAGS = new Set([
             </div>
           }
           @case ('input') {
-            <input
-              [attr.checked]="attr('checked')"
-              [attr.disabled]="attr('disabled')"
-              [attr.name]="attr('name')"
-              [attr.placeholder]="attr('placeholder')"
-              [attr.readonly]="attr('readonly')"
-              [attr.style]="styleText()"
-              [attr.type]="attr('type')"
-              [attr.value]="attr('value')"
-              [class]="className()"
-            />
+            @if (isCheckboxInput()) {
+              <argusx-checkbox
+                [checked]="isChecked()"
+                [disabled]="attr('disabled') === 'disabled'"
+                [class]="className()"
+              />
+            } @else {
+              <input
+                [attr.checked]="attr('checked')"
+                [attr.disabled]="attr('disabled')"
+                [attr.name]="attr('name')"
+                [attr.placeholder]="attr('placeholder')"
+                [attr.readonly]="attr('readonly')"
+                [attr.style]="styleText()"
+                [attr.type]="attr('type')"
+                [attr.value]="attr('value')"
+                [class]="className()"
+              />
+            }
           }
           @case ('pre') {
             @if (codeChild() && preCodeLanguage() === 'mermaid' && renderCapabilities().mermaid.enabled) {
@@ -482,6 +492,14 @@ export class MarkdownNodeComponent {
   readonly pendingLinkUrl = computed(() => this.pendingLinkHref() ?? '');
 
   readonly imgAlt = computed(() => this.attr('alt') ?? '');
+
+  readonly isCheckboxInput = computed(() => this.tagName() === 'input' && this.attr('type') === 'checkbox');
+
+  readonly isChecked = computed(() => {
+    const checked = this.attr('checked');
+    // checked 属性存在即为 checked (可能是 'checked', true, 或任意值)
+    return checked !== null;
+  });
 
   async onLinkClick(event: MouseEvent): Promise<void> {
     const href = this.linkHref();
