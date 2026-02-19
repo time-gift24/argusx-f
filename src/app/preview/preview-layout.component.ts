@@ -22,7 +22,7 @@ const PREVIEW_ITEMS = [
   { id: 'calendar', label: 'Calendar', reviewStatus: 'reviewed' },
   { id: 'accordion', label: 'Accordion', reviewStatus: 'reviewed' },
   { id: 'dialog', label: 'Dialog', reviewStatus: 'reviewed' },
-  { id: 'aspect-ratio', label: 'Aspect Ratio', reviewStatus: 'not_processed' },
+  { id: 'aspect-ratio', label: 'Aspect Ratio', reviewStatus: 'reviewed' },
   { id: 'alert', label: 'Alert', reviewStatus: 'not_processed' },
   { id: 'avatar', label: 'Avatar', reviewStatus: 'not_processed' },
   { id: 'liquid-glass', label: 'Liquid Glass', reviewStatus: 'not_processed' },
