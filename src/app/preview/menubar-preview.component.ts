@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { MenubarComponents } from '@app/shared/ui/menubar';
+import { ArgusxMenubarComponents } from '@app/shared/ui/menubar';
 
 @Component({
   selector: 'app-menubar-preview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MenubarComponents],
+  imports: [ArgusxMenubarComponents],
   template: `
     <div class="mx-auto max-w-3xl p-8">
       <h1 class="mb-2 text-2xl font-semibold">Menubar</h1>
@@ -17,49 +17,89 @@ import { MenubarComponents } from '@app/shared/ui/menubar';
           <h2 class="text-sm font-medium text-muted-foreground">Desktop Menubar</h2>
         </div>
         <div class="rounded-lg border border-dashed border-border p-6 space-y-4">
-          <app-menubar>
-            <app-menubar-menu value="file">
-              <span appMenubarTrigger>File</span>
-              <app-menubar-content>
-                <app-menubar-item>
+          <argusx-menubar>
+            <argusx-menubar-menu value="file">
+              <span argusxMenubarTrigger>File</span>
+              <argusx-menubar-content [sideOffset]="8" [alignOffset]="-4">
+                <argusx-menubar-item>
                   New Tab
-                  <app-menubar-shortcut>⌘T</app-menubar-shortcut>
-                </app-menubar-item>
-                <app-menubar-item>
+                  <argusx-menubar-shortcut>⌘T</argusx-menubar-shortcut>
+                </argusx-menubar-item>
+                <argusx-menubar-item>
                   New Window
-                  <app-menubar-shortcut>⌘N</app-menubar-shortcut>
-                </app-menubar-item>
-                <app-menubar-separator />
-                <app-menubar-sub>
-                  <app-menubar-sub-trigger>Share</app-menubar-sub-trigger>
-                  <app-menubar-sub-content>
-                    <app-menubar-item>Email link</app-menubar-item>
-                    <app-menubar-item>Copy link</app-menubar-item>
-                  </app-menubar-sub-content>
-                </app-menubar-sub>
-              </app-menubar-content>
-            </app-menubar-menu>
+                  <argusx-menubar-shortcut>⌘N</argusx-menubar-shortcut>
+                </argusx-menubar-item>
+                <argusx-menubar-item [disabled]="true">
+                  Open Recent
+                  <argusx-menubar-shortcut>⌘R</argusx-menubar-shortcut>
+                </argusx-menubar-item>
+                <argusx-menubar-separator />
+                <argusx-menubar-sub>
+                  <argusx-menubar-sub-trigger [inset]="true">Share</argusx-menubar-sub-trigger>
+                  <argusx-menubar-sub-content>
+                    <argusx-menubar-item>Email link</argusx-menubar-item>
+                    <argusx-menubar-item>Copy link</argusx-menubar-item>
+                  </argusx-menubar-sub-content>
+                </argusx-menubar-sub>
+              </argusx-menubar-content>
+            </argusx-menubar-menu>
 
-            <app-menubar-menu value="view">
-              <span appMenubarTrigger>View</span>
-              <app-menubar-content>
-                <app-menubar-checkbox-item
+            <argusx-menubar-menu value="edit">
+              <argusx-menubar-trigger>Edit</argusx-menubar-trigger>
+              <argusx-menubar-content>
+                <argusx-menubar-item>
+                  Undo
+                  <argusx-menubar-shortcut>⌘Z</argusx-menubar-shortcut>
+                </argusx-menubar-item>
+                <argusx-menubar-item>
+                  Redo
+                  <argusx-menubar-shortcut>⇧⌘Z</argusx-menubar-shortcut>
+                </argusx-menubar-item>
+                <argusx-menubar-separator />
+                <argusx-menubar-item [inset]="true">Find</argusx-menubar-item>
+              </argusx-menubar-content>
+            </argusx-menubar-menu>
+
+            <argusx-menubar-menu value="view">
+              <span argusxMenubarTrigger>View</span>
+              <argusx-menubar-content class="w-52">
+                <argusx-menubar-label [inset]="true">Panels</argusx-menubar-label>
+                <argusx-menubar-checkbox-item
+                  [inset]="true"
                   [checked]="showSidebar()"
                   (checkedChange)="showSidebar.set($event)"
                 >
                   Show Sidebar
-                </app-menubar-checkbox-item>
-                <app-menubar-separator />
-                <app-menubar-radio-group [(value)]="density">
-                  <app-menubar-radio-item value="compact">Compact</app-menubar-radio-item>
-                  <app-menubar-radio-item value="cozy">Cozy</app-menubar-radio-item>
-                </app-menubar-radio-group>
-              </app-menubar-content>
-            </app-menubar-menu>
-          </app-menubar>
+                </argusx-menubar-checkbox-item>
+                <argusx-menubar-checkbox-item
+                  [inset]="true"
+                  [checked]="showStatusBar()"
+                  (checkedChange)="showStatusBar.set($event)"
+                >
+                  Show Status Bar
+                </argusx-menubar-checkbox-item>
+                <argusx-menubar-separator />
+                <argusx-menubar-label [inset]="true">Density</argusx-menubar-label>
+                <argusx-menubar-radio-group [(value)]="density">
+                  <argusx-menubar-radio-item [inset]="true" value="compact">Compact</argusx-menubar-radio-item>
+                  <argusx-menubar-radio-item [inset]="true" value="cozy">Cozy</argusx-menubar-radio-item>
+                </argusx-menubar-radio-group>
+              </argusx-menubar-content>
+            </argusx-menubar-menu>
+
+            <argusx-menubar-menu value="danger">
+              <span argusxMenubarTrigger>Danger</span>
+              <argusx-menubar-content>
+                <argusx-menubar-item variant="destructive">
+                  Delete Workspace
+                </argusx-menubar-item>
+              </argusx-menubar-content>
+            </argusx-menubar-menu>
+          </argusx-menubar>
 
           <div class="space-y-1 text-xs text-muted-foreground">
             <p>Sidebar: <span class="font-medium text-foreground">{{ showSidebar() ? 'Visible' : 'Hidden' }}</span></p>
+            <p>Status Bar: <span class="font-medium text-foreground">{{ showStatusBar() ? 'Visible' : 'Hidden' }}</span></p>
             <p>Density: <span class="font-medium text-foreground">{{ density() ?? 'compact' }}</span></p>
           </div>
         </div>
@@ -69,5 +109,6 @@ import { MenubarComponents } from '@app/shared/ui/menubar';
 })
 export class MenubarPreviewComponent {
   readonly showSidebar = signal(true);
+  readonly showStatusBar = signal(false);
   readonly density = signal<string | undefined>('compact');
 }

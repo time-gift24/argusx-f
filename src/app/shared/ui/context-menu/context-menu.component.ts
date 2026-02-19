@@ -23,6 +23,12 @@ import {
 } from '@angular/cdk/overlay';
 import { TemplatePortal, PortalModule } from '@angular/cdk/portal';
 import { cn } from '../../utils/cn';
+import {
+  focusAdjacentMenuItem,
+  focusMenuItemByIndex,
+  getMenuFocusableItems,
+  runAfterRender,
+} from '../menu-core/focus';
 import { cva } from 'class-variance-authority';
 import {
   LucideAngularModule,
@@ -36,8 +42,8 @@ import {
 // Types
 // ============================================================================
 
-export type ContextMenuItemVariant = 'default' | 'destructive';
-export type ContextMenuSide = 'top' | 'right' | 'bottom' | 'left';
+export type ArgusxContextMenuItemVariant = 'default' | 'destructive';
+export type ArgusxContextMenuSide = 'top' | 'right' | 'bottom' | 'left';
 
 // ============================================================================
 // Context Menu Root with integrated Overlay
@@ -54,7 +60,7 @@ let contextMenuIdCounter = 0;
  * Opens the context menu on right-click
  */
 @Directive({
-  selector: '[appContextMenuTrigger]',
+  selector: '[argusxContextMenuTrigger]',
   host: {
     '[attr.data-slot]': '"context-menu-trigger"',
     '[attr.aria-expanded]': 'contextMenu.open()',
@@ -63,8 +69,8 @@ let contextMenuIdCounter = 0;
     '(keydown)': 'onKeydown($event)',
   },
 })
-export class ContextMenuTriggerDirective {
-  readonly contextMenu = inject(ContextMenuComponent);
+export class ArgusxContextMenuTriggerDirective {
+  readonly contextMenu = inject(ArgusxContextMenuComponent);
   readonly elementRef = inject(ElementRef<HTMLElement>);
 
   onContextMenu(event: MouseEvent): void {
@@ -91,7 +97,7 @@ export class ContextMenuTriggerDirective {
  * Wrapper for trigger behavior (compatible with shadcn API)
  */
 @Component({
-  selector: 'app-context-menu-trigger',
+  selector: 'argusx-context-menu-trigger',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -104,8 +110,8 @@ export class ContextMenuTriggerDirective {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuTriggerComponent {
-  readonly contextMenu = inject(ContextMenuComponent);
+export class ArgusxContextMenuTriggerComponent {
+  readonly contextMenu = inject(ArgusxContextMenuComponent);
   readonly elementRef = inject(ElementRef<HTMLElement>);
 
   readonly class = input<string>('');
@@ -142,7 +148,7 @@ export class ContextMenuTriggerComponent {
  * Groups related items together
  */
 @Component({
-  selector: 'app-context-menu-group',
+  selector: 'argusx-context-menu-group',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -152,7 +158,7 @@ export class ContextMenuTriggerComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuGroupComponent {
+export class ArgusxContextMenuGroupComponent {
   readonly class = input<string>('');
 }
 
@@ -165,7 +171,7 @@ export class ContextMenuGroupComponent {
  * Labels a group of items
  */
 @Component({
-  selector: 'app-context-menu-label',
+  selector: 'argusx-context-menu-label',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -175,7 +181,7 @@ export class ContextMenuGroupComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuLabelComponent {
+export class ArgusxContextMenuLabelComponent {
   readonly inset = input<boolean>(false);
   readonly class = input<string>('');
 
@@ -212,7 +218,7 @@ const contextMenuItemVariants = cva(
  * Individual menu item
  */
 @Component({
-  selector: 'app-context-menu-item',
+  selector: 'argusx-context-menu-item',
   imports: [CommonModule],
   template: `
     <ng-content />
@@ -230,11 +236,11 @@ const contextMenuItemVariants = cva(
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuItemComponent {
-  readonly contextMenu = inject(ContextMenuComponent);
+export class ArgusxContextMenuItemComponent {
+  readonly contextMenu = inject(ArgusxContextMenuComponent);
 
   readonly inset = input<boolean>(false);
-  readonly variant = input<ContextMenuItemVariant>('default');
+  readonly variant = input<ArgusxContextMenuItemVariant>('default');
   readonly disabled = input<boolean>(false);
   readonly class = input<string>('');
 
@@ -272,7 +278,7 @@ export class ContextMenuItemComponent {
  * A checkbox menu item that can be toggled
  */
 @Component({
-  selector: 'app-context-menu-checkbox-item',
+  selector: 'argusx-context-menu-checkbox-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <span
@@ -296,7 +302,7 @@ export class ContextMenuItemComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuCheckboxItemComponent {
+export class ArgusxContextMenuCheckboxItemComponent {
   readonly checked = input<boolean>(false);
   readonly inset = input<boolean>(false);
   readonly disabled = input<boolean>(false);
@@ -337,7 +343,7 @@ export class ContextMenuCheckboxItemComponent {
  * Groups radio items together
  */
 @Component({
-  selector: 'app-context-menu-radio-group',
+  selector: 'argusx-context-menu-radio-group',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -347,7 +353,7 @@ export class ContextMenuCheckboxItemComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuRadioGroupComponent {
+export class ArgusxContextMenuRadioGroupComponent {
   readonly value = model<string | undefined>(undefined);
   readonly class = input<string>('');
 }
@@ -361,7 +367,7 @@ export class ContextMenuRadioGroupComponent {
  * A radio menu item for single selection
  */
 @Component({
-  selector: 'app-context-menu-radio-item',
+  selector: 'argusx-context-menu-radio-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <span
@@ -385,11 +391,11 @@ export class ContextMenuRadioGroupComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuRadioItemComponent {
-  readonly contextMenu = inject(ContextMenuComponent);
-  readonly radioGroup = inject(ContextMenuRadioGroupComponent, { optional: true });
+export class ArgusxContextMenuRadioItemComponent {
+  readonly contextMenu = inject(ArgusxContextMenuComponent);
+  readonly radioGroup = inject(ArgusxContextMenuRadioGroupComponent, { optional: true });
 
-  readonly value = input.required<string>();
+  readonly value = input<string>('');
   readonly inset = input<boolean>(false);
   readonly disabled = input<boolean>(false);
   readonly class = input<string>('');
@@ -434,7 +440,7 @@ export class ContextMenuRadioItemComponent {
  * Visual divider between items
  */
 @Component({
-  selector: 'app-context-menu-separator',
+  selector: 'argusx-context-menu-separator',
   imports: [CommonModule],
   template: '',
   host: {
@@ -444,7 +450,7 @@ export class ContextMenuRadioItemComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuSeparatorComponent {
+export class ArgusxContextMenuSeparatorComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
@@ -461,7 +467,7 @@ export class ContextMenuSeparatorComponent {
  * Displays keyboard shortcuts for items
  */
 @Component({
-  selector: 'app-context-menu-shortcut',
+  selector: 'argusx-context-menu-shortcut',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -470,7 +476,7 @@ export class ContextMenuSeparatorComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuShortcutComponent {
+export class ArgusxContextMenuShortcutComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
@@ -491,7 +497,7 @@ export class ContextMenuShortcutComponent {
  * Container for submenu - provides position info for fixed positioning
  */
 @Component({
-  selector: 'app-context-menu-sub',
+  selector: 'argusx-context-menu-sub',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -500,7 +506,7 @@ export class ContextMenuShortcutComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuSubComponent {
+export class ArgusxContextMenuSubComponent {
   readonly open = model<boolean>(false);
   private readonly triggerRect = signal<DOMRect | null>(null);
   private closeTimeoutId: number | null = null;
@@ -566,7 +572,7 @@ export class ContextMenuSubComponent {
  * Opens a submenu
  */
 @Component({
-  selector: 'app-context-menu-sub-trigger',
+  selector: 'argusx-context-menu-sub-trigger',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <ng-content />
@@ -586,8 +592,8 @@ export class ContextMenuSubComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuSubTriggerComponent {
-  readonly subMenu = inject(ContextMenuSubComponent, { optional: true });
+export class ArgusxContextMenuSubTriggerComponent {
+  readonly subMenu = inject(ArgusxContextMenuSubComponent, { optional: true });
   readonly elementRef = inject(ElementRef<HTMLElement>);
 
   readonly inset = input<boolean>(false);
@@ -640,7 +646,7 @@ export class ContextMenuSubTriggerComponent {
  * The submenu panel - uses fixed positioning to escape overflow constraints
  */
 @Component({
-  selector: 'app-context-menu-sub-content',
+  selector: 'argusx-context-menu-sub-content',
   imports: [CommonModule],
   template: `
     @if (subMenu?.open() && subMenu?.triggerPosition()) {
@@ -665,8 +671,8 @@ export class ContextMenuSubTriggerComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuSubContentComponent {
-  readonly subMenu = inject(ContextMenuSubComponent, { optional: true });
+export class ArgusxContextMenuSubContentComponent {
+  readonly subMenu = inject(ArgusxContextMenuSubComponent, { optional: true });
   private readonly elementRef = inject(ElementRef<HTMLElement>);
 
   readonly class = input<string>('');
@@ -697,7 +703,7 @@ export class ContextMenuSubContentComponent {
     return containerRect ? viewportTop - containerRect.top : viewportTop;
   });
 
-  protected readonly computedSide = computed<ContextMenuSide>(() => {
+  protected readonly computedSide = computed<ArgusxContextMenuSide>(() => {
     const rect = this.subMenu?.triggerPosition();
     if (!rect || typeof window === 'undefined') {
       return 'right';
@@ -744,7 +750,7 @@ export class ContextMenuSubContentComponent {
  * Uses Angular CDK Overlay for positioning at mouse coordinates
  */
 @Component({
-  selector: 'app-context-menu',
+  selector: 'argusx-context-menu',
   imports: [
     CommonModule,
     OverlayModule,
@@ -752,7 +758,7 @@ export class ContextMenuSubContentComponent {
   ],
   template: `
     <!-- Trigger element (projected content) -->
-    <ng-content select="[appContextMenuTrigger], app-context-menu-trigger" />
+    <ng-content select="[argusxContextMenuTrigger], argusx-context-menu-trigger" />
 
     <!-- Menu content via CDK Overlay -->
     <ng-template #menuPortal>
@@ -776,11 +782,11 @@ export class ContextMenuSubContentComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuComponent {
-  private static activeMenu: ContextMenuComponent | null = null;
+export class ArgusxContextMenuComponent {
+  private static activeMenu: ArgusxContextMenuComponent | null = null;
   readonly open = model<boolean>(false);
 
-  readonly side = input<ContextMenuSide>('right');
+  readonly side = input<ArgusxContextMenuSide>('right');
   readonly sideOffset = input<number>(4);
   readonly minWidth = input<number>(128);
   readonly class = input<string>('');
@@ -791,10 +797,10 @@ export class ContextMenuComponent {
   // Position for the context menu (set on right-click)
   private readonly positionX = signal(0);
   private readonly positionY = signal(0);
-  private readonly contentSide = signal<ContextMenuSide | null>(null);
+  private readonly contentSide = signal<ArgusxContextMenuSide | null>(null);
   private readonly contentSideOffset = signal<number | null>(null);
   private readonly contentClassOverride = signal('');
-  protected readonly renderedSide = signal<ContextMenuSide>('bottom');
+  protected readonly renderedSide = signal<ArgusxContextMenuSide>('bottom');
   private readonly resolvedSide = computed(() => this.contentSide() ?? this.side());
   private readonly resolvedSideOffset = computed(
     () => this.contentSideOffset() ?? this.sideOffset()
@@ -857,8 +863,8 @@ export class ContextMenuComponent {
   }
 
   closeMenu(): void {
-    if (ContextMenuComponent.activeMenu === this) {
-      ContextMenuComponent.activeMenu = null;
+    if (ArgusxContextMenuComponent.activeMenu === this) {
+      ArgusxContextMenuComponent.activeMenu = null;
     }
     this.activeTriggerElement = null;
     this.open.set(false);
@@ -972,65 +978,38 @@ export class ContextMenuComponent {
   }
 
   private focusMenuItemByIndex(index: number): void {
-    this.runAfterOverlayRender(() => {
-      const items = this.getMenuItems();
-      if (!items.length) return;
-      const target =
-        index < 0 ? items[items.length - 1] : items[Math.min(index, items.length - 1)];
-      target?.focus();
+    runAfterRender(() => {
+      focusMenuItemByIndex(
+        getMenuFocusableItems(this.menuContent()?.nativeElement),
+        index
+      );
     });
   }
 
   private focusMenuContainer(): void {
-    this.runAfterOverlayRender(() => {
+    runAfterRender(() => {
       this.menuContent()?.nativeElement.focus({ preventScroll: true });
     });
   }
 
   private focusAdjacentItem(direction: 1 | -1): void {
-    const items = this.getMenuItems();
-    if (!items.length) return;
-
     const activeElement =
-      typeof document !== 'undefined' ? (document.activeElement as HTMLElement | null) : null;
-    const currentIndex = activeElement ? items.indexOf(activeElement) : -1;
-    const nextIndex =
-      currentIndex < 0
-        ? direction === 1
-          ? 0
-          : items.length - 1
-        : (currentIndex + direction + items.length) % items.length;
-
-    items[nextIndex]?.focus();
-  }
-
-  private getMenuItems(): HTMLElement[] {
-    const container = this.menuContent()?.nativeElement;
-    if (!container) return [];
-
-    return Array.from(
-      container.querySelectorAll<HTMLElement>(
-        '[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"]'
-      )
-    ).filter((item) => item.tabIndex >= 0);
-  }
-
-  private runAfterOverlayRender(callback: () => void): void {
-    if (typeof requestAnimationFrame === 'function') {
-      requestAnimationFrame(() => callback());
-      return;
-    }
-    setTimeout(() => callback(), 0);
+      typeof document !== 'undefined' ? document.activeElement : null;
+    focusAdjacentMenuItem(
+      getMenuFocusableItems(this.menuContent()?.nativeElement),
+      direction,
+      activeElement
+    );
   }
 
   private activateCurrentMenu(): void {
     if (
-      ContextMenuComponent.activeMenu &&
-      ContextMenuComponent.activeMenu !== this
+      ArgusxContextMenuComponent.activeMenu &&
+      ArgusxContextMenuComponent.activeMenu !== this
     ) {
-      ContextMenuComponent.activeMenu.closeMenuFromAnotherContext();
+      ArgusxContextMenuComponent.activeMenu.closeMenuFromAnotherContext();
     }
-    ContextMenuComponent.activeMenu = this;
+    ArgusxContextMenuComponent.activeMenu = this;
   }
 
   private closeMenuFromAnotherContext(): void {
@@ -1060,7 +1039,7 @@ export class ContextMenuComponent {
   }
 
   registerContentConfig(config: {
-    side?: ContextMenuSide;
+    side?: ArgusxContextMenuSide;
     sideOffset?: number;
     className?: string;
   }): void {
@@ -1070,7 +1049,7 @@ export class ContextMenuComponent {
   }
 
   private buildPositionsForSide(
-    side: ContextMenuSide,
+    side: ArgusxContextMenuSide,
     sideOffset: number
   ): ConnectedPosition[] {
     switch (side) {
@@ -1214,7 +1193,7 @@ export class ContextMenuComponent {
  * This is for API compatibility with the shadcn pattern
  */
 @Component({
-  selector: 'app-context-menu-content',
+  selector: 'argusx-context-menu-content',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -1223,10 +1202,10 @@ export class ContextMenuComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextMenuContentComponent {
-  private readonly contextMenu = inject(ContextMenuComponent);
+export class ArgusxContextMenuContentComponent {
+  private readonly contextMenu = inject(ArgusxContextMenuComponent);
 
-  readonly side = input<ContextMenuSide>('right');
+  readonly side = input<ArgusxContextMenuSide>('right');
   readonly sideOffset = input<number>(4);
   readonly class = input<string>('');
 
@@ -1251,12 +1230,12 @@ export class ContextMenuContentComponent {
  * This component exists for API compatibility
  */
 @Directive({
-  selector: 'app-context-menu-portal',
+  selector: 'argusx-context-menu-portal',
   host: {
     '[attr.data-slot]': '"context-menu-portal"',
   },
 })
-export class ContextMenuPortalComponent {
+export class ArgusxContextMenuPortalComponent {
   // Portal functionality is handled by CDK Overlay in the root component
 }
 
@@ -1264,21 +1243,21 @@ export class ContextMenuPortalComponent {
 // Exports
 // ============================================================================
 
-export const ContextMenuComponents = [
-  ContextMenuComponent,
-  ContextMenuTriggerComponent,
-  ContextMenuTriggerDirective,
-  ContextMenuContentComponent,
-  ContextMenuGroupComponent,
-  ContextMenuLabelComponent,
-  ContextMenuItemComponent,
-  ContextMenuCheckboxItemComponent,
-  ContextMenuRadioGroupComponent,
-  ContextMenuRadioItemComponent,
-  ContextMenuSeparatorComponent,
-  ContextMenuShortcutComponent,
-  ContextMenuSubComponent,
-  ContextMenuSubTriggerComponent,
-  ContextMenuSubContentComponent,
-  ContextMenuPortalComponent,
+export const ArgusxContextMenuComponents = [
+  ArgusxContextMenuComponent,
+  ArgusxContextMenuTriggerComponent,
+  ArgusxContextMenuTriggerDirective,
+  ArgusxContextMenuContentComponent,
+  ArgusxContextMenuGroupComponent,
+  ArgusxContextMenuLabelComponent,
+  ArgusxContextMenuItemComponent,
+  ArgusxContextMenuCheckboxItemComponent,
+  ArgusxContextMenuRadioGroupComponent,
+  ArgusxContextMenuRadioItemComponent,
+  ArgusxContextMenuSeparatorComponent,
+  ArgusxContextMenuShortcutComponent,
+  ArgusxContextMenuSubComponent,
+  ArgusxContextMenuSubTriggerComponent,
+  ArgusxContextMenuSubContentComponent,
+  ArgusxContextMenuPortalComponent,
 ];

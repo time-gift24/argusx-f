@@ -20,6 +20,12 @@ import {
   ConnectedPosition,
 } from '@angular/cdk/overlay';
 import { cn } from '../../utils/cn';
+import {
+  focusAdjacentMenuItem,
+  focusMenuItemByIndex,
+  getMenuFocusableItems,
+  runAfterRender,
+} from '../menu-core/focus';
 import { cva, type VariantProps } from 'class-variance-authority';
 import {
   LucideAngularModule,
@@ -31,8 +37,8 @@ import {
 // Types
 // ============================================================================
 
-export type DropdownMenuAlign = 'start' | 'center' | 'end';
-export type DropdownMenuItemVariant = 'default' | 'destructive';
+export type ArgusxDropdownMenuAlign = 'start' | 'center' | 'end';
+export type ArgusxDropdownMenuItemVariant = 'default' | 'destructive';
 
 // ============================================================================
 // Dropdown Menu Root with integrated Overlay
@@ -49,7 +55,7 @@ let dropdownIdCounter = 0;
  * Opens the dropdown when clicked
  */
 @Directive({
-  selector: '[appDropdownMenuTrigger]',
+  selector: '[argusxDropdownMenuTrigger]',
   host: {
     '[attr.data-slot]': '"dropdown-menu-trigger"',
     '[attr.aria-expanded]': 'dropdownMenu.open()',
@@ -58,8 +64,8 @@ let dropdownIdCounter = 0;
     '(keydown)': 'onKeydown($event)',
   },
 })
-export class DropdownMenuTriggerDirective {
-  readonly dropdownMenu = inject(DropdownMenuComponent);
+export class ArgusxDropdownMenuTriggerDirective {
+  readonly dropdownMenu = inject(ArgusxDropdownMenuComponent);
   readonly elementRef = inject(ElementRef<HTMLElement>);
 
   onClick(): void {
@@ -89,7 +95,7 @@ export class DropdownMenuTriggerDirective {
  * Groups related items together
  */
 @Component({
-  selector: 'app-dropdown-menu-group',
+  selector: 'argusx-dropdown-menu-group',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -98,7 +104,7 @@ export class DropdownMenuTriggerDirective {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuGroupComponent {
+export class ArgusxDropdownMenuGroupComponent {
   readonly class = input<string>('');
 }
 
@@ -111,7 +117,7 @@ export class DropdownMenuGroupComponent {
  * Labels a group of items
  */
 @Component({
-  selector: 'app-dropdown-menu-label',
+  selector: 'argusx-dropdown-menu-label',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -121,7 +127,7 @@ export class DropdownMenuGroupComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuLabelComponent {
+export class ArgusxDropdownMenuLabelComponent {
   readonly inset = input<boolean>(false);
   readonly class = input<string>('');
 
@@ -158,7 +164,7 @@ const dropdownMenuItemVariants = cva(
  * Individual menu item
  */
 @Component({
-  selector: 'app-dropdown-menu-item',
+  selector: 'argusx-dropdown-menu-item',
   imports: [CommonModule],
   template: `
     <ng-content />
@@ -176,11 +182,11 @@ const dropdownMenuItemVariants = cva(
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuItemComponent {
-  readonly dropdownMenu = inject(DropdownMenuComponent);
+export class ArgusxDropdownMenuItemComponent {
+  readonly dropdownMenu = inject(ArgusxDropdownMenuComponent);
 
   readonly inset = input<boolean>(false);
-  readonly variant = input<DropdownMenuItemVariant>('default');
+  readonly variant = input<ArgusxDropdownMenuItemVariant>('default');
   readonly disabled = input<boolean>(false);
   readonly class = input<string>('');
 
@@ -214,7 +220,7 @@ export class DropdownMenuItemComponent {
  * A checkbox menu item that can be toggled
  */
 @Component({
-  selector: 'app-dropdown-menu-checkbox-item',
+  selector: 'argusx-dropdown-menu-checkbox-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <span class="absolute right-2 flex items-center justify-center pointer-events-none">
@@ -237,8 +243,8 @@ export class DropdownMenuItemComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuCheckboxItemComponent {
-  readonly dropdownMenu = inject(DropdownMenuComponent);
+export class ArgusxDropdownMenuCheckboxItemComponent {
+  readonly dropdownMenu = inject(ArgusxDropdownMenuComponent);
 
   readonly checked = input<boolean>(false);
   readonly inset = input<boolean>(false);
@@ -282,7 +288,7 @@ export class DropdownMenuCheckboxItemComponent {
  * Groups radio items together
  */
 @Component({
-  selector: 'app-dropdown-menu-radio-group',
+  selector: 'argusx-dropdown-menu-radio-group',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -291,7 +297,7 @@ export class DropdownMenuCheckboxItemComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuRadioGroupComponent {
+export class ArgusxDropdownMenuRadioGroupComponent {
   readonly value = model<string | undefined>(undefined);
   readonly class = input<string>('');
 }
@@ -305,7 +311,7 @@ export class DropdownMenuRadioGroupComponent {
  * A radio menu item for single selection
  */
 @Component({
-  selector: 'app-dropdown-menu-radio-item',
+  selector: 'argusx-dropdown-menu-radio-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <span class="absolute right-2 flex items-center justify-center pointer-events-none">
@@ -328,11 +334,11 @@ export class DropdownMenuRadioGroupComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuRadioItemComponent {
-  readonly dropdownMenu = inject(DropdownMenuComponent);
-  readonly radioGroup = inject(DropdownMenuRadioGroupComponent, { optional: true });
+export class ArgusxDropdownMenuRadioItemComponent {
+  readonly dropdownMenu = inject(ArgusxDropdownMenuComponent);
+  readonly radioGroup = inject(ArgusxDropdownMenuRadioGroupComponent, { optional: true });
 
-  readonly value = input.required<string>();
+  readonly value = input<string>('');
   readonly inset = input<boolean>(false);
   readonly disabled = input<boolean>(false);
   readonly class = input<string>('');
@@ -379,7 +385,7 @@ export class DropdownMenuRadioItemComponent {
  * Visual divider between items
  */
 @Component({
-  selector: 'app-dropdown-menu-separator',
+  selector: 'argusx-dropdown-menu-separator',
   imports: [CommonModule],
   template: '',
   host: {
@@ -389,7 +395,7 @@ export class DropdownMenuRadioItemComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuSeparatorComponent {
+export class ArgusxDropdownMenuSeparatorComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
@@ -406,7 +412,7 @@ export class DropdownMenuSeparatorComponent {
  * Displays keyboard shortcuts for items
  */
 @Component({
-  selector: 'app-dropdown-menu-shortcut',
+  selector: 'argusx-dropdown-menu-shortcut',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -415,7 +421,7 @@ export class DropdownMenuSeparatorComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuShortcutComponent {
+export class ArgusxDropdownMenuShortcutComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
@@ -436,7 +442,7 @@ export class DropdownMenuShortcutComponent {
  * Container for submenu - provides position info for fixed positioning
  */
 @Component({
-  selector: 'app-dropdown-menu-sub',
+  selector: 'argusx-dropdown-menu-sub',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -444,7 +450,7 @@ export class DropdownMenuShortcutComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuSubComponent {
+export class ArgusxDropdownMenuSubComponent {
   readonly open = model<boolean>(false);
   private readonly triggerRect = signal<DOMRect | null>(null);
   private closeTimeoutId: number | null = null;
@@ -510,7 +516,7 @@ export class DropdownMenuSubComponent {
  * Opens a submenu
  */
 @Component({
-  selector: 'app-dropdown-menu-sub-trigger',
+  selector: 'argusx-dropdown-menu-sub-trigger',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <ng-content />
@@ -530,8 +536,8 @@ export class DropdownMenuSubComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuSubTriggerComponent {
-  readonly subMenu = inject(DropdownMenuSubComponent, { optional: true });
+export class ArgusxDropdownMenuSubTriggerComponent {
+  readonly subMenu = inject(ArgusxDropdownMenuSubComponent, { optional: true });
   readonly elementRef = inject(ElementRef<HTMLElement>);
 
   readonly inset = input<boolean>(false);
@@ -584,7 +590,7 @@ export class DropdownMenuSubTriggerComponent {
  * The submenu panel - uses fixed positioning to escape overflow constraints
  */
 @Component({
-  selector: 'app-dropdown-menu-sub-content',
+  selector: 'argusx-dropdown-menu-sub-content',
   imports: [CommonModule],
   template: `
     @if (subMenu?.open() && subMenu?.triggerPosition()) {
@@ -607,8 +613,8 @@ export class DropdownMenuSubTriggerComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuSubContentComponent {
-  readonly subMenu = inject(DropdownMenuSubComponent, { optional: true });
+export class ArgusxDropdownMenuSubContentComponent {
+  readonly subMenu = inject(ArgusxDropdownMenuSubComponent, { optional: true });
   private readonly elementRef = inject(ElementRef<HTMLElement>);
 
   readonly class = input<string>('');
@@ -682,7 +688,7 @@ export class DropdownMenuSubContentComponent {
  * Uses Angular CDK Overlay for positioning
  */
 @Component({
-  selector: 'app-dropdown-menu',
+  selector: 'argusx-dropdown-menu',
   imports: [
     CommonModule,
     OverlayModule,
@@ -691,7 +697,7 @@ export class DropdownMenuSubContentComponent {
     <div class="inline-flex">
       <!-- Trigger element -->
       <div cdkOverlayOrigin #trigger="cdkOverlayOrigin">
-        <ng-content select="[appDropdownMenuTrigger]" />
+        <ng-content select="[argusxDropdownMenuTrigger], argusx-dropdown-menu-trigger" />
       </div>
 
       <!-- Dropdown content via CDK Overlay -->
@@ -725,10 +731,10 @@ export class DropdownMenuSubContentComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuComponent {
+export class ArgusxDropdownMenuComponent {
   readonly open = model<boolean>(false);
 
-  readonly align = input<DropdownMenuAlign>('start');
+  readonly align = input<ArgusxDropdownMenuAlign>('start');
   readonly sideOffset = input<number>(4);
   readonly minWidth = input<number>(128);
   readonly class = input<string>('');
@@ -737,7 +743,7 @@ export class DropdownMenuComponent {
   readonly id = `dropdown-menu-${dropdownIdCounter++}`;
   private readonly triggerWidth = signal(0);
   protected readonly currentSide = signal<'top' | 'bottom'>('bottom');
-  private readonly contentAlign = signal<DropdownMenuAlign | null>(null);
+  private readonly contentAlign = signal<ArgusxDropdownMenuAlign | null>(null);
   private readonly contentSideOffset = signal<number | null>(null);
   private readonly contentClassOverride = signal('');
 
@@ -813,7 +819,7 @@ export class DropdownMenuComponent {
   closeMenu(restoreFocus = true): void {
     this.open.set(false);
     if (restoreFocus) {
-      this.runAfterOverlayRender(() => {
+      runAfterRender(() => {
         this.trigger()?.elementRef.nativeElement.focus();
       });
     }
@@ -894,53 +900,26 @@ export class DropdownMenuComponent {
   }
 
   private focusMenuItemByIndex(index: number): void {
-    this.runAfterOverlayRender(() => {
-      const items = this.getMenuItems();
-      if (!items.length) return;
-      const target =
-        index < 0 ? items[items.length - 1] : items[Math.min(index, items.length - 1)];
-      target?.focus();
+    runAfterRender(() => {
+      focusMenuItemByIndex(
+        getMenuFocusableItems(this.menuContent()?.nativeElement),
+        index
+      );
     });
   }
 
   private focusAdjacentItem(direction: 1 | -1): void {
-    const items = this.getMenuItems();
-    if (!items.length) return;
-
     const activeElement =
-      typeof document !== 'undefined' ? (document.activeElement as HTMLElement | null) : null;
-    const currentIndex = activeElement ? items.indexOf(activeElement) : -1;
-    const nextIndex =
-      currentIndex < 0
-        ? direction === 1
-          ? 0
-          : items.length - 1
-        : (currentIndex + direction + items.length) % items.length;
-
-    items[nextIndex]?.focus();
-  }
-
-  private getMenuItems(): HTMLElement[] {
-    const container = this.menuContent()?.nativeElement;
-    if (!container) return [];
-
-    return Array.from(
-      container.querySelectorAll<HTMLElement>(
-        '[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"]'
-      )
-    ).filter((item) => item.tabIndex >= 0);
-  }
-
-  private runAfterOverlayRender(callback: () => void): void {
-    if (typeof requestAnimationFrame === 'function') {
-      requestAnimationFrame(() => callback());
-      return;
-    }
-    setTimeout(() => callback(), 0);
+      typeof document !== 'undefined' ? document.activeElement : null;
+    focusAdjacentMenuItem(
+      getMenuFocusableItems(this.menuContent()?.nativeElement),
+      direction,
+      activeElement
+    );
   }
 
   registerContentConfig(config: {
-    align?: DropdownMenuAlign;
+    align?: ArgusxDropdownMenuAlign;
     sideOffset?: number;
     className?: string;
   }): void {
@@ -960,7 +939,7 @@ export class DropdownMenuComponent {
  * This is for API compatibility with the shadcn pattern
  */
 @Component({
-  selector: 'app-dropdown-menu-content',
+  selector: 'argusx-dropdown-menu-content',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -969,10 +948,10 @@ export class DropdownMenuComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuContentComponent {
-  private readonly dropdownMenu = inject(DropdownMenuComponent);
+export class ArgusxDropdownMenuContentComponent {
+  private readonly dropdownMenu = inject(ArgusxDropdownMenuComponent);
 
-  readonly align = input<DropdownMenuAlign>('start');
+  readonly align = input<ArgusxDropdownMenuAlign>('start');
   readonly sideOffset = input<number>(4);
   readonly class = input<string>('');
 
@@ -996,7 +975,7 @@ export class DropdownMenuContentComponent {
  * Wrapper for the trigger directive
  */
 @Component({
-  selector: 'app-dropdown-menu-trigger',
+  selector: 'argusx-dropdown-menu-trigger',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -1008,8 +987,8 @@ export class DropdownMenuContentComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownMenuTriggerComponent {
-  readonly dropdownMenu = inject(DropdownMenuComponent);
+export class ArgusxDropdownMenuTriggerComponent {
+  readonly dropdownMenu = inject(ArgusxDropdownMenuComponent);
 
   onClick(): void {
     this.dropdownMenu.toggleMenu();
@@ -1039,12 +1018,12 @@ export class DropdownMenuTriggerComponent {
  * This component exists for API compatibility
  */
 @Directive({
-  selector: 'app-dropdown-menu-portal',
+  selector: 'argusx-dropdown-menu-portal',
   host: {
     '[attr.data-slot]': '"dropdown-menu-portal"',
   },
 })
-export class DropdownMenuPortalComponent {
+export class ArgusxDropdownMenuPortalComponent {
   // Portal functionality is handled by CDK Overlay in the root component
 }
 
@@ -1052,21 +1031,21 @@ export class DropdownMenuPortalComponent {
 // Exports
 // ============================================================================
 
-export const DropdownMenuComponents = [
-  DropdownMenuComponent,
-  DropdownMenuTriggerComponent,
-  DropdownMenuTriggerDirective,
-  DropdownMenuContentComponent,
-  DropdownMenuGroupComponent,
-  DropdownMenuLabelComponent,
-  DropdownMenuItemComponent,
-  DropdownMenuCheckboxItemComponent,
-  DropdownMenuRadioGroupComponent,
-  DropdownMenuRadioItemComponent,
-  DropdownMenuSeparatorComponent,
-  DropdownMenuShortcutComponent,
-  DropdownMenuSubComponent,
-  DropdownMenuSubTriggerComponent,
-  DropdownMenuSubContentComponent,
-  DropdownMenuPortalComponent,
+export const ArgusxDropdownMenuComponents = [
+  ArgusxDropdownMenuComponent,
+  ArgusxDropdownMenuTriggerComponent,
+  ArgusxDropdownMenuTriggerDirective,
+  ArgusxDropdownMenuContentComponent,
+  ArgusxDropdownMenuGroupComponent,
+  ArgusxDropdownMenuLabelComponent,
+  ArgusxDropdownMenuItemComponent,
+  ArgusxDropdownMenuCheckboxItemComponent,
+  ArgusxDropdownMenuRadioGroupComponent,
+  ArgusxDropdownMenuRadioItemComponent,
+  ArgusxDropdownMenuSeparatorComponent,
+  ArgusxDropdownMenuShortcutComponent,
+  ArgusxDropdownMenuSubComponent,
+  ArgusxDropdownMenuSubTriggerComponent,
+  ArgusxDropdownMenuSubContentComponent,
+  ArgusxDropdownMenuPortalComponent,
 ];

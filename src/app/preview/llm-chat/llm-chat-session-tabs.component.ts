@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import {
-  ContextMenuComponent,
-  ContextMenuContentComponent,
-  ContextMenuItemComponent,
-  ContextMenuSeparatorComponent,
-  ContextMenuSubComponent,
-  ContextMenuSubContentComponent,
-  ContextMenuSubTriggerComponent,
-  ContextMenuTriggerDirective,
+  ArgusxContextMenuComponent,
+  ArgusxContextMenuContentComponent,
+  ArgusxContextMenuItemComponent,
+  ArgusxContextMenuSeparatorComponent,
+  ArgusxContextMenuSubComponent,
+  ArgusxContextMenuSubContentComponent,
+  ArgusxContextMenuSubTriggerComponent,
+  ArgusxContextMenuTriggerDirective,
 } from '../../shared/ui/context-menu';
 import {
   TabsComponent,
@@ -53,14 +53,14 @@ const SESSION_COLOR_LABELS: Record<SessionColor, string> = {
     TabsComponent,
     TabsListComponent,
     TabsTriggerComponent,
-    ContextMenuComponent,
-    ContextMenuTriggerDirective,
-    ContextMenuContentComponent,
-    ContextMenuItemComponent,
-    ContextMenuSeparatorComponent,
-    ContextMenuSubComponent,
-    ContextMenuSubTriggerComponent,
-    ContextMenuSubContentComponent,
+    ArgusxContextMenuComponent,
+    ArgusxContextMenuTriggerDirective,
+    ArgusxContextMenuContentComponent,
+    ArgusxContextMenuItemComponent,
+    ArgusxContextMenuSeparatorComponent,
+    ArgusxContextMenuSubComponent,
+    ArgusxContextMenuSubTriggerComponent,
+    ArgusxContextMenuSubContentComponent,
   ],
   template: `
     <div class="flex min-w-0 items-center gap-1.5">
@@ -87,10 +87,10 @@ const SESSION_COLOR_LABELS: Record<SessionColor, string> = {
             class="w-max min-w-full justify-start gap-0.5 bg-transparent p-0"
           >
             @for (session of sessions(); track session.id) {
-              <app-context-menu>
+              <argusx-context-menu>
                 <app-tabs-trigger
                   [value]="session.id"
-                  appContextMenuTrigger
+                  argusxContextMenuTrigger
                   class="h-6 gap-1 rounded-md border-0 bg-transparent px-1.5 text-[10px] text-foreground/70 transition-colors data-active:bg-foreground/10 data-active:text-foreground hover:bg-foreground/[0.07] after:hidden"
                 >
                   <span
@@ -134,36 +134,36 @@ const SESSION_COLOR_LABELS: Record<SessionColor, string> = {
                   </button>
                 </app-tabs-trigger>
 
-                <app-context-menu-content>
-                  <app-context-menu-item (select)="onRename(session)">
+                <argusx-context-menu-content>
+                  <argusx-context-menu-item (select)="onRename(session)">
                     重命名
-                  </app-context-menu-item>
+                  </argusx-context-menu-item>
 
-                  <app-context-menu-sub>
-                    <app-context-menu-sub-trigger>更换颜色</app-context-menu-sub-trigger>
-                    <app-context-menu-sub-content>
+                  <argusx-context-menu-sub>
+                    <argusx-context-menu-sub-trigger>更换颜色</argusx-context-menu-sub-trigger>
+                    <argusx-context-menu-sub-content>
                       @for (color of colorOptions; track color) {
-                        <app-context-menu-item (select)="recolorSession.emit({ sessionId: session.id, color })">
+                        <argusx-context-menu-item (select)="recolorSession.emit({ sessionId: session.id, color })">
                           <span
                             class="mr-1 inline-flex size-2 rounded-full border border-black/10"
                             [style.background]="paletteFor(color).dot"
                           ></span>
                           {{ colorLabel(color) }}
-                        </app-context-menu-item>
+                        </argusx-context-menu-item>
                       }
-                    </app-context-menu-sub-content>
-                  </app-context-menu-sub>
+                    </argusx-context-menu-sub-content>
+                  </argusx-context-menu-sub>
 
-                  <app-context-menu-separator />
+                  <argusx-context-menu-separator />
 
-                  <app-context-menu-item
+                  <argusx-context-menu-item
                     [disabled]="sessions().length <= 1"
                     (select)="closeSession.emit(session.id)"
                   >
                     关闭会话
-                  </app-context-menu-item>
-                </app-context-menu-content>
-              </app-context-menu>
+                  </argusx-context-menu-item>
+                </argusx-context-menu-content>
+              </argusx-context-menu>
             }
           </app-tabs-list>
         </app-tabs>

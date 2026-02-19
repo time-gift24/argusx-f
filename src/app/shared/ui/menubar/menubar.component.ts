@@ -4,6 +4,8 @@ import {
   computed,
   Directive,
   ElementRef,
+  effect,
+  Input,
   inject,
   input,
   model,
@@ -17,9 +19,16 @@ import { CommonModule } from '@angular/common';
 import {
   CdkOverlayOrigin,
   OverlayModule,
+  ConnectedOverlayPositionChange,
   ConnectedPosition,
 } from '@angular/cdk/overlay';
 import { cn } from '../../utils/cn';
+import {
+  focusAdjacentMenuItem,
+  focusMenuItemByIndex,
+  getMenuFocusableItems,
+  runAfterRender,
+} from '../menu-core/focus';
 import { cva, type VariantProps } from 'class-variance-authority';
 import {
   LucideAngularModule,
@@ -31,21 +40,21 @@ import {
 // Types
 // ============================================================================
 
-export type MenubarAlign = 'start' | 'center' | 'end';
-export type MenubarItemVariant = 'default' | 'destructive';
+export type ArgusxMenubarAlign = 'start' | 'center' | 'end';
+export type ArgusxMenubarItemVariant = 'default' | 'destructive';
 
 // ============================================================================
-// Menubar Root Component
+// ArgusxMenubar Root Component
 // ============================================================================
 
 let menubarIdCounter = 0;
 
 /**
- * Menubar Root Component
+ * ArgusxMenubar Root Component
  * Horizontal menu bar for application menus
  */
 @Component({
-  selector: 'app-menubar',
+  selector: 'argusx-menubar',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -56,10 +65,10 @@ let menubarIdCounter = 0;
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarComponent {
+export class ArgusxMenubarComponent {
   readonly class = input<string>('');
   readonly ariaLabel = input<string>('Application menu');
-  private menus: MenubarMenuComponent[] = [];
+  private menus: ArgusxMenubarMenuComponent[] = [];
 
   protected readonly computedClass = computed(() =>
     cn(
@@ -68,26 +77,26 @@ export class MenubarComponent {
     )
   );
 
-  registerMenu(menu: MenubarMenuComponent): void {
+  registerMenu(menu: ArgusxMenubarMenuComponent): void {
     if (this.menus.includes(menu)) return;
     this.menus = [...this.menus, menu];
   }
 
-  unregisterMenu(menu: MenubarMenuComponent): void {
+  unregisterMenu(menu: ArgusxMenubarMenuComponent): void {
     this.menus = this.menus.filter((entry) => entry !== menu);
   }
 
-  openMenu(menu: MenubarMenuComponent): void {
+  openMenu(menu: ArgusxMenubarMenuComponent): void {
     for (const entry of this.menus) {
       entry.setOpenFromRoot(entry === menu);
     }
   }
 
-  closeMenu(menu: MenubarMenuComponent): void {
+  closeMenu(menu: ArgusxMenubarMenuComponent): void {
     menu.setOpenFromRoot(false);
   }
 
-  moveFocus(menu: MenubarMenuComponent, direction: 1 | -1, openTarget = false): void {
+  moveFocus(menu: ArgusxMenubarMenuComponent, direction: 1 | -1, openTarget = false): void {
     if (!this.menus.length) return;
     const currentIndex = this.menus.indexOf(menu);
     if (currentIndex === -1) return;
@@ -108,15 +117,15 @@ export class MenubarComponent {
 }
 
 // ============================================================================
-// Menubar Menu (individual top-level menu)
+// ArgusxMenubar Menu (individual top-level menu)
 // ============================================================================
 
 /**
- * Menubar Menu Component
+ * ArgusxMenubar Menu Component
  * Individual menu in the menubar with trigger and dropdown content
  */
 @Component({
-  selector: 'app-menubar-menu',
+  selector: 'argusx-menubar-menu',
   imports: [CommonModule, OverlayModule],
   template: `
     <div class="inline-flex">
@@ -131,7 +140,7 @@ export class MenubarComponent {
           [attr.data-state]="open() ? 'open' : 'closed'"
           (click)="toggleMenu()"
           (keydown)="onTriggerKeydown($event)">
-          <ng-content select="[appMenubarTrigger]" />
+          <ng-content select="[argusxMenubarTrigger], argusx-menubar-trigger" />
         </button>
       </div>
 
@@ -143,6 +152,7 @@ export class MenubarComponent {
         [cdkConnectedOverlayPositions]="positions()"
         [cdkConnectedOverlayMinWidth]="minWidth()"
         [cdkConnectedOverlayHasBackdrop]="false"
+        (positionChange)="onPositionChange($event)"
         (overlayOutsideClick)="onOutsideClick($event)"
         (detach)="closeMenu()">
         <div
@@ -150,6 +160,7 @@ export class MenubarComponent {
           [class]="contentClass()"
           role="menu"
           [attr.data-state]="open() ? 'open' : 'closed'"
+          [attr.data-side]="currentSide()"
           (keydown)="onContentKeydown($event)">
           <ng-content />
         </div>
@@ -161,18 +172,32 @@ export class MenubarComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarMenuComponent implements OnInit, OnDestroy {
+export class ArgusxMenubarMenuComponent implements OnInit, OnDestroy {
   readonly open = model<boolean>(false);
   readonly value = input<string>(''); // Unique identifier for this menu
 
-  readonly align = input<MenubarAlign>('start');
+  readonly align = input<ArgusxMenubarAlign>('start');
   readonly sideOffset = input<number>(8);
   readonly alignOffset = input<number>(-4);
   readonly minWidth = input<number>(128);
   readonly class = input<string>('');
 
   readonly id = `menubar-menu-${menubarIdCounter++}`;
-  private readonly menubar = inject(MenubarComponent, { optional: true });
+  private readonly menubar = inject(ArgusxMenubarComponent, { optional: true });
+  protected readonly currentSide = signal<'top' | 'bottom'>('bottom');
+  private readonly contentAlign = signal<ArgusxMenubarAlign | null>(null);
+  private readonly contentAlignOffset = signal<number | null>(null);
+  private readonly contentSideOffset = signal<number | null>(null);
+  private readonly contentClassOverride = signal('');
+  private readonly resolvedAlign = computed(
+    () => this.contentAlign() ?? this.align()
+  );
+  private readonly resolvedAlignOffset = computed(
+    () => this.contentAlignOffset() ?? this.alignOffset()
+  );
+  private readonly resolvedSideOffset = computed(
+    () => this.contentSideOffset() ?? this.sideOffset()
+  );
 
   protected readonly triggerClass = computed(() =>
     cn(
@@ -182,22 +207,27 @@ export class MenubarMenuComponent implements OnInit, OnDestroy {
   );
 
   protected readonly positions = computed<ConnectedPosition[]>(() => {
+    const resolvedAlign = this.resolvedAlign();
+    const resolvedAlignOffset = this.resolvedAlignOffset();
+    const resolvedSideOffset = this.resolvedSideOffset();
     const alignX =
-      this.align() === 'start' ? 'start' : this.align() === 'end' ? 'end' : 'center';
+      resolvedAlign === 'start' ? 'start' : resolvedAlign === 'end' ? 'end' : 'center';
     return [
       {
         originX: alignX,
         originY: 'bottom',
         overlayX: alignX,
         overlayY: 'top',
-        offsetY: this.sideOffset(),
+        offsetX: resolvedAlignOffset,
+        offsetY: resolvedSideOffset,
       },
       {
         originX: alignX,
         originY: 'top',
         overlayX: alignX,
         overlayY: 'bottom',
-        offsetY: -this.sideOffset(),
+        offsetX: resolvedAlignOffset,
+        offsetY: -resolvedSideOffset,
       },
     ];
   });
@@ -213,7 +243,8 @@ export class MenubarMenuComponent implements OnInit, OnDestroy {
       'data-[side=right]:slide-in-from-left-2',
       'data-[side=top]:slide-in-from-bottom-2',
       'overflow-hidden',
-      this.class()
+      this.class(),
+      this.contentClassOverride()
     )
   );
 
@@ -311,12 +342,18 @@ export class MenubarMenuComponent implements OnInit, OnDestroy {
     }
 
     if (event.key === 'ArrowRight') {
+      if (this.shouldSkipTopLevelArrowNavigation(event)) {
+        return;
+      }
       event.preventDefault();
       this.menubar?.moveFocus(this, 1, true);
       return;
     }
 
     if (event.key === 'ArrowLeft') {
+      if (this.shouldSkipTopLevelArrowNavigation(event)) {
+        return;
+      }
       event.preventDefault();
       this.menubar?.moveFocus(this, -1, true);
       return;
@@ -353,81 +390,81 @@ export class MenubarMenuComponent implements OnInit, OnDestroy {
     }
   }
 
+  protected onPositionChange(event: ConnectedOverlayPositionChange): void {
+    this.currentSide.set(event.connectionPair.overlayY === 'top' ? 'bottom' : 'top');
+  }
+
   private focusMenuItemByIndex(index: number): void {
-    this.runAfterOverlayRender(() => {
-      const items = this.getMenuItems();
-      if (!items.length) return;
-      const target =
-        index < 0 ? items[items.length - 1] : items[Math.min(index, items.length - 1)];
-      target?.focus();
+    runAfterRender(() => {
+      focusMenuItemByIndex(
+        getMenuFocusableItems(this.menuContent()?.nativeElement),
+        index
+      );
     });
   }
 
   private focusAdjacentItem(direction: 1 | -1): void {
-    const items = this.getMenuItems();
-    if (!items.length) return;
-
     const activeElement =
-      typeof document !== 'undefined' ? (document.activeElement as HTMLElement | null) : null;
-    const currentIndex = activeElement ? items.indexOf(activeElement) : -1;
-    const nextIndex =
-      currentIndex < 0
-        ? direction === 1
-          ? 0
-          : items.length - 1
-        : (currentIndex + direction + items.length) % items.length;
-
-    items[nextIndex]?.focus();
+      typeof document !== 'undefined' ? document.activeElement : null;
+    focusAdjacentMenuItem(
+      getMenuFocusableItems(this.menuContent()?.nativeElement),
+      direction,
+      activeElement
+    );
   }
 
-  private getMenuItems(): HTMLElement[] {
-    const container = this.menuContent()?.nativeElement;
-    if (!container) return [];
-
-    return Array.from(
-      container.querySelectorAll<HTMLElement>(
-        '[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"]'
-      )
-    ).filter((item) => item.tabIndex >= 0);
-  }
-
-  private runAfterOverlayRender(callback: () => void): void {
-    if (typeof requestAnimationFrame === 'function') {
-      requestAnimationFrame(() => callback());
-      return;
+  private shouldSkipTopLevelArrowNavigation(event: KeyboardEvent): boolean {
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return false;
     }
-    setTimeout(() => callback(), 0);
+
+    return !!target.closest(
+      '[data-slot="menubar-sub-trigger"], [data-slot="menubar-sub-content"]'
+    );
+  }
+
+  registerContentConfig(config: {
+    align?: ArgusxMenubarAlign;
+    alignOffset?: number;
+    sideOffset?: number;
+    className?: string;
+  }): void {
+    this.contentAlign.set(config.align ?? null);
+    this.contentAlignOffset.set(config.alignOffset ?? null);
+    this.contentSideOffset.set(config.sideOffset ?? null);
+    this.contentClassOverride.set(config.className ?? '');
   }
 }
 
 // ============================================================================
-// Menubar Trigger Content (for content projection)
+// ArgusxMenubar Trigger Content (for content projection)
 // ============================================================================
 
 /**
- * Menubar Trigger Content Component
+ * ArgusxMenubar Trigger Content Component
  * Projects trigger content into the menu trigger button
  */
 @Component({
-  selector: '[appMenubarTrigger]',
+  selector: '[argusxMenubarTrigger], argusx-menubar-trigger',
   template: `<ng-content />`,
   host: {
     '[attr.data-slot]': '"menubar-trigger-content"',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarTriggerContentComponent {}
+export class ArgusxMenubarTriggerContentComponent {}
 
 // ============================================================================
-// Menubar Group
+// ArgusxMenubar Group
 // ============================================================================
 
 /**
- * Menubar Group Component
+ * ArgusxMenubar Group Component
  * Groups related items together
  */
 @Component({
-  selector: 'app-menubar-group',
+  selector: 'argusx-menubar-group',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -436,20 +473,20 @@ export class MenubarTriggerContentComponent {}
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarGroupComponent {
+export class ArgusxMenubarGroupComponent {
   readonly class = input<string>('');
 }
 
 // ============================================================================
-// Menubar Label
+// ArgusxMenubar Label
 // ============================================================================
 
 /**
- * Menubar Label Component
+ * ArgusxMenubar Label Component
  * Labels a group of items
  */
 @Component({
-  selector: 'app-menubar-label',
+  selector: 'argusx-menubar-label',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -459,7 +496,7 @@ export class MenubarGroupComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarLabelComponent {
+export class ArgusxMenubarLabelComponent {
   readonly inset = input<boolean>(false);
   readonly class = input<string>('');
 
@@ -473,7 +510,7 @@ export class MenubarLabelComponent {
 }
 
 // ============================================================================
-// Menubar Item
+// ArgusxMenubar Item
 // ============================================================================
 
 const menubarItemVariants = cva(
@@ -492,11 +529,11 @@ const menubarItemVariants = cva(
 );
 
 /**
- * Menubar Item Component
+ * ArgusxMenubar Item Component
  * Individual menu item
  */
 @Component({
-  selector: 'app-menubar-item',
+  selector: 'argusx-menubar-item',
   imports: [CommonModule],
   template: `
     <ng-content />
@@ -514,11 +551,11 @@ const menubarItemVariants = cva(
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarItemComponent {
-  readonly menubarMenu = inject(MenubarMenuComponent, { optional: true });
+export class ArgusxMenubarItemComponent {
+  readonly menubarMenu = inject(ArgusxMenubarMenuComponent, { optional: true });
 
   readonly inset = input<boolean>(false);
-  readonly variant = input<MenubarItemVariant>('default');
+  readonly variant = input<ArgusxMenubarItemVariant>('default');
   readonly disabled = input<boolean>(false);
   readonly class = input<string>('');
 
@@ -544,15 +581,15 @@ export class MenubarItemComponent {
 }
 
 // ============================================================================
-// Menubar Checkbox Item
+// ArgusxMenubar Checkbox Item
 // ============================================================================
 
 /**
- * Menubar Checkbox Item Component
+ * ArgusxMenubar Checkbox Item Component
  * A checkbox menu item that can be toggled
  */
 @Component({
-  selector: 'app-menubar-checkbox-item',
+  selector: 'argusx-menubar-checkbox-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <span class="absolute left-2 size-4 flex items-center justify-center pointer-events-none">
@@ -575,7 +612,7 @@ export class MenubarItemComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarCheckboxItemComponent {
+export class ArgusxMenubarCheckboxItemComponent {
   readonly checked = input<boolean>(false);
   readonly inset = input<boolean>(false);
   readonly disabled = input<boolean>(false);
@@ -607,15 +644,15 @@ export class MenubarCheckboxItemComponent {
 }
 
 // ============================================================================
-// Menubar Radio Group
+// ArgusxMenubar Radio Group
 // ============================================================================
 
 /**
- * Menubar Radio Group Component
+ * ArgusxMenubar Radio Group Component
  * Groups radio items together
  */
 @Component({
-  selector: 'app-menubar-radio-group',
+  selector: 'argusx-menubar-radio-group',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -624,21 +661,21 @@ export class MenubarCheckboxItemComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarRadioGroupComponent {
+export class ArgusxMenubarRadioGroupComponent {
   readonly value = model<string | undefined>(undefined);
   readonly class = input<string>('');
 }
 
 // ============================================================================
-// Menubar Radio Item
+// ArgusxMenubar Radio Item
 // ============================================================================
 
 /**
- * Menubar Radio Item Component
+ * ArgusxMenubar Radio Item Component
  * A radio menu item for single selection
  */
 @Component({
-  selector: 'app-menubar-radio-item',
+  selector: 'argusx-menubar-radio-item',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <span class="absolute left-2 size-4 flex items-center justify-center pointer-events-none">
@@ -661,11 +698,11 @@ export class MenubarRadioGroupComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarRadioItemComponent {
-  readonly menubarMenu = inject(MenubarMenuComponent, { optional: true });
-  readonly radioGroup = inject(MenubarRadioGroupComponent, { optional: true });
+export class ArgusxMenubarRadioItemComponent {
+  readonly menubarMenu = inject(ArgusxMenubarMenuComponent, { optional: true });
+  readonly radioGroup = inject(ArgusxMenubarRadioGroupComponent, { optional: true });
 
-  readonly value = input.required<string>();
+  readonly value = input<string>('');
   readonly inset = input<boolean>(false);
   readonly disabled = input<boolean>(false);
   readonly class = input<string>('');
@@ -701,15 +738,15 @@ export class MenubarRadioItemComponent {
 }
 
 // ============================================================================
-// Menubar Separator
+// ArgusxMenubar Separator
 // ============================================================================
 
 /**
- * Menubar Separator Component
+ * ArgusxMenubar Separator Component
  * Visual divider between items
  */
 @Component({
-  selector: 'app-menubar-separator',
+  selector: 'argusx-menubar-separator',
   imports: [CommonModule],
   template: '',
   host: {
@@ -719,7 +756,7 @@ export class MenubarRadioItemComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarSeparatorComponent {
+export class ArgusxMenubarSeparatorComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
@@ -728,15 +765,15 @@ export class MenubarSeparatorComponent {
 }
 
 // ============================================================================
-// Menubar Shortcut
+// ArgusxMenubar Shortcut
 // ============================================================================
 
 /**
- * Menubar Shortcut Component
+ * ArgusxMenubar Shortcut Component
  * Displays keyboard shortcuts for items
  */
 @Component({
-  selector: 'app-menubar-shortcut',
+  selector: 'argusx-menubar-shortcut',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -745,7 +782,7 @@ export class MenubarSeparatorComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarShortcutComponent {
+export class ArgusxMenubarShortcutComponent {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() =>
@@ -757,15 +794,15 @@ export class MenubarShortcutComponent {
 }
 
 // ============================================================================
-// Menubar Sub
+// ArgusxMenubar Sub
 // ============================================================================
 
 /**
- * Menubar Sub Component
+ * ArgusxMenubar Sub Component
  * Container for submenu - provides position info for fixed positioning
  */
 @Component({
-  selector: 'app-menubar-sub',
+  selector: 'argusx-menubar-sub',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -773,7 +810,7 @@ export class MenubarShortcutComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarSubComponent {
+export class ArgusxMenubarSubComponent {
   readonly open = model<boolean>(false);
   private readonly triggerRect = signal<DOMRect | null>(null);
   private closeTimeoutId: number | null = null;
@@ -831,15 +868,15 @@ export class MenubarSubComponent {
 }
 
 // ============================================================================
-// Menubar Sub Trigger
+// ArgusxMenubar Sub Trigger
 // ============================================================================
 
 /**
- * Menubar Sub Trigger Component
+ * ArgusxMenubar Sub Trigger Component
  * Opens a submenu
  */
 @Component({
-  selector: 'app-menubar-sub-trigger',
+  selector: 'argusx-menubar-sub-trigger',
   imports: [CommonModule, LucideAngularModule],
   template: `
     <ng-content />
@@ -859,8 +896,8 @@ export class MenubarSubComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarSubTriggerComponent {
-  readonly subMenu = inject(MenubarSubComponent, { optional: true });
+export class ArgusxMenubarSubTriggerComponent {
+  readonly subMenu = inject(ArgusxMenubarSubComponent, { optional: true });
   readonly elementRef = inject(ElementRef<HTMLElement>);
 
   readonly inset = input<boolean>(false);
@@ -892,6 +929,7 @@ export class MenubarSubTriggerComponent {
   onKeydown(event: KeyboardEvent): void {
     if (event.key === 'ArrowRight') {
       event.preventDefault();
+      event.stopPropagation();
       this.updateTriggerPosition();
       this.subMenu?.openSubmenu();
     }
@@ -904,15 +942,15 @@ export class MenubarSubTriggerComponent {
 }
 
 // ============================================================================
-// Menubar Sub Content
+// ArgusxMenubar Sub Content
 // ============================================================================
 
 /**
- * Menubar Sub Content Component
+ * ArgusxMenubar Sub Content Component
  * The submenu panel - uses fixed positioning to escape overflow constraints
  */
 @Component({
-  selector: 'app-menubar-sub-content',
+  selector: 'argusx-menubar-sub-content',
   imports: [CommonModule],
   template: `
     @if (subMenu?.open() && subMenu?.triggerPosition()) {
@@ -935,8 +973,8 @@ export class MenubarSubTriggerComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarSubContentComponent {
-  readonly subMenu = inject(MenubarSubComponent, { optional: true });
+export class ArgusxMenubarSubContentComponent {
+  readonly subMenu = inject(ArgusxMenubarSubComponent, { optional: true });
   private readonly elementRef = inject(ElementRef<HTMLElement>);
 
   readonly class = input<string>('');
@@ -984,6 +1022,7 @@ export class MenubarSubContentComponent {
   onKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape' || event.key === 'ArrowLeft') {
       event.preventDefault();
+      event.stopPropagation();
       this.subMenu?.closeSubmenu();
     }
   }
@@ -1003,35 +1042,35 @@ export class MenubarSubContentComponent {
 }
 
 // ============================================================================
-// Menubar Portal (for API compatibility)
+// ArgusxMenubar Portal (for API compatibility)
 // ============================================================================
 
 /**
- * Menubar Portal Component
+ * ArgusxMenubar Portal Component
  * In Angular CDK, portals are handled by the Overlay system
  * This component exists for API compatibility
  */
 @Directive({
-  selector: 'app-menubar-portal',
+  selector: 'argusx-menubar-portal',
   host: {
     '[attr.data-slot]': '"menubar-portal"',
   },
 })
-export class MenubarPortalComponent {
+export class ArgusxMenubarPortalComponent {
   // Portal functionality is handled by CDK Overlay in the root component
 }
 
 // ============================================================================
-// Menubar Content (for API compatibility)
+// ArgusxMenubar Content (for API compatibility)
 // ============================================================================
 
 /**
- * Menubar Content Component
+ * ArgusxMenubar Content Component
  * Wrapper component that projects content into the menu
  * This is for API compatibility with the shadcn pattern
  */
 @Component({
-  selector: 'app-menubar-content',
+  selector: 'argusx-menubar-content',
   imports: [CommonModule],
   template: `<ng-content />`,
   host: {
@@ -1040,29 +1079,60 @@ export class MenubarPortalComponent {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenubarContentComponent {
-  readonly class = input<string>('');
+export class ArgusxMenubarContentComponent {
+  private readonly menubarMenu = inject(ArgusxMenubarMenuComponent);
+  private readonly contentAlign = signal<ArgusxMenubarAlign>('start');
+  private readonly contentAlignOffset = signal(-4);
+  private readonly contentSideOffset = signal(8);
+  private readonly contentClassName = signal('');
+
+  @Input() set align(value: ArgusxMenubarAlign | null | undefined) {
+    this.contentAlign.set(value ?? 'start');
+  }
+
+  @Input({ alias: 'alignOffset' }) set alignOffset(value: number | string | null | undefined) {
+    this.contentAlignOffset.set(Number(value ?? -4));
+  }
+
+  @Input({ alias: 'sideOffset' }) set sideOffset(value: number | string | null | undefined) {
+    this.contentSideOffset.set(Number(value ?? 8));
+  }
+
+  @Input({ alias: 'class' }) set className(value: string | null | undefined) {
+    this.contentClassName.set(value ?? '');
+  }
+
+  constructor() {
+    effect(() => {
+      this.menubarMenu.registerContentConfig({
+        align: this.contentAlign(),
+        alignOffset: this.contentAlignOffset(),
+        sideOffset: this.contentSideOffset(),
+        className: this.contentClassName(),
+      });
+    });
+  }
 }
 
 // ============================================================================
 // Exports
 // ============================================================================
 
-export const MenubarComponents = [
-  MenubarComponent,
-  MenubarMenuComponent,
-  MenubarTriggerContentComponent,
-  MenubarContentComponent,
-  MenubarGroupComponent,
-  MenubarLabelComponent,
-  MenubarItemComponent,
-  MenubarCheckboxItemComponent,
-  MenubarRadioGroupComponent,
-  MenubarRadioItemComponent,
-  MenubarSeparatorComponent,
-  MenubarShortcutComponent,
-  MenubarSubComponent,
-  MenubarSubTriggerComponent,
-  MenubarSubContentComponent,
-  MenubarPortalComponent,
+export const ArgusxMenubarComponents = [
+  ArgusxMenubarComponent,
+  ArgusxMenubarMenuComponent,
+  ArgusxMenubarTriggerContentComponent,
+  ArgusxMenubarContentComponent,
+  ArgusxMenubarGroupComponent,
+  ArgusxMenubarLabelComponent,
+  ArgusxMenubarItemComponent,
+  ArgusxMenubarCheckboxItemComponent,
+  ArgusxMenubarRadioGroupComponent,
+  ArgusxMenubarRadioItemComponent,
+  ArgusxMenubarSeparatorComponent,
+  ArgusxMenubarShortcutComponent,
+  ArgusxMenubarSubComponent,
+  ArgusxMenubarSubTriggerComponent,
+  ArgusxMenubarSubContentComponent,
+  ArgusxMenubarPortalComponent,
 ];
