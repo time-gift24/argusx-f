@@ -235,7 +235,7 @@ const DESKTOP_MEDIA_QUERY = '(min-width: 768px)';
                   @if (isDesktop()) {
                     <app-dropdown-menu>
                       <button
-                        argusButton
+                        argusx-button
                         variant="ghost"
                         class="h-auto px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
                         appDropdownMenuTrigger
@@ -252,7 +252,7 @@ const DESKTOP_MEDIA_QUERY = '(min-width: 768px)';
                   } @else {
                     <app-drawer direction="bottom" size="sm">
                       <button
-                        argusButton
+                        argusx-button
                         variant="ghost"
                         class="h-auto px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
                         appDrawerTrigger
@@ -273,7 +273,7 @@ const DESKTOP_MEDIA_QUERY = '(min-width: 768px)';
                           <a href="#" class="rounded px-2 py-1 hover:bg-muted">GitHub</a>
                         </div>
                         <app-drawer-footer>
-                          <button argusButton variant="outline" appDrawerClose>Close</button>
+                          <button argusx-button variant="outline" appDrawerClose>Close</button>
                         </app-drawer-footer>
                       </app-drawer-content>
                     </app-drawer>
