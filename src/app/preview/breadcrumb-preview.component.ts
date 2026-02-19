@@ -11,7 +11,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
 import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { ArgusxBreadcrumbComponents } from '@app/shared/ui/breadcrumb';
-import { DrawerComponents } from '@app/shared/ui/drawer';
+import { ArgusxDrawerComponents } from '@app/shared/ui/drawer';
 import { ArgusxDropdownMenuComponents } from '@app/shared/ui/dropdown-menu';
 
 const DESKTOP_MEDIA_QUERY = '(min-width: 768px)';
@@ -22,7 +22,7 @@ const DESKTOP_MEDIA_QUERY = '(min-width: 768px)';
   imports: [
     ArgusxBreadcrumbComponents,
     ArgusxDropdownMenuComponents,
-    DrawerComponents,
+    ArgusxDrawerComponents,
     ArgusxButtonDirective,
     LucideAngularModule,
   ],
@@ -250,33 +250,33 @@ const DESKTOP_MEDIA_QUERY = '(min-width: 768px)';
                       </argusx-dropdown-menu-content>
                     </argusx-dropdown-menu>
                   } @else {
-                    <app-drawer direction="bottom" size="sm">
+                    <argusx-drawer direction="bottom" size="sm">
                       <button
                         argusx-button
                         variant="ghost"
                         class="h-auto px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
-                        appDrawerTrigger
+                        argusxDrawerTrigger
                       >
                         <span argusxBreadcrumbEllipsis class="size-4"></span>
                         <span class="sr-only">Open navigation menu</span>
                       </button>
-                      <app-drawer-content>
-                        <app-drawer-header>
-                          <app-drawer-title>Navigate to</app-drawer-title>
-                          <app-drawer-description>
+                      <argusx-drawer-content>
+                        <argusx-drawer-header>
+                          <argusx-drawer-title>Navigate to</argusx-drawer-title>
+                          <argusx-drawer-description>
                             Select a page to continue.
-                          </app-drawer-description>
-                        </app-drawer-header>
+                          </argusx-drawer-description>
+                        </argusx-drawer-header>
                         <div class="grid gap-2 px-4 pb-2 text-sm">
                           <a href="#" class="rounded px-2 py-1 hover:bg-muted">Documentation</a>
                           <a href="#" class="rounded px-2 py-1 hover:bg-muted">Themes</a>
                           <a href="#" class="rounded px-2 py-1 hover:bg-muted">GitHub</a>
                         </div>
-                        <app-drawer-footer>
-                          <button argusx-button variant="outline" appDrawerClose>Close</button>
-                        </app-drawer-footer>
-                      </app-drawer-content>
-                    </app-drawer>
+                        <argusx-drawer-footer>
+                          <button argusx-button variant="outline" argusxDrawerClose>Close</button>
+                        </argusx-drawer-footer>
+                      </argusx-drawer-content>
+                    </argusx-drawer>
                   }
                 </argusx-breadcrumb-item>
 
