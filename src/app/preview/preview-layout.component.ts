@@ -55,7 +55,7 @@ const PREVIEW_ITEMS = [
   { id: 'progress', label: 'Progress', reviewStatus: 'not_processed' },
   { id: 'radio-group', label: 'Radio Group', reviewStatus: 'not_processed' },
   { id: 'resizable', label: 'Resizable', reviewStatus: 'not_processed' },
-  { id: 'scroll-area', label: 'Scroll Area', reviewStatus: 'not_processed' },
+  { id: 'scroll-area', label: 'Scroll Area', reviewStatus: 'reviewed' },
   { id: 'select', label: 'Select', reviewStatus: 'reviewed' },
   { id: 'switch', label: 'Switch', reviewStatus: 'reviewed' },
   { id: 'slider', label: 'Slider', reviewStatus: 'reviewed' },

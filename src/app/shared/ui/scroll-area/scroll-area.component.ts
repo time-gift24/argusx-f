@@ -26,25 +26,25 @@ import { cn } from '../../utils/cn';
  *
  * @example
  * ```html
- * <app-scroll-area class="h-72">
+ * <argusx-scroll-area class="h-72">
  *   <div class="p-4">
  *     Content goes here...
  *   </div>
- * </app-scroll-area>
+ * </argusx-scroll-area>
  * ```
  *
  * @example With horizontal scroll
  * ```html
- * <app-scroll-area class="h-72" orientation="horizontal">
+ * <argusx-scroll-area class="h-72" orientation="horizontal">
  *   <div class="flex gap-4 p-4">
  *     <div class="w-96">Item 1</div>
  *     <div class="w-96">Item 2</div>
  *   </div>
- * </app-scroll-area>
+ * </argusx-scroll-area>
  * ```
  */
 @Component({
-  selector: 'app-scroll-area',
+  selector: 'argusx-scroll-area',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
@@ -56,7 +56,7 @@ import { cn } from '../../utils/cn';
       <ng-content />
     </div>
     @if (showScrollbar()) {
-      <app-scroll-bar
+      <argusx-scroll-bar
         [orientation]="orientation()"
         [scrollHeight]="scrollHeight()"
         [clientHeight]="clientHeight()"
@@ -289,7 +289,7 @@ export class ScrollAreaComponent {
  * Custom scrollbar that mimics native behavior with custom styling.
  */
 @Component({
-  selector: 'app-scroll-bar',
+  selector: 'argusx-scroll-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (showVertical()) {
@@ -326,7 +326,7 @@ export class ScrollAreaComponent {
     }
   `,
   host: {
-    '[attr.data-slot]': '"scroll-area-scrollbar"',
+    '[attr.data-slot]': '"scroll-area-scroll-bar"',
     '[class]': 'computedClass()',
   },
   styles: [

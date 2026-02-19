@@ -17,13 +17,13 @@ import { ScrollAreaComponents } from '@app/shared/ui/scroll-area/scroll-area.com
           <h2 class="text-sm font-medium text-muted-foreground">Vertical</h2>
         </div>
         <div class="rounded-lg border border-dashed border-border p-4">
-          <app-scroll-area class="h-56 rounded-md border">
+          <argusx-scroll-area class="h-56 rounded-md border">
             <div class="p-4 space-y-2">
               @for (item of messages; track item) {
                 <div class="rounded-md border px-3 py-2 text-xs">{{ item }}</div>
               }
             </div>
-          </app-scroll-area>
+          </argusx-scroll-area>
         </div>
       </section>
 
@@ -32,7 +32,7 @@ import { ScrollAreaComponents } from '@app/shared/ui/scroll-area/scroll-area.com
           <h2 class="text-sm font-medium text-muted-foreground">Horizontal</h2>
         </div>
         <div class="rounded-lg border border-dashed border-border p-4">
-          <app-scroll-area class="w-full rounded-md border" orientation="horizontal">
+          <argusx-scroll-area class="w-full rounded-md border" orientation="horizontal">
             <div class="flex w-max gap-3 p-4">
               @for (card of boards; track card) {
                 <div class="h-28 w-48 rounded-md border bg-muted/30 p-3 text-xs font-medium">
@@ -40,7 +40,7 @@ import { ScrollAreaComponents } from '@app/shared/ui/scroll-area/scroll-area.com
                 </div>
               }
             </div>
-          </app-scroll-area>
+          </argusx-scroll-area>
         </div>
       </section>
     </div>
