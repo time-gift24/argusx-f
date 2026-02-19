@@ -23,16 +23,16 @@ const listClasses = 'my-6 ml-6 list-disc [&>li]:mt-2';
  *
  * @example
  * ```html
- * <h1 appTypographyH1>Page Title</h1>
+ * <h1 argusxTypographyH1>Page Title</h1>
  * ```
  */
 @Directive({
-  selector: 'h1[appTypographyH1]',
+  selector: 'h1[argusxTypographyH1]',
   host: {
     '[class]': 'computedClass()',
   },
 })
-export class TypographyH1Directive {
+export class ArgusxTypographyH1Directive {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() => cn(h1Classes, this.class()));
@@ -44,16 +44,16 @@ export class TypographyH1Directive {
  *
  * @example
  * ```html
- * <h2 appTypographyH2>Section Title</h2>
+ * <h2 argusxTypographyH2>Section Title</h2>
  * ```
  */
 @Directive({
-  selector: 'h2[appTypographyH2]',
+  selector: 'h2[argusxTypographyH2]',
   host: {
     '[class]': 'computedClass()',
   },
 })
-export class TypographyH2Directive {
+export class ArgusxTypographyH2Directive {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() => cn(h2Classes, this.class()));
@@ -65,16 +65,16 @@ export class TypographyH2Directive {
  *
  * @example
  * ```html
- * <h3 appTypographyH3>Subsection Title</h3>
+ * <h3 argusxTypographyH3>Subsection Title</h3>
  * ```
  */
 @Directive({
-  selector: 'h3[appTypographyH3]',
+  selector: 'h3[argusxTypographyH3]',
   host: {
     '[class]': 'computedClass()',
   },
 })
-export class TypographyH3Directive {
+export class ArgusxTypographyH3Directive {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() => cn(h3Classes, this.class()));
@@ -86,16 +86,16 @@ export class TypographyH3Directive {
  *
  * @example
  * ```html
- * <h4 appTypographyH4>Minor Title</h4>
+ * <h4 argusxTypographyH4>Minor Title</h4>
  * ```
  */
 @Directive({
-  selector: 'h4[appTypographyH4]',
+  selector: 'h4[argusxTypographyH4]',
   host: {
     '[class]': 'computedClass()',
   },
 })
-export class TypographyH4Directive {
+export class ArgusxTypographyH4Directive {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() => cn(h4Classes, this.class()));
@@ -107,16 +107,16 @@ export class TypographyH4Directive {
  *
  * @example
  * ```html
- * <p appTypographyP>Body text content goes here.</p>
+ * <p argusxTypographyP>Body text content goes here.</p>
  * ```
  */
 @Directive({
-  selector: 'p[appTypographyP]',
+  selector: 'p[argusxTypographyP]',
   host: {
     '[class]': 'computedClass()',
   },
 })
-export class TypographyPDirective {
+export class ArgusxTypographyPDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() => cn(pClasses, this.class()));
@@ -128,18 +128,18 @@ export class TypographyPDirective {
  *
  * @example
  * ```html
- * <blockquote appTypographyBlockquote>
+ * <blockquote argusxTypographyBlockquote>
  *   "This is a quoted text."
  * </blockquote>
  * ```
  */
 @Directive({
-  selector: 'blockquote[appTypographyBlockquote]',
+  selector: 'blockquote[argusxTypographyBlockquote]',
   host: {
     '[class]': 'computedClass()',
   },
 })
-export class TypographyBlockquoteDirective {
+export class ArgusxTypographyBlockquoteDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() => cn(blockquoteClasses, this.class()));
@@ -151,16 +151,16 @@ export class TypographyBlockquoteDirective {
  *
  * @example
  * ```html
- * <p>Use <code appTypographyCode>npm install</code> to install.</p>
+ * <p>Use <code argusxTypographyCode>npm install</code> to install.</p>
  * ```
  */
 @Directive({
-  selector: 'code[appTypographyCode]',
+  selector: 'code[argusxTypographyCode]',
   host: {
     '[class]': 'computedClass()',
   },
 })
-export class TypographyCodeDirective {
+export class ArgusxTypographyCodeDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() => cn(codeClasses, this.class()));
@@ -172,16 +172,16 @@ export class TypographyCodeDirective {
  *
  * @example
  * ```html
- * <p appTypographyLead>This is an introductory paragraph that stands out.</p>
+ * <p argusxTypographyLead>This is an introductory paragraph that stands out.</p>
  * ```
  */
 @Directive({
-  selector: 'p[appTypographyLead]',
+  selector: 'p[argusxTypographyLead]',
   host: {
     '[class]': 'computedClass()',
   },
 })
-export class TypographyLeadDirective {
+export class ArgusxTypographyLeadDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() => cn(leadClasses, this.class()));
@@ -193,16 +193,16 @@ export class TypographyLeadDirective {
  *
  * @example
  * ```html
- * <div appTypographyLarge>Important message</div>
+ * <div argusxTypographyLarge>Important message</div>
  * ```
  */
 @Directive({
-  selector: '[appTypographyLarge]',
+  selector: '[argusxTypographyLarge]',
   host: {
     '[class]': 'computedClass()',
   },
 })
-export class TypographyLargeDirective {
+export class ArgusxTypographyLargeDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() => cn(largeClasses, this.class()));
@@ -214,16 +214,16 @@ export class TypographyLargeDirective {
  *
  * @example
  * ```html
- * <small appTypographySmall>Additional information</small>
+ * <small argusxTypographySmall>Additional information</small>
  * ```
  */
 @Directive({
-  selector: 'small[appTypographySmall]',
+  selector: 'small[argusxTypographySmall]',
   host: {
     '[class]': 'computedClass()',
   },
 })
-export class TypographySmallDirective {
+export class ArgusxTypographySmallDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() => cn(smallClasses, this.class()));
@@ -235,16 +235,16 @@ export class TypographySmallDirective {
  *
  * @example
  * ```html
- * <p appTypographyMuted>Secondary information</p>
+ * <p argusxTypographyMuted>Secondary information</p>
  * ```
  */
 @Directive({
-  selector: '[appTypographyMuted]',
+  selector: '[argusxTypographyMuted]',
   host: {
     '[class]': 'computedClass()',
   },
 })
-export class TypographyMutedDirective {
+export class ArgusxTypographyMutedDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() => cn(mutedClasses, this.class()));
@@ -256,19 +256,19 @@ export class TypographyMutedDirective {
  *
  * @example
  * ```html
- * <ul appTypographyList>
+ * <ul argusxTypographyList>
  *   <li>First item</li>
  *   <li>Second item</li>
  * </ul>
  * ```
  */
 @Directive({
-  selector: 'ul[appTypographyList], ol[appTypographyList]',
+  selector: 'ul[argusxTypographyList], ol[argusxTypographyList]',
   host: {
     '[class]': 'computedClass()',
   },
 })
-export class TypographyListDirective {
+export class ArgusxTypographyListDirective {
   readonly class = input<string>('');
 
   protected readonly computedClass = computed(() => cn(listClasses, this.class()));

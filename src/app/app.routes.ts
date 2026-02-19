@@ -396,6 +396,13 @@ export const routes: Routes = [
             (m) => m.TooltipPreviewComponent
           ),
       },
+      {
+        path: 'typography',
+        loadComponent: () =>
+          import('./preview/typography-preview.component').then(
+            (m) => m.TypographyPreviewComponent
+          ),
+      },
     ],
   },
   {

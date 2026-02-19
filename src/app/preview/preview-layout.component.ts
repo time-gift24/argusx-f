@@ -71,6 +71,7 @@ const PREVIEW_ITEMS = [
   { id: 'toggle', label: 'Toggle', reviewStatus: 'not_processed' },
   { id: 'toggle-group', label: 'Toggle Group', reviewStatus: 'reviewed' },
   { id: 'tooltip', label: 'Tooltip', reviewStatus: 'not_processed' },
+  { id: 'typography', label: 'Typography', reviewStatus: 'not_processed' },
 ] as const;
 
 type PreviewItemId = (typeof PREVIEW_ITEMS)[number]['id'];
