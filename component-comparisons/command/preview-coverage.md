@@ -1,65 +1,35 @@
 # command Preview Coverage
 
 ## Required Scenarios
-
-### 1. Conflict APIs with shadcn-aligned behavior
-- [x] argusx-command 根组件
-- [x] argusx-command-input 输入框
-- [x] argusx-command-list 列表容器
-- [x] argusx-command-empty 空状态
-- [x] argusx-command-group 分组
-- [x] argusx-command-item 选项
-- [x] argusx-command-separator 分割线
-- [x] argusx-command-shortcut 快捷键
-
-### 2. Non-conflict Extension APIs in plain style
-- [x] filterFn 自定义过滤函数支持
-- [x] value model 双向绑定
-- [x] disabled input 禁用状态
-- [x] CommandRootToken 组件间通信
-
-### 3. Key State Combinations
-- [x] 正常状态 - 显示选项列表
-- [x] 搜索状态 - 过滤显示
-- [x] 空状态 - 无匹配结果
-- [x] 禁用状态 - disabled item
-- [x] 选中状态 - 选中项目高亮
-
-### 4. shadcn Preview Parity Examples
-- [x] 基本使用 - Command + Input + List + Item
-- [x] 分组 - CommandGroup + heading
-- [x] 分割线 - CommandSeparator
-- [x] 快捷键 - CommandShortcut
-
-### 5. Complex Combined Scenario
-- [x] 完整示例：包含多个分组、分割线、快捷键、禁用项
+- [x] all conflict APIs with shadcn-aligned behavior
+  - `argusx-command-dialog` + `argusx-command` 组件层路径已覆盖。
+- [x] all non-conflict extension APIs in plain style
+  - `keywords`、`autoHighlight`、`loop` 的实现路径已落地（preview 主要展示主路径 + disabled/shortcut/group 组合）。
+- [x] all key state combinations
+  - searchable、highlighted、disabled、dialog open/close、group separator、shortcut indicator。
+- [x] shadcn preview parity examples
+  - Inline / Basic / With Shortcuts / With Groups / Many Groups & Items 全覆盖。
+- [x] one complex combined scenario
+  - Many Groups & Items 同时覆盖多组、快捷键、禁用态、长列表滚动。
 
 ## Local Preview Routes
 - main: `/preview?component=command`
-- reference: `https://ui.shadcn.com/preview/radix/command-example`
-
-## Current Preview Coverage
-
-预览组件 `src/app/preview/command-preview.component.ts` 已覆盖：
-1. argusx-command 根组件使用
-2. argusx-command-input 搜索输入
-3. argusx-command-list 列表容器
-4. argusx-command-empty 空状态显示
-5. argusx-command-group 分组 (2个)
-6. argusx-command-item 选项 (6个)
-7. argusx-command-separator 分割线
-8. argusx-command-shortcut 快捷键 (4个)
-9. 禁用项 - `[disabled]="true"`
-10. 双向绑定 - `[(value)]="selectedCommand"`
+- route source: `src/app/app.routes.ts` (`path: 'command'`)
+- sidebar entry: `src/app/preview/preview-layout.component.ts` (`id: 'command'`)
+- reference:
+  - `https://ui.shadcn.com/preview/radix/command-example`
+  - `https://ui.shadcn.com/preview/radix/command-example?item=kbd-example&style=mira&theme=cyan&font=nunito-sans&menuAccent=bold&radius=medium&template=vite`
 
 ## Verification Notes
-
-### Build Status
-- [x] Build passed
-
-### Test Status
-- [x] No spec file found - no tests to run
-
-### Manual Check
-- [ ] 打开 `/preview?component=command`
-- [ ] 确认所有 API 场景可见
+- build:
+  - `npx ng build` ✅ (2026-02-19)  
+    note: 保留仓库既有 CommonJS/size budget warnings（markdown/mermaid/prism 相关），与 command 改造无直接回归关联。
+- tests:
+  - `npx vitest run src/app/shared/ui/command/command.component.spec.ts` ✅ (9/9)
+  - `npx vitest run src/app/shared/ui/menu-core/focus.spec.ts` ✅ (7/7)
+  - `npx vitest run src/app/shared/ui/menu-core/focus.spec.ts src/app/shared/ui/command/command.component.spec.ts` ✅ (16/16)
+- manual check:
+  - `/preview?component=command` ✅ (2026-02-19)
+  - 确认 5 个标题场景均渲染：Inline / Basic / With Shortcuts / With Groups / Many Groups & Items
+  - 验证 Basic dialog：输入无匹配词显示 `No results found.`，键盘 `ArrowDown + Enter` 可完成选择并回填 “Last selected action”
+  - 验证 Many Groups & Items：禁用项 `Paste` 在过滤后保留 disabled 状态，`Enter` 不会误触发选择
