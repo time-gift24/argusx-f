@@ -10,7 +10,7 @@ import { cn } from '../../utils/cn';
 
 // Shadcn alert baseline with ArgusX plain extensions.
 const alertVariants = cva(
-  'relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>lucide-icon]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 has-[>lucide-icon]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>lucide-icon]:size-4 [&>lucide-icon>svg]:size-full [&>svg]:translate-y-0.5 [&>lucide-icon]:translate-y-0.5 [&>svg]:text-current [&>lucide-icon]:text-current [&>lucide-icon>svg]:text-current',
+  'relative w-full rounded-lg border px-4 py-3 text-xs/relaxed grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>lucide-icon]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 has-[>lucide-icon]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>lucide-icon]:size-4 [&>lucide-icon>svg]:size-full [&>svg]:translate-y-0.5 [&>lucide-icon]:translate-y-0.5 [&>svg]:text-current [&>lucide-icon]:text-current [&>lucide-icon>svg]:text-current',
   {
     variants: {
       variant: {

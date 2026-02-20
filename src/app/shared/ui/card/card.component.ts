@@ -56,7 +56,7 @@ export class ArgusxCardActionDirective {}
   template: `
     @if (hasTitle()) {
       <div [class]="headerClasses()" data-slot="card-header">
-        <div class="leading-none font-semibold" [id]="titleId()" data-slot="card-title">
+        <div class="text-sm leading-none font-semibold" [id]="titleId()" data-slot="card-title">
           @if (titleTemplate(); as template) {
             <ng-container *ngTemplateOutlet="template"></ng-container>
           } @else {
@@ -65,7 +65,7 @@ export class ArgusxCardActionDirective {}
         </div>
 
         @if (hasDescription()) {
-          <div class="text-muted-foreground text-sm" [id]="descriptionId()" data-slot="card-description">
+          <div class="text-muted-foreground text-xs/relaxed" [id]="descriptionId()" data-slot="card-description">
             @if (descriptionTemplate(); as template) {
               <ng-container *ngTemplateOutlet="template"></ng-container>
             } @else {

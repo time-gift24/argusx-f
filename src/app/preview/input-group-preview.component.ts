@@ -8,7 +8,7 @@ import {
   InputGroupTextareaComponent,
 } from '@app/shared/ui/input-group';
 import { ArgusxKbdDirective, ArgusxKbdGroupDirective } from '@app/shared/ui/kbd';
-import { SpinnerComponent } from '@app/shared/ui/spinner';
+import { ArgusxSpinnerComponent } from '@app/shared/ui/spinner';
 
 @Component({
   selector: 'app-input-group-preview',
@@ -22,7 +22,7 @@ import { SpinnerComponent } from '@app/shared/ui/spinner';
     InputGroupTextareaComponent,
     ArgusxKbdDirective,
     ArgusxKbdGroupDirective,
-    SpinnerComponent,
+    ArgusxSpinnerComponent,
   ],
   template: `
     <div class="mx-auto max-w-3xl p-8 space-y-8">
@@ -186,7 +186,7 @@ import { SpinnerComponent } from '@app/shared/ui/spinner';
             <argusx-input-group [loading]="true">
               <argusx-input-group-input id="input-group-29" [(value)]="loadingKbdValue" />
               <argusx-input-group-addon align="inline-end">
-                <app-spinner class="size-3.5" />
+                <argusx-spinner class="size-3.5" />
               </argusx-input-group-addon>
             </argusx-input-group>
             <p class="text-xs text-muted-foreground">Loading ("data-disabled=&quot;true&quot;")</p>
@@ -240,7 +240,7 @@ import { SpinnerComponent } from '@app/shared/ui/spinner';
           <argusx-input-group [loading]="true">
             <argusx-input-group-input [(value)]="loadingValue" placeholder="Loading state..." />
             <argusx-input-group-addon align="inline-end">
-              <app-spinner class="size-3.5" />
+              <argusx-spinner class="size-3.5" />
             </argusx-input-group-addon>
           </argusx-input-group>
         </div>

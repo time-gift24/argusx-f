@@ -7,9 +7,9 @@ export type ArgusxCardSize = 'default' | 'sm' | 'lg';
 export const cardVariants = cva('bg-card text-card-foreground flex flex-col border shadow-sm', {
   variants: {
     size: {
-      default: 'gap-6 rounded-xl py-6',
-      sm: 'gap-4 rounded-lg py-4',
-      lg: 'gap-8 rounded-2xl py-8',
+      default: 'gap-4 rounded-lg py-4',
+      sm: 'gap-3 rounded-lg py-3',
+      lg: 'gap-6 rounded-xl py-6',
     },
   },
   defaultVariants: {
@@ -25,9 +25,9 @@ export const cardHeaderVariants = cva(
   {
     variants: {
       size: {
-        default: 'gap-2 px-6',
-        sm: 'gap-1.5 px-4',
-        lg: 'gap-3 px-8',
+        default: 'gap-1 px-4',
+        sm: 'gap-1 px-3',
+        lg: 'gap-2 px-6',
       },
     },
     defaultVariants: {
@@ -39,9 +39,9 @@ export const cardHeaderVariants = cva(
 export const cardBodyVariants = cva('', {
   variants: {
     size: {
-      default: 'px-6',
-      sm: 'px-4',
-      lg: 'px-8',
+      default: 'px-4',
+      sm: 'px-3',
+      lg: 'px-6',
     },
   },
   defaultVariants: {
@@ -52,9 +52,9 @@ export const cardBodyVariants = cva('', {
 export const cardFooterVariants = cva('flex flex-col items-center', {
   variants: {
     size: {
-      default: 'gap-2 px-6',
-      sm: 'gap-2 px-4',
-      lg: 'gap-3 px-8',
+      default: 'gap-2 px-4',
+      sm: 'gap-2 px-3',
+      lg: 'gap-2 px-6',
     },
   },
   defaultVariants: {

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ArgusxButtonDirective } from '@app/shared/ui/button';
 import { InputGroupAddonComponent, InputGroupComponent, InputGroupInputComponent } from '@app/shared/ui/input-group';
 import { ArgusxKbdDirective, ArgusxKbdGroupDirective } from '@app/shared/ui/kbd';
-import { TooltipComponents } from '@app/shared/ui/tooltip';
+import { ArgusxTooltipDirective, ArgusxTooltipContentComponent } from '@app/shared/ui/tooltip';
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -19,7 +19,8 @@ import {
     ArgusxButtonDirective,
     ArgusxKbdDirective,
     ArgusxKbdGroupDirective,
-    TooltipComponents,
+    ArgusxTooltipDirective,
+    ArgusxTooltipContentComponent,
     InputGroupComponent,
     InputGroupAddonComponent,
     InputGroupInputComponent,
@@ -138,18 +139,20 @@ import {
         <div
           class="bg-background text-foreground flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed p-4 sm:p-6 *:[div:not([class*='w-'])]:w-full"
         >
-          <app-tooltip-provider>
-            <app-tooltip>
-              <button argusx-button size="icon-sm" variant="outline" appTooltipTrigger>
-                <lucide-icon [img]="saveIcon"></lucide-icon>
-              </button>
-              <app-tooltip-content class="pr-1.5">
-                <div class="flex items-center gap-2">
-                  Save Changes <kbd argusx-kbd>S</kbd>
-                </div>
-              </app-tooltip-content>
-            </app-tooltip>
-          </app-tooltip-provider>
+          <button
+            argusx-button
+            size="icon-sm"
+            variant="outline"
+            [argusxTooltip]="saveTooltip"
+            argusxTooltipPosition="top"
+          >
+            <lucide-icon [img]="saveIcon"></lucide-icon>
+          </button>
+          <ng-template #saveTooltip>
+            <div class="flex items-center gap-2">
+              Save Changes <kbd argusx-kbd>S</kbd>
+            </div>
+          </ng-template>
         </div>
       </div>
 

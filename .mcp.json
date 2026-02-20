@@ -7,6 +7,13 @@
         "@jason.today/webmcp@latest",
         "--mcp"
       ]
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
     }
   }
 }
