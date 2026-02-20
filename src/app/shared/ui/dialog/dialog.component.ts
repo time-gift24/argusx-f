@@ -12,7 +12,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { cn } from '@app/shared/utils';
+import { cn } from '../../utils';
 
 export type DialogSize = 'sm' | 'default' | 'lg' | 'xl' | 'full';
 

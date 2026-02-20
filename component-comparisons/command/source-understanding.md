@@ -4,120 +4,47 @@
 - local: `command`
 - zardui: `command`
 - shadcn: `command`
-- rationale: 组件名称一致
+- rationale: 三方都是同一类命令面板组件，名称不需要映射；本次以 shadcn 组件层 API 为主约束，zardui 行为作为内部实现参考。
 
-## ZardUI Evidence
-
+## shadcn Baseline Evidence
 | id | file | lines | note |
 | --- | --- | --- | --- |
-| Z1 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command.component.ts` | 1-282 | 主组件，提供搜索、过滤、键盘导航 |
-| Z2 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command-input.component.ts` | 1-143 | 搜索输入框组件 |
-| Z3 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command-option.component.ts` | 1-141 | 选项组件，支持选中状态、键盘导航 |
-| Z4 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command-list.component.ts` | 1-23 | 列表容器组件 |
-| Z5 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command-empty.component.ts` | 1-38 | 空状态组件 |
-| Z6 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command-option-group.component.ts` | 1-81 | 选项分组组件 |
-| Z7 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command-divider.component.ts` | 1-43 | 分割线组件 |
-| Z8 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command.variants.ts` | 1-76 | 样式变体定义 |
+| S1 | `/tmp/shadcn-ui-argusx-input-group/apps/v4/registry/bases/radix/ui/command.tsx` | 20-34 | `Command` root 以 `data-slot="command"` 暴露主容器。 |
+| S2 | `/tmp/shadcn-ui-argusx-input-group/apps/v4/registry/bases/radix/ui/command.tsx` | 36-66 | `CommandDialog` 提供 `title/description/showCloseButton` 并复用 dialog。 |
+| S3 | `/tmp/shadcn-ui-argusx-input-group/apps/v4/registry/bases/radix/ui/command.tsx` | 68-96 | `CommandInput` 使用 `command-input-wrapper` 与输入槽位。 |
+| S4 | `/tmp/shadcn-ui-argusx-input-group/apps/v4/registry/bases/radix/ui/command.tsx` | 98-151 | `CommandList/Empty/Group/Separator` 均为独立 slot。 |
+| S5 | `/tmp/shadcn-ui-argusx-input-group/apps/v4/registry/bases/radix/ui/command.tsx` | 153-203 | `CommandItem/Shortcut` 数据槽位、禁用态与 indicator 结构。 |
+| S6 | `/tmp/shadcn-ui-argusx-input-group/apps/v4/registry/bases/radix/examples/command-example.tsx` | 24-34 | 示例页面固定 5 组场景（Inline/Basic/With Shortcuts/With Groups/Many Groups & Items）。 |
+| S7 | `/tmp/shadcn-ui-argusx-input-group/apps/v4/registry/bases/radix/examples/command-example.tsx` | 36-119 | Inline 场景：分组、图标、快捷键、分隔符组合。 |
+| S8 | `/tmp/shadcn-ui-argusx-input-group/apps/v4/registry/bases/radix/examples/command-example.tsx` | 121-150, 152-211, 213-305, 307-360 | 四个 dialog 场景由按钮打开并复用同一 command 结构。 |
 
-### ZardUI API 清单
-
-**ZardCommandComponent (z-command)**
-- inputs: `size`, `class`
-- outputs: `zCommandChange`, `zCommandSelected`
-- 内部信号: `searchTerm`, `selectedIndex`, `filteredOptions`
-- 方法: `onSearch`, `selectOption`, `onKeyDown`, `refreshOptions`, `focus`
-
-**ZardCommandInputComponent (z-command-input)**
-- inputs: `placeholder`, `class`
-- outputs: `valueChange`
-- 内部信号: `searchTerm`, `disabled`
-- 方法: `onInput`, `focus`
-
-**ZardCommandOptionComponent (z-command-option)**
-- inputs: `zValue`, `zLabel`, `zCommand`, `zIcon`, `zShortcut`, `zDisabled`, `variant`, `class`, `parentCommand`, `commandGroup`
-- 内部信号: `isSelected`
-- 方法: `onClick`, `setSelected`, `focus`
-
-**ZardCommandListComponent (z-command-list)**
-- inputs: `class`
-
-**ZardCommandEmptyComponent (z-command-empty)**
-- inputs: `class`
-
-**ZardCommandOptionGroupComponent (z-command-option-group)**
-- inputs: `zLabel`, `class`
-
-**ZardCommandDividerComponent (z-command-divider)**
-- inputs: `class`
+## ZardUI Evidence
+| id | file | lines | note |
+| --- | --- | --- | --- |
+| Z1 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command.component.ts` | 83-151 | root 维护 `searchTerm/filteredOptions`，并根据搜索词计算可见项。 |
+| Z2 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command.component.ts` | 194-233 | root 键盘处理 `ArrowUp/ArrowDown/Enter/Escape` 与选择索引。 |
+| Z3 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command-input.component.ts` | 84-115 | input 将输入同步到 root，并转发导航键。 |
+| Z4 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command-option.component.ts` | 87-123 | option 依据 root 搜索状态动态显隐，点击触发选择。 |
+| Z5 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command-option-group.component.ts` | 58-72 | group 依据子 option 可见性自动隐藏。 |
+| Z6 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/command-divider.component.ts` | 27-42 | divider 对搜索态有条件显示逻辑。 |
+| Z7 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/index.ts` | 1-9 | command 家族通过 index barrel 暴露。 |
 
 ## Usage Evidence (Doc + Demo)
-
-| id | file | scenario |
-| --- | --- | --- |
-| U1 | `/tmp/zardui/apps/web/public/components/command/demo/default.md` | 默认使用示例 |
-| U2 | `/tmp/zardui/apps/web/public/components/command/doc/api.md` | API 文档 |
-| U3 | `/tmp/zardui/libs/zard/src/lib/shared/components/command/demo/default.ts` | Demo 代码 |
+| id | file | lines | scenario |
+| --- | --- | --- | --- |
+| U1 | `/tmp/zardui/apps/web/public/components/command/doc/api.md` | 7-17 | root 输入/事件 (`size/class` + `zCommandChange/zCommandSelected`)。 |
+| U2 | `/tmp/zardui/apps/web/public/components/command/doc/api.md` | 21-35 | input 占位符与 `valueChange` 事件。 |
+| U3 | `/tmp/zardui/apps/web/public/components/command/doc/api.md` | 58-72 | option 参数：`zValue/zLabel/zShortcut/zDisabled/variant`。 |
+| U4 | `/tmp/zardui/apps/web/public/components/command/demo/default.md` | 13-37 | demo 展示多 group + divider + shortcut 组合。 |
+| U5 | `/tmp/zardui/apps/web/public/components/command/demo/default.md` | 46-76 | demo 中选择回调驱动业务动作反馈。 |
 
 ## Local Baseline Evidence
-
 | id | file | lines | current behavior |
 | --- | --- | --- | --- |
-| L1 | `src/app/shared/ui/command/command.component.ts` | 1-510 | 主组件和所有子组件 |
-| L2 | `src/app/shared/ui/command/index.ts` | 1-15 | 导出 |
-
-### 本地现有 API
-
-**CommandComponent (app-command)**
-- selector: `app-command`
-- inputs: `class`, `value` (model), `disabled`, `filterFn`
-- outputs: `valueChange`
-- 内部信号: `searchTerm`, `itemVisibilityMap`
-- 方法: `selectValue`, `isSelected`, `registerItem`, `unregisterItem`
-- Token: `CommandRootToken` (抽象类)
-
-**CommandInputComponent (app-command-input)**
-- selector: `app-command-input`
-- inputs: `placeholder`, `class`
-
-**CommandListComponent (app-command-list)**
-- selector: `app-command-list`
-- inputs: `class`
-
-**CommandEmptyComponent (app-command-empty)**
-- selector: `app-command-empty`
-- inputs: `class`
-
-**CommandGroupComponent (app-command-group)**
-- selector: `app-command-group`
-- inputs: `heading`, `class`
-- Token: `CommandGroupToken` (抽象类)
-
-**CommandSeparatorComponent (app-command-separator)**
-- selector: `app-command-separator`
-- inputs: `class`
-
-**CommandItemComponent (app-command-item)**
-- selector: `app-command-item`
-- inputs: `value`, `shortcut`, `disabled`, `class`
-
-**CommandShortcutComponent (app-command-shortcut)**
-- selector: `app-command-shortcut`
-- inputs: `class`
-
-## Shadcn Baseline Evidence
-
-| id | file | API |
-| --- | --- | --- |
-| S1 | registry:ui/command | Command, CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandSeparator, CommandShortcut |
-
-### shadcn API 关键特征
-
-- 使用 `data-slot` 属性标识组件类型
-- Command 是主容器，样式: `bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md`
-- CommandInput 有 `data-slot="command-input-wrapper"` 外包装
-- CommandList 有 `data-slot="command-list"`, max-h-[300px]
-- CommandItem 有 `data-slot="command-item"`, 选中状态使用 `data-[selected=true]`
-- CommandGroup 有 `data-slot="command-group"`
-- CommandEmpty 有 `data-slot="command-empty"`
-- CommandSeparator 有 `data-slot="command-separator"`
-- CommandShortcut 有 `data-slot="command-shortcut"`
+| L1 | `src/app/shared/ui/command/command.component.ts` | 93-170 | 新 root 使用 `value` 作为搜索词、默认 plain、维护高亮与可见项注册。 |
+| L2 | `src/app/shared/ui/command/command.component.ts` | 181-287 | 新 root 键盘行为对齐 `Arrow/Home/End/Enter/Escape`，并通过 menu-core helper 聚焦。 |
+| L3 | `src/app/shared/ui/command/command.component.ts` | 296-341 | 新增 `argusx-command-dialog`，内部复用 dialog primitives。 |
+| L4 | `src/app/shared/ui/command/command.component.ts` | 441-555 | group/empty/separator 数据槽位与显隐规则已经落地。 |
+| L5 | `src/app/shared/ui/command/command.component.ts` | 561-750 | item 输出 `select(value)`，并提供 data-slot/data-selected/data-disabled/data-checked。 |
+| L6 | `src/app/preview/command-preview.component.ts` | 63-219 | preview 覆盖 5 组 shadcn 示例场景并接入新 argusx API。 |
+| L7 | `src/app/shared/ui/menu-core/focus.ts` | 1-103 | menu-core 扩展了通用/command focus helper，command roving 复用该底层能力。 |

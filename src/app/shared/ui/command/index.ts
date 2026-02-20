@@ -1,5 +1,6 @@
 export {
   ArgusxCommandComponent,
+  ArgusxCommandDialogComponent,
   ArgusxCommandInputComponent,
   ArgusxCommandListComponent,
   ArgusxCommandEmptyComponent,
@@ -8,7 +9,7 @@ export {
   ArgusxCommandShortcutComponent,
   ArgusxCommandSeparatorComponent,
   ArgusxCommandComponents,
-  CommandRootToken,
+  ArgusxCommandRootToken,
 } from './command.component';
 
-export type { CommandItemData } from './command.component';
+export type { ArgusxCommandItemData } from './command.component';

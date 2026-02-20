@@ -1,100 +1,47 @@
 # command Rewrite Plan
 
 ## Conflict Resolution (Must Adopt shadcn)
-- [x] lock shadcn naming/default/behavior for conflict APIs
-- [x] remove conflicting local/zardui primary entries
-  - Selector 从 `app-*` 改为 `argusx-*`
-  - 已添加 data-slot 属性对齐 shadcn
+- [x] selector / symbol 统一迁移到 `argusx-*` 与 `Argusx*`。
+- [x] root `value` 改为“搜索词”语义。
+- [x] 选择由 item `(select)` 主导，移除旧 root-selected 主入口。
+- [x] 新增 `argusx-command-dialog` 对齐 `CommandDialog`。
+- [x] preview 覆盖 `command-example` 五场景。
 
 ## Non-conflict Extensions (ArgusX Plain)
-- [x] define extension API and naming
-  - 保留 `filterFn` 自定义过滤函数
-  - 保留 `value` model 双向绑定
-  - 保留 `disabled` input
-  - 保留 CommandRootToken, CommandGroupToken 机制
-- [x] ensure extension does not break shadcn main path
-  - 扩展 API 不影响 shadcn 主路径
-- [x] set plain default style behavior
-  - 使用 plain 风格默认样式
+- [x] 引入 `keywords` 输入扩展搜索命中。
+- [x] 引入 `autoHighlight` / `loop` 键盘体验扩展。
+- [x] 复用 menu-core variants（item/label/separator/shortcut）并保持 plain 默认。
 
 ## Breaking Rewrite Policy (No Compatibility Layer)
-- [x] remove legacy API entrances and deprecated aliases
-- [x] keep single canonical API path only
+- [x] 删除旧 `app-command*` 兼容入口。
+- [x] 删除旧 `Command*` 导出名，保留 `ArgusxCommand*`。
+- [x] 不保留 deprecated alias 与双轨行为。
 
 ## Naming Migration (z -> argusx)
-- [x] selector migration
-  - `app-command` -> `argusx-command`
-  - `app-command-input` -> `argusx-command-input`
-  - 等等
-- [x] input/output/type symbol migration
-  - 类名从 `CommandComponent` 改为 `ArgusxCommandComponent`
-  - 导出从 `CommandComponents` 改为 `ArgusxCommandComponents`
-- [x] index export migration
+- [x] selector: `z-command*` / `app-command*` -> `argusx-command*`
+- [x] symbol: `Command*` -> `ArgusxCommand*`
+- [x] barrel: `src/app/shared/ui/command/index.ts` 仅导出新命名族
 
 ## shadcn API Alignment
-- [x] API surface alignment
-  - 所有组件 selector 和 data-slot 属性已对齐
-- [x] behavior alignment
-  - 样式对齐 shadcn
-- [x] accessibility alignment
-  - role="group", role="option", role="separator"
-  - aria-selected, aria-disabled 属性
+- [x] root/dialog/input/list/empty/group/item/shortcut/separator 组件面 API 对齐。
+- [x] data-slot contract 对齐。
+- [x] 键盘行为对齐（Arrow/Home/End/Enter/Escape）。
 
 ## Plain Style Alignment
-- [x] default variant/style is plain
-- [x] avoid heavy decoration in default state
-- [x] verify token usage and no hardcoded brand colors in component internals
-  - 使用 CSS 变量如 bg-popover, text-popover-foreground 等
+- [x] root 默认 `data-variant="plain"`。
+- [x] 复用 token 与 menu-core primitive，避免高装饰。
+- [x] preview 至少包含 plain baseline（Inline）+ 复杂组合（Many Groups & Items）。
+
+## menu-core 底层复用
+- [x] 扩展 `src/app/shared/ui/menu-core/focus.ts` 通用/command focus helper。
+- [x] `ArgusxCommandComponent` 的 roving 聚焦调用 menu-core helper。
+- [x] 保持 command 语义为 listbox/option，不直接复用 `argusxMenu*` 指令。
 
 ## File-level Plan
-1. `src/app/shared/ui/command/command.component.ts` - 已完成
-2. `src/app/shared/ui/command/index.ts`3. `src/app/preview/ - 已完成
-command-preview.component.ts` - 已完成
-
-## 主要改动
-
-### 1. Selector 迁移
-| 旧 (app-*) | 新 (argusx-*) |
-|------------|---------------|
-| app-command | argusx-command |
-| app-command-input | argusx-command-input |
-| app-command-list | argusx-command-list |
-| app-command-empty | argusx-command-empty |
-| app-command-group | argusx-command-group |
-| app-command-item | argusx-command-item |
-| app-command-separator | argusx-command-separator |
-| app-command-shortcut | argusx-command-shortcut |
-
-### 2. Class 名称迁移
-| 旧 | 新 |
-|---- CommandComponent | ArgusxCommandComponent|-----|
-| |
-| CommandInputComponent | ArgusxCommandInputComponent |
-| CommandListComponent | ArgusxCommandListComponent |
-| CommandEmptyComponent | ArgusxCommandEmptyComponent |
-| CommandGroupComponent | ArgusxCommandGroupComponent |
-| CommandItemComponent | ArgusxCommandItemComponent |
-| CommandSeparatorComponent | ArgusxCommandSeparatorComponent |
-| CommandShortcutComponent | ArgusxCommandShortcutComponent |
-| CommandComponents | ArgusxCommandComponents |
-
-### 3. data-slot 属性对齐
-- Command: `data-slot="command"`
-- CommandInput: 添加外包装 `data-slot="command-input-wrapper"` 和内部 `data-slot="command-input"`
-- CommandList: `data-slot="command-list"`
-- CommandEmpty: `data-slot="command-empty"`
-- CommandGroup: `data-slot="command-group"`
-- CommandItem: `data-slot="command-item"`
-- CommandSeparator: `data-slot="command-separator"`
-- CommandShortcut: `data-slot="command-shortcut"`
-
-### 4. 样式对齐 shadcn
-- Command 容器: `bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md`
-- CommandList: `max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto`
-- CommandItem: `data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground`
-
-### 5. ArgusX 扩展保留
-- `filterFn` input - 自定义过滤函数
-- `value` model - 双向绑定
-- `disabled` input - 禁用状态
-- CommandRootToken, CommandGroupToken - 组件间通信
+1. `src/app/shared/ui/menu-core/focus.ts`
+2. `src/app/shared/ui/menu-core/focus.spec.ts`
+3. `src/app/shared/ui/command/command.component.ts`
+4. `src/app/shared/ui/command/index.ts`
+5. `src/app/shared/ui/command/command.component.spec.ts`
+6. `src/app/preview/command-preview.component.ts`
+7. `component-comparisons/command/{source-understanding,api-diff,rewrite-plan,preview-coverage}.md`
