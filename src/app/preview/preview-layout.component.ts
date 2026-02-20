@@ -44,7 +44,7 @@ const PREVIEW_ITEMS = [
   { id: 'empty', label: 'Empty', reviewStatus: 'not_processed' },
   { id: 'field', label: 'Field', reviewStatus: 'not_processed' },
   { id: 'hover-card', label: 'Hover Card', reviewStatus: 'not_processed' },
-  { id: 'input-group', label: 'Input Group', reviewStatus: 'not_processed' },
+  { id: 'input-group', label: 'Input Group', reviewStatus: 'reviewed' },
   { id: 'input-otp', label: 'Input OTP', reviewStatus: 'not_processed' },
   { id: 'kbd', label: 'Kbd', reviewStatus: 'reviewed' },
   { id: 'label', label: 'Label', reviewStatus: 'not_processed' },

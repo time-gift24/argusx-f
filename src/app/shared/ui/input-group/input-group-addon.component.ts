@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, input, ElementRef, inject, afterNextRender } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  computed,
+  inject,
+  signal,
+  ElementRef,
+} from '@angular/core';
 import { cn } from '../../utils/cn';
 import { cva, type VariantProps } from 'class-variance-authority';
 
@@ -41,9 +50,6 @@ type InputGroupAddonAlign = NonNullable<VariantProps<typeof inputGroupAddonVaria
   template: `
     <div
       [class]="computedClass()"
-      [attr.data-slot]="'input-group-addon'"
-      [attr.data-align]="align()"
-      [attr.role]="'group'"
       (click)="onAddonClick($event)"
     >
       <ng-content />
@@ -51,17 +57,47 @@ type InputGroupAddonAlign = NonNullable<VariantProps<typeof inputGroupAddonVaria
   `,
   host: {
     '[class.block]': 'true',
+    '[class.w-full]': 'isBlockAlign()',
+    '[attr.data-slot]': '"input-group-addon"',
+    '[attr.data-align]': 'align()',
+    '[attr.role]': '"group"',
   },
 })
-export class InputGroupAddonComponent {
-  readonly align = input<InputGroupAddonAlign>('inline-start');
-  readonly class = input<string>('');
+export class InputGroupAddonComponent implements AfterViewInit {
+  private readonly explicitAlignValue = signal<InputGroupAddonAlign | null>(null);
+  private readonly autoAlignValue = signal<InputGroupAddonAlign>('inline-start');
+  private readonly classValue = signal('');
 
-  private readonly elementRef = inject(ElementRef);
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
+  protected readonly align = computed(() => this.explicitAlignValue() ?? this.autoAlignValue());
+  protected readonly class = this.classValue.asReadonly();
+
+  @Input({ alias: 'align' })
+  set alignInput(value: InputGroupAddonAlign | null | undefined) {
+    this.explicitAlignValue.set(value ?? null);
+    if (value == null) {
+      this.autoAlignValue.set(this.resolveAutoAlign());
+    }
+  }
+
+  @Input('class')
+  set hostClass(value: string | null | undefined) {
+    this.classValue.set(value ?? '');
+  }
+
+  protected readonly isBlockAlign = computed(() =>
+    this.align() === 'block-start' || this.align() === 'block-end'
+  );
 
   protected readonly computedClass = computed(() =>
     cn(inputGroupAddonVariants({ align: this.align() }), this.class())
   );
+
+  ngAfterViewInit(): void {
+    if (this.explicitAlignValue() == null) {
+      this.autoAlignValue.set(this.resolveAutoAlign());
+    }
+  }
 
   protected onAddonClick(event: MouseEvent): void {
     // If clicking on a button, don't focus the input
@@ -69,11 +105,31 @@ export class InputGroupAddonComponent {
     if (target.closest('button')) {
       return;
     }
-    // Focus the first input in the parent input-group
+    // shadcn baseline: focus the first input control in parent group.
     const parentGroup = this.elementRef.nativeElement.closest('[data-slot="input-group"]');
     if (parentGroup) {
-      const input = parentGroup.querySelector('input') as HTMLInputElement | null;
-      input?.focus();
+      const control = parentGroup.querySelector('input') as HTMLInputElement | null;
+      control?.focus();
     }
+  }
+
+  private resolveAutoAlign(): InputGroupAddonAlign {
+    const host = this.elementRef.nativeElement;
+    const parentGroup = host.closest('[data-slot="input-group"]');
+    if (!(parentGroup instanceof HTMLElement)) {
+      return 'inline-start';
+    }
+
+    const children = Array.from(parentGroup.children).filter(
+      (node): node is HTMLElement => node instanceof HTMLElement
+    );
+    const textareaIndex = children.findIndex((node) => node.tagName === 'ARGUSX-INPUT-GROUP-TEXTAREA');
+    const addonIndex = children.indexOf(host);
+
+    if (textareaIndex === -1 || addonIndex === -1) {
+      return 'inline-start';
+    }
+
+    return addonIndex < textareaIndex ? 'block-start' : 'block-end';
   }
 }

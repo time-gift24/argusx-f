@@ -1,18 +1,20 @@
 # input-group Preview Coverage
 
 ## Required Scenarios
-- [x] 基本 input group 用法 (URL Input)
-- [x] addon 组合用法 (Search Input)
-- [x] textarea group 用法
-- [x] button 在 addon 中的使用
-- [x] 扩展 API: disabled 状态
-- [x] 扩展 API: loading 状态 (可选)
+- [x] all conflict APIs with shadcn-aligned behavior
+- [x] inline addons: `inline-start/inline-end`
+- [x] block addons: `block-start/block-end` + textarea
+- [x] button defaults and variants (`ghost/xs`, `secondary/sm`, `icon-xs`)
+- [x] shadcn preview parity: `item=kbd-example` 主链路（`⌘K/Tab/Ctrl+C/disabled/loading`）
+- [x] all non-conflict extension APIs in plain style (`size`, `disabled`, `loading`)
+- [x] one complex combined scenario (`size=lg + loading + block-start + block-end + textarea + buttons`)
 
 ## Local Preview Routes
 - main: `/preview?component=input-group`
-- reference: `https://ui.shadcn.com/preview/radix/input-group-example`
+- nav item: `src/app/preview/preview-layout.component.ts`
+- reference: `https://ui.shadcn.com/preview/radix/input-group-example?item=kbd-example&style=mira&theme=cyan&font=nunito-sans&menuAccent=bold&radius=medium&template=vite`
 
 ## Verification Notes
-- build: `ng build` - PASSED
-- tests: 无 spec 文件，跳过
-- manual check: 打开 `/preview?component=input-group` 确认渲染正确
+- build: `npm run build` PASSED (2026-02-19, 23:45 local); existing global warnings about markdown CSS budget and CommonJS deps remain
+- tests: `npx vitest run src/app/shared/ui/input-group/input-group.component.spec.ts` PASSED (2/2); `npx ng test --watch=false --include=\"src/app/shared/ui/input-group/**/*.spec.ts\"` not supported in this workspace (`Unknown arguments: watch, include`)
+- manual check: not executed in this CLI session
